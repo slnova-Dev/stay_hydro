@@ -1,16 +1,29 @@
-# luna_hydration_reminder
+# StayHydro 💧
+### Slnova - Smart Hydration & Fasting Reminder
 
-A new Flutter project.
+A professional, feature-rich Flutter application designed to help users maintain optimal hydration levels with a specialized focus on **Fasting Mode** for spiritual and health-conscious users.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Key Features
+* **Smart Reminders:** Intelligent notifications based on user activity.
+* **Fasting Mode:** Automatically silences water reminders during fasting hours.
+* **Branding:** Powered by **Slnova** smart solutions.
+* **Dark Mode:** Full support for energy-saving and eye-friendly dark themes.
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🛠️ Technical Overview
+* **Framework:** Flutter (Material 3)
+* **Backend:** Firebase (Work in Progress)
+* **Package Name:** `com.slnova.stayhydro`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🔒 Developer Notes (اردو کمنٹس)
+---
+
+## Getting Started with Flutter
+If this is your first Flutter project, here are some helpful resources:
+- [Flutter Documentation](https://docs.flutter.dev/)
+- [Write your first app](https://docs.flutter.dev/get-started/codelab)
