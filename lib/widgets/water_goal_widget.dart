@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+// ==========================================
+// سیکشن 1: واٹر گول ویجیٹ (مین کلاس)
+// یہ ویجیٹ ہوم اسکرین پر پانی کی مقدار کو اینیمیشن کے ساتھ دکھاتا ہے
+// ==========================================
 class WaterGoalWidget extends StatefulWidget {
   final int currentIntake;
   final int goal;
@@ -15,6 +19,10 @@ class WaterGoalWidget extends StatefulWidget {
   State<WaterGoalWidget> createState() => _WaterGoalWidgetState();
 }
 
+// ==========================================
+// سیکشن 2: اسٹیٹ اور اینیمیشن کنٹرولر
+// لہروں (Waves) کی حرکت کو کنٹرول کرنے والا حصہ
+// ==========================================
 class _WaterGoalWidgetState extends State<WaterGoalWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _waveController;
@@ -36,28 +44,30 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
 
   @override
   Widget build(BuildContext context) {
+    // پروگریس کیلکولیشن (0.0 سے 1.0 کے درمیان)
     final double targetProgress = widget.goal > 0
         ? (widget.currentIntake / widget.goal).clamp(0.0, 1.0)
         : 0.0;
 
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // رنگوں کی ترتیب (تھیم کے مطابق)
     final Color backgroundColor = isDark
         ? const Color(0xFF242F3E)
         : Colors.blue.shade100;
 
     final Color waveColor = isDark
-        ? const Color(0xFF0B4485) // گہرا نیلا (آپ کا پسندیدہ انتخاب)
+        ? const Color(0xFF0B4485) // گہرا نیلا
         : Colors.blue.shade400;
 
-// 1. درمیانی رنگ جو آپ کو چبھ رہا تھا (Center Progress)
+    // درمیانی رنگ (Center Progress)
     final Color innerBarColor = isDark 
-        ? const Color(0xFF2A3A4F)  // متوازن اور پرسکون نیلا گرے
+        ? const Color(0xFF2A3A4F)  // متوازن نیلا گرے
         : Colors.blue.shade200;
 
-    // 2. بیرونی کناروں کا رنگ (Outer Edges)
+    // بیرونی کناروں کا رنگ (Outer Edges)
     final Color outerBarColor = isDark
-        ? const Color(0xFF7a7c7d)  // کوئی ہلکا سا رنگ (شارپ باؤنڈری کے لیے)
+        ? const Color(0xFF7a7c7d)  // شارپ باؤنڈری
         : Colors.blue.shade600;
 
     final Color darkShadow = Colors.blue.shade900.withOpacity(0.6);
@@ -68,7 +78,7 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
       duration: const Duration(milliseconds: 1200),
       curve: Curves.easeInOutCubic,
       builder: (context, value, _) {
-        // اینیمیشن ویلیو کے مطابق 1150ml (0.575) پر رنگ تبدیل کرنے کی لاجک
+        // ٹیکسٹ کلر تبدیل کرنے کی لاجک (جب پانی آدھے سے اوپر جائے)
         bool isHalfway = value >= 0.575;
 
         return Container(
@@ -80,7 +90,7 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: [
-                  // 1. لہروں والا دائرہ
+                  // 1. متحرک لہروں والا دائرہ (Wave Circle)
                   Container(
                     width: 145,
                     height: 145,
@@ -104,7 +114,7 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
                     ),
                   ),
 
-                  // 2. ڈبل شیڈ لوڈنگ بار
+                  // 2. ڈبل شیڈ لوڈنگ بار (Circular Progress Bar)
                   SizedBox(
                     width: 175,
                     height: 175,
@@ -119,7 +129,7 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
                     ),
                   ),
 
-                  // 3. متحرک ٹیکسٹ
+                  // 3. درمیانی ٹیکسٹ (Amount & Label)
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -129,16 +139,12 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: isHalfway
-                              ? Colors
-                                    .white // پانی کے اندر سفید ہی رہنے دیں
+                              ? Colors.white 
                               : (isDark
                                     ? const Color(0xFFC8C9CF)
-                                    : Colors
-                                          .blue
-                                          .shade900), // ڈارک موڈ میں آپ کا پسندیدہ ہلکا رنگ
+                                    : Colors.blue.shade900),
                           shadows: [
                             Shadow(
-                              // اگر پانی آدھا ہے تو گہرا نیلا سایہ، ورنہ ڈارک موڈ میں کالا سایہ
                               color: isHalfway
                                   ? darkShadow
                                   : (isDark
@@ -157,16 +163,12 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: isHalfway
-                              ? Colors
-                                    .white // پانی کے اندر سفید ہی رہنے دیں
+                              ? Colors.white
                               : (isDark
                                     ? const Color(0xFFC8C9CF)
-                                    : Colors
-                                          .blue
-                                          .shade900), // ڈارک موڈ میں آپ کا پسندیدہ ہلکا رنگ
+                                    : Colors.blue.shade900),
                           shadows: [
                             Shadow(
-                              // اگر پانی آدھا ہے تو گہرا نیلا سایہ، ورنہ ڈارک موڈ میں کالا سایہ
                               color: isHalfway
                                   ? darkShadow
                                   : (isDark
@@ -190,6 +192,10 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
   }
 }
 
+// ==========================================
+// سیکشن 3: ویو پینٹر (Wave Painter)
+// پانی کی لہروں کو ریاضیاتی Sine Wave کے ذریعے ڈرا کرتا ہے
+// ==========================================
 class WavePainter extends CustomPainter {
   final double progress;
   final double waveAnimation;
@@ -229,6 +235,10 @@ class WavePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
+// ==========================================
+// سیکشن 4: ڈبل بار پینٹر (Progress Bar Painter)
+// بیرونی پروگریس لائن کو دو رنگوں (Inner & Outer) میں ڈرا کرتا ہے
+// ==========================================
 class CleanDoubleBarPainter extends CustomPainter {
   final double progress;
   final Color innerColor;

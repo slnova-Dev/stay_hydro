@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+// ==========================================
+// سیکشن 1: مسڈ انٹری ڈائیلاگ کلاس
+// یہ کلاس اس وقت کھلتی ہے جب یوزر پرانی ٹائمنگ کی انٹری کرنا چاہے
+// ==========================================
 class MissedEntryDialog extends StatefulWidget {
   const MissedEntryDialog({super.key});
 
@@ -8,10 +12,15 @@ class MissedEntryDialog extends StatefulWidget {
   State<MissedEntryDialog> createState() => _MissedEntryDialogState();
 }
 
+// ==========================================
+// سیکشن 2: اسٹیٹ مینجمنٹ اور ویری ایبلز
+// یہاں وقت اور پانی کی مقدار کا ڈیٹا محفوظ ہوتا ہے
+// ==========================================
 class _MissedEntryDialogState extends State<MissedEntryDialog> {
   TimeOfDay _selectedTime = TimeOfDay.now();
   int _selectedAmount = 200;
 
+  // پانی کی مقدار کے بٹنوں کا ڈیٹا (SVG پاتھ اور ویلیو)
   final List<Map<String, dynamic>> presets = [
     {'amount': 100, 'asset': 'assets/buttons/100ml_button.svg'},
     {'amount': 150, 'asset': 'assets/buttons/150ml_button.svg'},
@@ -19,6 +28,11 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
     {'amount': 250, 'asset': 'assets/buttons/250ml_button.svg'},
     {'amount': 300, 'asset': 'assets/buttons/300ml_button.svg'},
   ];
+
+  // ==========================================
+  // سیکشن 3: ٹائم پکر فنکشن (Custom Theme)
+  // یہ فنکشن گھڑی والا ڈائیلاگ کھولتا ہے اور اس کی مکمل تھیمنگ یہاں ہے
+  // ==========================================
   Future<void> _pickTime() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
@@ -37,7 +51,7 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
             ),
             child: Theme(
               data: Theme.of(context).copyWith(
-                // ✨ کرسر اور ٹیکسٹ سلیکشن کا رنگ
+                // کرسر اور ٹیکسٹ سلیکشن کا رنگ
                 textSelectionTheme: TextSelectionThemeData(
                   cursorColor: isDarkMode
                       ? Colors.blue.shade400
@@ -65,8 +79,8 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                   hourMinuteColor: WidgetStateColor.resolveWith(
                     (states) => states.contains(WidgetState.selected)
                         ? (isDarkMode
-                              ? const Color(0xFF334155)
-                              : Colors.blue.shade100)
+                            ? const Color(0xFF334155)
+                            : Colors.blue.shade100)
                         : (isDarkMode ? Colors.black26 : Colors.white),
                   ),
                   hourMinuteTextColor: WidgetStateColor.resolveWith(
@@ -113,6 +127,10 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
     }
   }
 
+  // ==========================================
+  // سیکشن 4: ڈائیلاگ کا ظاہری ڈیزائن (UI Build)
+  // یہاں کارڈز، بٹنز اور مین لے آؤٹ تیار ہوتا ہے
+  // ==========================================
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -135,6 +153,7 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // ہیڈر ٹائٹل
               Text(
                 "Add Missed Entry",
                 style: TextStyle(
@@ -147,7 +166,7 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
               ),
               const SizedBox(height: 20),
 
-              // ٹائم سلیکٹر کارڈ
+              // ٹائم سلیکٹر کارڈ (جس پر کلک کر کے وقت بدلا جاتا ہے)
               InkWell(
                 onTap: _pickTime,
                 borderRadius: BorderRadius.circular(12),
@@ -204,6 +223,7 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
               ),
               const SizedBox(height: 15),
 
+              // مقدار کے انتخاب کا ٹائٹل
               Text(
                 "Select Amount",
                 style: TextStyle(
@@ -216,6 +236,7 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
               ),
               const SizedBox(height: 15),
 
+              // ایس وی جی (SVG) بٹنوں کا مجموعہ
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
@@ -223,8 +244,9 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                 children: presets.map((p) => _buildSvgButton(p)).toList(),
               ),
 
- const SizedBox(height: 25),
+              const SizedBox(height: 25),
 
+              // ایکشن بٹنز (کینسل اور ایڈ انٹری)
               Row(
                 children: [
                   Expanded(
@@ -312,6 +334,10 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
     );
   }
 
+  // ==========================================
+  // سیکشن 5: مددگار ویجیٹ (SVG Button Builder)
+  // یہ مخصوص پانی کی مقدار والے بٹن تیار کرتا ہے
+  // ==========================================
   Widget _buildSvgButton(Map<String, dynamic> preset) {
     final bool isSelected = _selectedAmount == preset['amount'];
     return GestureDetector(
