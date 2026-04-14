@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "560736724858",
+    "project_id": "stayhydro-7c934",
+    "storage_bucket": "stayhydro-7c934.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:560736724858:android:04505442f8c160f157d8c3",
+        "android_client_info": {
+          "package_name": "com.slnova.stayhydro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQXTCzv41ofMNmF26ioZ68cA0f7nDUNUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

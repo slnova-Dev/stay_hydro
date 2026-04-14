@@ -247,6 +247,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         child: SingleChildScrollView(
+          // سکرولنگ کے مسئلے کے لیے فزکس شامل کی گئی ہے
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.only(
             top: 110,
             bottom: 20,
@@ -259,7 +261,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // ==========================================
               // [SECTION: APPEARANCE]
               // تھیم اور لک اینڈ فیل کی سیٹنگز
-              // ==========================================_buildSectionTitle("Appearance", isDark),
+              // ==========================================
+              // نیچے والی لائن کو ان-کمنٹ کیا گیا ہے تاکہ ایرر ختم ہو جائے
+              _buildSectionTitle("Appearance", isDark),
               _buildGroupContainer(
                 isDark: isDark,
                 children: [
@@ -284,7 +288,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // ==========================================
               // [SECTION: NOTIFICATIONS]
               // فاسٹنگ موڈ اور ریمائنڈر ساؤنڈ کی سیٹنگز
-              // ==========================================_buildSectionTitle("Notifications", isDark),
+              // ==========================================
+              // نیچے والی لائن کو ان-کمنٹ کیا گیا ہے
+              _buildSectionTitle("Notifications", isDark),
               _buildGroupContainer(
                 isDark: isDark,
                 children: [
@@ -322,7 +328,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // ==========================================
               // [SECTION: SYSTEM]
               // بیٹری اور آٹو سٹارٹ کی سسٹم لیول سیٹنگز
-              // ==========================================_buildSectionTitle("System", isDark),
+              // ==========================================
+              // نیچے والی لائن کو ان-کمنٹ کیا گیا ہے
+              _buildSectionTitle("System", isDark),
               _buildGroupContainer(
                 isDark: isDark,
                 children: [
@@ -350,7 +358,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // ==========================================
               // [SECTION: SCHEDULE]
               // سونے اور جاگنے کے اوقات کی سیٹنگز
-              // ==========================================_buildSectionTitle("Schedule", isDark),
+              // ==========================================
+              // نیچے والی لائن کو ان-کمنٹ کیا گیا ہے
+              _buildSectionTitle("Schedule", isDark),
               _buildGroupContainer(
                 isDark: isDark,
                 children: [

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart'; // یہ لائن شامل کریں
+import 'firebase_options.dart'; // یہ لائن شامل کریں
+// ... باقی امپورٹس (جیسے NotificationService وغیرہ) ویسے ہی رہیں گی
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'screens/main_navigation_screen.dart';
@@ -9,10 +12,20 @@ import 'services/notification_service.dart';
 // اس حصے میں ایپ کی شروعات اور ضروری سروسز لوڈ ہوتی ہیں
 // ==========================================
 void main() async {
+  // 1. یہ یقینی بناتا ہے کہ فلٹر کے تمام ویجیٹس تیار ہیں
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 2. فائربیس کو انیشیلائز کریں (یہ وہ جادوئی لائن ہے)
+  // یہ لائن ایپ کو آپ کے فائربیس پروجیکٹ سے جوڑتی ہے
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // 3. نوٹیفیکیشن سروس کو شروع کرنا
   await NotificationService.init();
-  // ایپ کا نام اب آفیشل StayHydroApp ہے
-  runApp(const StayHydroApp()); 
+
+  // 4. ایپ کا نام اب آفیشل StayHydroApp ہے
+  runApp(const StayHydroApp());
 }
 
 // ==========================================
