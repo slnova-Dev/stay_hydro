@@ -311,4 +311,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
             Text(label,
                 style: const TextStyle(color: Colors.grey, fontSize: 12)),
             const SizedBox(height: 4),
-          
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.blue.shade900,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
