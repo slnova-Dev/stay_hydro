@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/water_goal_widget.dart';
@@ -434,16 +435,24 @@ class _HomeScreenState extends State<HomeScreen>
 
   // ==========================================
   // SECTION LOCK: CORE ACTIONS
+  // مرکزی افعال: پانی کا اضافہ اور مسڈ انٹری
   // ==========================================
   Future<void> addWater() async {
     final int prev = currentIntake;
     _triggerRisingEffect();
-    await HistoryService.addToHistory(selectedIntake);
+
+    // موجودہ وقت کو "10:30 AM" کی شکل میں حاصل کرنا
+    String currentTime = DateFormat('hh:mm a').format(DateTime.now());
+
+    // اب ہم مقدار کے ساتھ وقت بھی ہسٹری میں بھیج رہے ہیں
+    await HistoryService.addToHistory(selectedIntake, currentTime);
+
     setState(() {
       currentIntake += selectedIntake;
       _justDrank = true;
       _currentMascotAsset = _selectMascotAsset();
     });
+
     Timer(const Duration(minutes: 10), () {
       if (mounted) {
         setState(() {
@@ -452,9 +461,11 @@ class _HomeScreenState extends State<HomeScreen>
         });
       }
     });
+
     await SoundService.playWaterSound();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('currentIntake', currentIntake);
+
     if (prev < dailyGoal && currentIntake >= dailyGoal) {
       await StreakService.markGoalCompleted();
       await _loadStreak();
@@ -488,13 +499,20 @@ class _HomeScreenState extends State<HomeScreen>
 
     if (result != null) {
       final int amount = result['amount'];
+      final String time = result['time'] ?? DateFormat('hh:mm a').format(DateTime.now()); // اگر وقت ملے ورنہ موجودہ وقت
       final int prev = currentIntake;
+
+      // مسڈ انٹری کو بھی ہسٹری میں وقت کے ساتھ شامل کرنا
+      await HistoryService.addToHistory(amount, time);
+
       setState(() {
         currentIntake += amount;
       });
+
       await SoundService.playWaterSound();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('currentIntake', currentIntake);
+
       if (prev < dailyGoal && currentIntake >= dailyGoal) {
         await StreakService.markGoalCompleted();
         await _loadStreak();
