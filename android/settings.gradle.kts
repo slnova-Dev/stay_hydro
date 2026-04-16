@@ -25,7 +25,7 @@ plugins {
     id("com.google.firebase.crashlytics") version "2.8.1" apply false
     // END: FlutterFire Configuration
     // کوٹلن ورژن کو اپ ڈیٹ کر دیا گیا ہے تاکہ فائر بیس ایرر ختم ہو جائے
-    id("org.jetbrains.kotlin.android") version "1.9.24" apply false
+    id("org.jetbrains.kotlin.android") version "2.1.10" apply false
 }
 
 include(":app")

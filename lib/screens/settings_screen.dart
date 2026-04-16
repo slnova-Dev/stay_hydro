@@ -246,18 +246,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 : [Colors.teal.shade300, Colors.cyan.shade100],
           ),
         ),
-        child: SingleChildScrollView(
-          // سکرولنگ کے مسئلے کے لیے فزکس شامل کی گئی ہے
+        
+       child: SingleChildScrollView(
+          // سکرول کو ہر بار اوپر (Start) سے شروع کرنے کے لیے UniqueKey ضروری ہے
+          key: UniqueKey(), 
+          // سکرولنگ کے مسئلے کے لیے فزکس (Physics)
           physics: const AlwaysScrollableScrollPhysics(),
+          // ==========================================
+          // SECTION LOCK: PADDING SETTINGS
+          // Bottom Padding کو 100 رکھا گیا ہے تاکہ آخری بٹن نیویگیشن بار کے پیچھے نہ چھپے
+          // ==========================================
           padding: const EdgeInsets.only(
-            top: 110,
-            bottom: 20,
-            left: 16,
-            right: 16,
+            top: 120, 
+            bottom: 100, // یہاں تبدیلی کی گئی ہے (20 سے بڑھا کر 100)
+            left: 20, 
+            right: 20
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               // ==========================================
               // [SECTION: APPEARANCE]
               // تھیم اور لک اینڈ فیل کی سیٹنگز
