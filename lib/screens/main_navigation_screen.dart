@@ -24,6 +24,9 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
 
+  // اردو کمنٹ: یہ نوٹیفائر ہسٹری سکرین کو بتائے گا کہ کب ڈیٹا ری فریش کرنا ہے
+  final ValueNotifier<int> _historyRefreshNotifier = ValueNotifier<int>(0);
+
   final List<Map<String, dynamic>> _navItems = [
     {'icon': Icons.water_drop_rounded, 'label': 'Home'},
     {'icon': Icons.insert_chart_rounded, 'label': 'History'},
@@ -53,7 +56,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 isFastingMode: widget.isFastingMode,
                 onFastingToggle: widget.onFastingToggle,
               ),
-              const HistoryScreen(), // ہسٹری اسکرین
+              // اردو کمنٹ: یہاں ہم نے نوٹیفائر پاس کر دیا تاکہ سکرین کلک ہونے پر ری فریش ہو سکے
+              HistoryScreen(refreshNotifier: _historyRefreshNotifier), 
               SettingsScreen(
                 isDark: widget.isDarkTheme,
                 onThemeToggle: widget.onThemeToggle,
@@ -108,6 +112,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                         onTap: () {
                           setState(() {
                             _selectedIndex = index;
+                            // اردو کمنٹ: اگر ہسٹری (انڈیکس 1) پر کلک کیا گیا ہے، تو نوٹیفائر کی ویلیو بڑھا دو تاکہ وہ ری فریش ہو جائے
+                            if (index == 1) {
+                              _historyRefreshNotifier.value++;
+                            }
                           });
                         },
                         child: AnimatedContainer(
@@ -133,8 +141,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                                 : null,
                             color: isSelected
                                 ? (isDark
-                                      ? null
-                                      : activeColor.withOpacity(0.15))
+                                    ? null
+                                    : activeColor.withOpacity(0.15))
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(25),
                             border: Border.all(
@@ -153,8 +161,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                                 color: isSelected
                                     ? activeColor
                                     : (isDark
-                                          ? Colors.white54
-                                          : Colors.grey.shade400),
+                                        ? Colors.white54
+                                        : Colors.grey.shade400),
                                 size: isSelected ? 26 : 24,
                               ),
                               if (isSelected) ...[

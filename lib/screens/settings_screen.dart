@@ -44,7 +44,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     'soft_knock': 'Soft Knock',
     'water_drop': 'Water Drop',
   };
-  // [END BLOCK: STATE VARIABLES]
 
   @override
   void initState() {
@@ -61,7 +60,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // ==========================================
   // [BLOCK: DATA LOADING LOGIC]
-  // شیئرڈ پریفرنسز سے ڈیٹا لوڈ کرنے کے فنکشنز
   // ==========================================
   Future<void> _loadSound() async {
     final prefs = await SharedPreferences.getInstance();
@@ -81,11 +79,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _sleepEndMinute = prefs.getInt(_sleepEndMinuteKey) ?? 0;
     });
   }
-  // [END BLOCK: DATA LOADING]
 
   // ==========================================
   // [BLOCK: STORAGE & ACTIONS LOGIC]
-  // ڈیٹا محفوظ کرنے اور نوٹیفیکیشن شیڈول کرنے کی لاجک
   // ==========================================
   Future<void> _saveSound(String value) async {
     final prefs = await SharedPreferences.getInstance();
@@ -112,11 +108,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       const SnackBar(content: Text('Sleep hours updated & Scheduled')),
     );
   }
-  // [END BLOCK: STORAGE & ACTIONS]
 
   // ==========================================
   // [BLOCK: UI PICKERS & DIALOGS]
-  // ٹائم پیکر اور ساؤنڈ سلیکٹر ڈائیلاگ
   // ==========================================
   Future<void> _selectSleepHour({
     required bool isStartHour,
@@ -211,7 +205,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final suffix = normalizedHour >= 12 ? 'PM' : 'AM';
     return '$displayHour:${minute.toString().padLeft(2, '0')} $suffix';
   }
-  // [END BLOCK: UI PICKERS]
 
   @override
   Widget build(BuildContext context) {
@@ -234,183 +227,178 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: isDark ? Colors.white : Colors.blue.shade900,
         ),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: isDark
-                ? [const Color(0xFF0F172A), const Color(0xFF1E293B)]
-                : [Colors.teal.shade300, Colors.cyan.shade100],
-          ),
-        ),
-        
-       child: SingleChildScrollView(
-          // سکرول کو ہر بار اوپر (Start) سے شروع کرنے کے لیے UniqueKey ضروری ہے
-          key: UniqueKey(), 
-          // سکرولنگ کے مسئلے کے لیے فزکس (Physics)
-          physics: const AlwaysScrollableScrollPhysics(),
+      body: Stack(
+        children: [
           // ==========================================
-          // SECTION LOCK: PADDING SETTINGS
-          // Bottom Padding کو 100 رکھا گیا ہے تاکہ آخری بٹن نیویگیشن بار کے پیچھے نہ چھپے
+          // [SECTION: BACKGROUND DESIGN]
+          // گریڈینٹ اور بڑا بیک گراؤنڈ آئیکن
           // ==========================================
-          padding: const EdgeInsets.only(
-            top: 120, 
-            bottom: 100, // یہاں تبدیلی کی گئی ہے (20 سے بڑھا کر 100)
-            left: 20, 
-            right: 20
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: isDark
+                    ? [const Color(0xFF0F172A), const Color(0xFF1E293B)]
+                    : [Colors.teal.shade300, Colors.cyan.shade100],
+              ),
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          
+          // ہسٹری سکرین کی طرح بڑا بیک گراؤنڈ آئیکن
+          Positioned(
+            bottom: 150, // آپ اسے اوپر نیچے کرنے کے لیے تبدیل کر سکتے ہیں
+            left: 0,
+            right: 0,
+             child: Opacity(
+                opacity: 0.1, // اسے مدھم رکھا ہے تاکہ ڈیٹا واضح نظر آئے
+            child: Icon(
+              Icons.settings_rounded,
+              size: 280,
+              color: isDark 
+                  ? Colors.white
+                  : Colors.blue.shade900,
+            ),
+          ), // یہاں Opacity کی بریکٹ بند ہوئی
+        ), // یہاں Positioned کی بریکٹ بند ہوئی
 
-              // ==========================================
-              // [SECTION: APPEARANCE]
-              // تھیم اور لک اینڈ فیل کی سیٹنگز
-              // ==========================================
-              // نیچے والی لائن کو ان-کمنٹ کیا گیا ہے تاکہ ایرر ختم ہو جائے
-              _buildSectionTitle("Appearance", isDark),
-              _buildGroupContainer(
-                isDark: isDark,
-                children: [
-                  _buildSettingTile(
-                    isDark: isDark,
-                    title: "Dark Theme",
-                    icon: Icons.dark_mode_rounded,
-                    showDivider:
-                        false, // اس گروپ میں ایک ہی بٹن ہے، اس لیے لکیر نہیں چاہیے
-                    trailing: Switch(
-                      activeColor: Colors.blue.shade400,
-                      value: _darkTheme,
-                      onChanged: (value) {
-                        setState(() => _darkTheme = value);
-                        widget.onThemeToggle(value);
-                      },
+          // اصلی کانٹینٹ
+          SingleChildScrollView(
+            key: UniqueKey(), 
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 120, bottom: 100, left: 20, right: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // [SECTION: APPEARANCE]
+                _buildSectionTitle("Appearance", isDark),
+                _buildGroupContainer(
+                  isDark: isDark,
+                  children: [
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Dark Theme",
+                      icon: Icons.dark_mode_rounded,
+                      showDivider: false,
+                      trailing: Switch(
+                        activeColor: Colors.blue.shade400,
+                        value: _darkTheme,
+                        onChanged: (value) {
+                          setState(() => _darkTheme = value);
+                          widget.onThemeToggle(value);
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-              // ==========================================
-              // [SECTION: NOTIFICATIONS]
-              // فاسٹنگ موڈ اور ریمائنڈر ساؤنڈ کی سیٹنگز
-              // ==========================================
-              // نیچے والی لائن کو ان-کمنٹ کیا گیا ہے
-              _buildSectionTitle("Notifications", isDark),
-              _buildGroupContainer(
-                isDark: isDark,
-                children: [
-                  _buildSettingTile(
-                    isDark: isDark,
-                    title: "Fasting Mode",
-                    subtitle: "Pause hydration reminders",
-                    icon: Icons.timer_off_rounded,
-                    showDivider:
-                        true, // اس کے بعد ایک اور بٹن ہے، اس لیے لکیر چاہیے
-                    trailing: Switch(
-                      activeColor: Colors.blue.shade400,
-                      value: _fasting,
-                      onChanged: (value) async {
-                        setState(() => _fasting = value);
-                        widget.onFastingToggle(value);
-                        if (value) {
-                          await NotificationService.cancelAll();
-                        } else {
-                          await NotificationService.scheduleHourlyReminder();
-                        }
-                      },
+                // [SECTION: NOTIFICATIONS]
+                _buildSectionTitle("Notifications", isDark),
+                _buildGroupContainer(
+                  isDark: isDark,
+                  children: [
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Fasting Mode",
+                      subtitle: "Pause hydration reminders",
+                      icon: Icons.timer_off_rounded,
+                      showDivider: true,
+                      trailing: Switch(
+                        activeColor: Colors.blue.shade400,
+                        value: _fasting,
+                        onChanged: (value) async {
+                          setState(() => _fasting = value);
+                          widget.onFastingToggle(value);
+                          if (value) {
+                            await NotificationService.cancelAll();
+                          } else {
+                            await NotificationService.scheduleHourlyReminder();
+                          }
+                        },
+                      ),
                     ),
-                  ),
-                  _buildSettingTile(
-                    isDark: isDark,
-                    title: "Reminder Sound",
-                    subtitle: _sounds[_selectedSound] ?? '',
-                    icon: Icons.notifications_active_rounded,
-                    showDivider: false, // آخری بٹن پر لکیر ختم
-                    onTap: _openSoundSelector,
-                  ),
-                ],
-              ),
-              // ==========================================
-              // [SECTION: SYSTEM]
-              // بیٹری اور آٹو سٹارٹ کی سسٹم لیول سیٹنگز
-              // ==========================================
-              // نیچے والی لائن کو ان-کمنٹ کیا گیا ہے
-              _buildSectionTitle("System", isDark),
-              _buildGroupContainer(
-                isDark: isDark,
-                children: [
-                  _buildSettingTile(
-                    isDark: isDark,
-                    title: "Battery Optimization",
-                    subtitle: "Essential for on-time alerts",
-                    icon: Icons.battery_saver_rounded,
-                    showDivider: true,
-                    onTap: () async =>
-                        await NotificationService.openBatteryOptimizationSettings(),
-                  ),
-                  _buildSettingTile(
-                    isDark: isDark,
-                    title: "Enable Auto Start",
-                    subtitle: "Keep reminders active after restart",
-                    icon: Icons.power_settings_new_rounded,
-                    showDivider: false,
-                    onTap: () async =>
-                        await NotificationService.openAutoStartSettings(),
-                  ),
-                ],
-              ),
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Reminder Sound",
+                      subtitle: _sounds[_selectedSound] ?? '',
+                      icon: Icons.notifications_active_rounded,
+                      showDivider: false,
+                      onTap: _openSoundSelector,
+                    ),
+                  ],
+                ),
 
-              // ==========================================
-              // [SECTION: SCHEDULE]
-              // سونے اور جاگنے کے اوقات کی سیٹنگز
-              // ==========================================
-              // نیچے والی لائن کو ان-کمنٹ کیا گیا ہے
-              _buildSectionTitle("Schedule", isDark),
-              _buildGroupContainer(
-                isDark: isDark,
-                children: [
-                  _buildSettingTile(
-                    isDark: isDark,
-                    title: "Sleep Start Hour",
-                    subtitle: _formatTime(_sleepStartHour, _sleepStartMinute),
-                    icon: Icons.bedtime_rounded,
-                    showDivider: true,
-                    onTap: () => _selectSleepHour(
-                      isStartHour: true,
-                      initialHour: _sleepStartHour,
-                      initialMinute: _sleepStartMinute,
+                // [SECTION: SYSTEM]
+                _buildSectionTitle("System", isDark),
+                _buildGroupContainer(
+                  isDark: isDark,
+                  children: [
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Battery Optimization",
+                      subtitle: "Essential for on-time alerts",
+                      icon: Icons.battery_saver_rounded,
+                      showDivider: true,
+                      onTap: () async =>
+                          await NotificationService.openBatteryOptimizationSettings(),
                     ),
-                  ),
-                  _buildSettingTile(
-                    isDark: isDark,
-                    title: "Sleep End Hour",
-                    subtitle: _formatTime(_sleepEndHour, _sleepEndMinute),
-                    icon: Icons.wb_sunny_rounded,
-                    showDivider: false,
-                    onTap: () => _selectSleepHour(
-                      isStartHour: false,
-                      initialHour: _sleepEndHour,
-                      initialMinute: _sleepEndMinute,
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Enable Auto Start",
+                      subtitle: "Keep reminders active after restart",
+                      icon: Icons.power_settings_new_rounded,
+                      showDivider: false,
+                      onTap: () async =>
+                          await NotificationService.openAutoStartSettings(),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+
+                // [SECTION: SCHEDULE]
+                _buildSectionTitle("Schedule", isDark),
+                _buildGroupContainer(
+                  isDark: isDark,
+                  children: [
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Sleep Start Hour",
+                      subtitle: _formatTime(_sleepStartHour, _sleepStartMinute),
+                      icon: Icons.bedtime_rounded,
+                      showDivider: true,
+                      onTap: () => _selectSleepHour(
+                        isStartHour: true,
+                        initialHour: _sleepStartHour,
+                        initialMinute: _sleepStartMinute,
+                      ),
+                    ),
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Sleep End Hour",
+                      subtitle: _formatTime(_sleepEndHour, _sleepEndMinute),
+                      icon: Icons.wb_sunny_rounded,
+                      showDivider: false,
+                      onTap: () => _selectSleepHour(
+                        isStartHour: false,
+                        initialHour: _sleepEndHour,
+                        initialMinute: _sleepEndMinute,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   // ==========================================
   // [BLOCK: UI HELPER WIDGETS]
-  // سیٹنگز کے ٹائٹلز، گروپ کارڈز اور بٹنز کے وزٹس
   // ==========================================
 
-  // سیکشن کا عنوان (مثلاً APPEARANCE)
   Widget _buildSectionTitle(String title, bool isDark) {
     return Padding(
       padding: const EdgeInsets.only(left: 12, bottom: 8, top: 10),
@@ -420,13 +408,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
-          color: isDark ? Colors.blue.shade300 : Colors.blue.shade700,
+          // کلرز کو مزید واضح کر دیا گیا ہے
+          color: isDark ? Colors.blue.shade300 : Colors.blue.shade900,
         ),
       ),
     );
   }
 
-  // پورے سیکشن کو ایک کارڈ میں بند کرنے والا کنٹینر
   Widget _buildGroupContainer({
     required List<Widget> children,
     required bool isDark,
@@ -434,26 +422,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: isDark ? Colors.white.withOpacity(0.05) : Colors.white,
+        // گلاس مورفزم ایفیکٹ (لائٹ اور ڈارک دونوں کے لیے ٹرانسپیرنسی)
+        color: isDark 
+            ? Colors.white.withOpacity(0.05) 
+            : Colors.white.withOpacity(0.4), // لائٹ میں 60% شفافیت
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isDark ? Colors.white10 : Colors.blue.shade50,
+          color: isDark ? Colors.white10 : Colors.white.withOpacity(0.2),
         ),
-        boxShadow: isDark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.blue.shade100.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+        boxShadow: const [], // تمام شیڈوز ختم کر دیے گئے ہیں
       ),
       child: Column(children: children),
     );
   }
 
-  // انفرادی سیٹنگ بٹن (اب یہ خود کارڈ نہیں بلکہ لسٹ ٹائل ہے)
   Widget _buildSettingTile({
     required bool isDark,
     required String title,
@@ -461,15 +443,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     Widget? trailing,
     VoidCallback? onTap,
-    bool showDivider = true, // ڈیوائڈر دکھانے کے لیے
+    bool showDivider = true,
   }) {
     return Column(
       children: [
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 4,
-          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -481,7 +460,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: Text(
             title,
             style: TextStyle(
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold, // ٹیکسٹ کو تھوڑا مزید گہرا کیا
               color: isDark ? Colors.white : Colors.blue.shade900,
             ),
           ),
@@ -489,13 +468,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ? Text(
                   subtitle,
                   style: TextStyle(
-                    color: isDark ? Colors.white54 : Colors.black54,
+                    color: isDark ? Colors.white54 : Colors.blue.shade900.withOpacity(0.6),
                     fontSize: 13,
                   ),
                 )
               : null,
-          trailing:
-              trailing ??
+          trailing: trailing ??
               Icon(
                 Icons.chevron_right,
                 size: 20,
@@ -503,16 +481,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
           onTap: onTap,
         ),
-        // وہ خاص گریڈینٹ ڈیوائڈر جو آئیکن کے بعد سے شروع ہوتا ہے
         if (showDivider)
           Padding(
-            padding: const EdgeInsets.only(left: 56), // آئیکن کی جگہ چھوڑ کر
+            padding: const EdgeInsets.only(left: 56),
             child: Container(
               height: 1,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    isDark ? Colors.white10 : Colors.blue.shade50,
+                    isDark ? Colors.white10 : Colors.blue.shade100.withOpacity(0.3),
                     Colors.transparent,
                   ],
                 ),

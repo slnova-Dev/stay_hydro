@@ -701,7 +701,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                       const SizedBox(height: 10),
 
-                      // Reminder Card
+// Reminder Card
                       _buildStyledCard(
                         child: Column(
                           children: [
@@ -732,9 +732,12 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                 ),
                                 Text(
-                                  timeStr,
+                                  // فاسٹنگ موڈ آن ہونے پر ٹائم کی جگہ مناسب ٹیکسٹ دکھانے کی لاجک
+                                  // _fastingMode کو بدل کر widget.isFastingMode کر دیں
+                                  widget.isFastingMode ? "Paused" : timeStr,
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    // اگر ٹیکسٹ بڑا ہو تو سائز خودکار طور پر تھوڑا چھوٹا ہو جائے گا
+                                   fontSize: widget.isFastingMode ? 18 : 22,
                                     fontWeight: FontWeight.bold,
                                     color: isDark
                                         ? Colors.white

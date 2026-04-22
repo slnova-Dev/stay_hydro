@@ -129,18 +129,25 @@ class HistoryService {
     int totalInWeek = 0;
     int bestDayAmount = 0;
     int daysWithData = 0;
+    int goalReachedDays = 0;
 
     for (var day in last7Days) {
       int amt = day['amount'];
       totalInWeek += amt;
       if (amt > bestDayAmount) bestDayAmount = amt;
       if (amt > 0) daysWithData++;
+      // ==========================================
+      // [LOGIC LOCK: COMPLETION CALCULATION]
+      // اگر یوزر نے 2000ml کا ہدف پورا کیا ہے
+      // ==========================================
+      if (amt >= 2000) goalReachedDays++;
     }
 
     return {
       'average': daysWithData > 0 ? (totalInWeek / daysWithData).round() : 0,
       'bestDay': bestDayAmount,
-      'completionRate': daysWithData, // یہ ابھی صرف ایک مثال ہے
+      // ہفتے کے 7 دنوں میں سے کتنے فیصد ہدف پورا ہوا
+      'completionRate': ((goalReachedDays / 7) * 100).round(), 
     };
   }
 }
