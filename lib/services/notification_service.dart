@@ -424,4 +424,26 @@ class NotificationService {
       } catch (_) {}
     }
   }
+
+  // ==========================================
+  // SECTION 7: BOOT RESCHEDULE LOGIC (Phase 10)
+  // اردو کمنٹ: فون ری اسٹارٹ ہونے پر ریمائنڈرز کو دوبارہ شیڈول کرنے کا طریقہ
+  // ==========================================
+  @pragma('vm:entry-point')
+  static Future<void> handleBootReschedule() async {
+    if (kDebugMode) debugPrint("BOOT_RECEIVER: Device reboot detected. Rescheduling...");
+    
+    // ہم شارڈ پریفرنسز چیک کریں گے کہ کیا یوزر نے ریمائنڈرز آن کیے ہوئے تھے
+    final prefs = await SharedPreferences.getInstance();
+    final bool isScheduled = prefs.getBool(_scheduleFlagKey) ?? false;
+    final bool isFasting = prefs.getBool('isFastingMode') ?? false;
+
+    if (isScheduled && !isFasting) {
+      // اگر شیڈول آن تھا تو تمام ریمائنڈرز دوبارہ سیٹ کریں
+      await scheduleHourlyReminder();
+      if (kDebugMode) debugPrint("BOOT_RECEIVER: All reminders successfully restored.");
+    } else {
+      if (kDebugMode) debugPrint("BOOT_RECEIVER: No active schedule or Fasting mode active. Skipping.");
+    }
+  }
 }

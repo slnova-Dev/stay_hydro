@@ -1,8 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; // یہ لائن شامل کریں
 import 'firebase_options.dart'; // یہ لائن شامل کریں
-// ... باقی امپورٹس (جیسے NotificationService وغیرہ) ویسے ہی رہیں گی
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 
 import 'screens/main_navigation_screen.dart';
 import 'services/notification_service.dart';
@@ -24,9 +26,67 @@ void main() async {
   // 3. نوٹیفیکیشن سروس کو شروع کرنا
   await NotificationService.init();
 
+  // ==========================================
+  // SECTION LOCK: BACKGROUND SERVICE INITIALIZATION (Phase 10.1)
+  // اردو کمنٹ: ایپ شروع ہوتے ہی بیک گراؤنڈ سروس کو انیشلائز کرنا
+  // ==========================================
+  await initializeBackgroundService();
+  // ==========================================
+
   // 4. ایپ کا نام اب آفیشل StayHydroApp ہے
   runApp(const StayHydroApp());
 }
+
+// ==========================================
+// SECTION 5: BACKGROUND SERVICE LOGIC (Phase 10.1)
+// اردو کمنٹ: یہ حصہ ایپ کے بند ہونے یا فون ری اسٹارٹ ہونے پر کام کرتا ہے
+// ==========================================
+Future<void> initializeBackgroundService() async {
+  final service = FlutterBackgroundService();
+
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      onStart: onStart, // نیچے دیا گیا فنکشن چلے گا
+      autoStart: true, // ایپ کھلتے ہی سروس شروع ہو جائے
+      isForegroundMode: false, // ہم اسے خاموش (Silent) رکھنا چاہتے ہیں
+      autoStartOnBoot: true, // فون ری اسٹارٹ ہونے پر خود بخود چلے
+    ),
+    iosConfiguration: IosConfiguration(
+      autoStart: true,
+      onForeground: onStart,
+      onBackground: onIosBackground,
+    ),
+  );
+}
+
+@pragma('vm:entry-point')
+void onStart(ServiceInstance service) async {
+  DartPluginRegistrant.ensureInitialized();
+
+  if (service is AndroidServiceInstance) {
+    service.on('setAsForeground').listen((event) {
+      service.setAsForegroundService();
+    });
+
+    service.on('setAsBackground').listen((event) {
+      service.setAsBackgroundService();
+    });
+  }
+
+  service.on('stopService').listen((event) {
+    service.stopSelf();
+  });
+
+  // اردو کمنٹ: یہاں وہ جادو ہے! فون ری اسٹارٹ ہوتے ہی نوٹیفیکیشنز دوبارہ شیڈول ہوں گے
+  await NotificationService.handleBootReschedule();
+}
+
+@pragma('vm:entry-point')
+bool onIosBackground(ServiceInstance service) {
+  WidgetsFlutterBinding.ensureInitialized();
+  return true;
+}
+// ==========================================
 
 // ==========================================
 // سیکشن 2: مین ایپ کلاس (StatefulWidget)

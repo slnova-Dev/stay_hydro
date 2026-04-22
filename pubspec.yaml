@@ -22,6 +22,14 @@ dependencies:
   firebase_crashlytics: ^5.2.0
   intl: ^0.20.2
 
+  # ==========================================
+  # SECTION LOCK: BACKGROUND SERVICES (Phase 10.1)
+  # اردو کمنٹ: بیک گراؤنڈ میں ریمائنڈرز کو زندہ رکھنے کے لیے ضروری پلگ انز
+  # ==========================================
+  flutter_background_service: ^5.0.0
+  flutter_background_service_android: ^6.0.0
+  # ==========================================
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
