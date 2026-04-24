@@ -47,25 +47,25 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       // ==========================================
       body: Stack(
         children: [
-          IndexedStack(
-            index: _selectedIndex,
-            children: [
-              HomeScreen(
-                isDarkTheme: widget.isDarkTheme,
-                onThemeToggle: widget.onThemeToggle,
-                isFastingMode: widget.isFastingMode,
-                onFastingToggle: widget.onFastingToggle,
-              ),
-              // اردو کمنٹ: یہاں ہم نے نوٹیفائر پاس کر دیا تاکہ سکرین کلک ہونے پر ری فریش ہو سکے
-              HistoryScreen(refreshNotifier: _historyRefreshNotifier), 
-              SettingsScreen(
-                isDark: widget.isDarkTheme,
-                onThemeToggle: widget.onThemeToggle,
-                isFastingMode: widget.isFastingMode,
-                onFastingToggle: widget.onFastingToggle,
-              ),
-            ],
+          // ==========================================
+          // SECTION LOCK: FADE TRANSITION NAVIGATION
+          // اردو کمنٹ: سکرین تبدیلی کو ہموار بنانے کے لیے اینیمیٹڈ سوئچر کا استعمال
+          // ==========================================
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+            child: KeyedSubtree(
+              key: ValueKey<int>(_selectedIndex),
+              child: _buildCurrentScreen(),
+            ),
           ),
+          // ==========================================
+          
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
@@ -189,5 +189,29 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         ],
       ),
     );
+  }
+
+  // اردو کمنٹ: انڈیکس کی بنیاد پر متعلقہ سکرین لوڈ کرنے کا ہیلپر فنکشن
+  Widget _buildCurrentScreen() {
+    switch (_selectedIndex) {
+      case 0:
+        return HomeScreen(
+          isDarkTheme: widget.isDarkTheme,
+          onThemeToggle: widget.onThemeToggle,
+          isFastingMode: widget.isFastingMode,
+          onFastingToggle: widget.onFastingToggle,
+        );
+      case 1:
+        return HistoryScreen(refreshNotifier: _historyRefreshNotifier);
+      case 2:
+        return SettingsScreen(
+          isDark: widget.isDarkTheme,
+          onThemeToggle: widget.onThemeToggle,
+          isFastingMode: widget.isFastingMode,
+          onFastingToggle: widget.onFastingToggle,
+        );
+      default:
+        return const SizedBox.shrink();
+    }
   }
 }

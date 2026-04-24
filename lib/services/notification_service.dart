@@ -109,8 +109,9 @@ class NotificationService {
     }
   }
 
-  // ============ INIT ============
-  static Future<void> init() async {
+// ============ INIT ============
+  // اردو کمنٹ: اس میں fromBoot کا اضافہ کیا گیا ہے تاکہ بیک گراؤنڈ میں کریش نہ ہو
+  static Future<void> init({bool fromBoot = false}) async {
     if (_initialized) return;
 
     if (kIsWeb) {
@@ -129,21 +130,20 @@ class NotificationService {
     await _notifications.initialize(
       settings,
       onDidReceiveNotificationResponse: (response) async {
-
-        // ⭐ Fixed: Null safe check for ID
         if ((response.id ?? 0) < 100) return;
-
         if (kDebugMode) {
           debugPrint('Notification tapped: ${response.id}');
         }
       },
     );
 
-    await _notifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.requestNotificationsPermission();
+    // ⭐ لاجک: اگر یہ بوٹ (Boot) سے چل رہا ہے تو پرمیشن نہیں مانگنی
+    if (!fromBoot) {
+      await _notifications
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission();
+    }
 
     await recreateReminderChannel();
 
@@ -180,8 +180,9 @@ class NotificationService {
     await androidPlugin?.createNotificationChannel(androidChannel);
   }
 
-  // ============ SCHEDULE (UPDATED TO OPTION 2) ============
-  static Future<void> scheduleHourlyReminder() async {
+// ============ SCHEDULE (UPDATED TO OPTION 2) ============
+  // اردو کمنٹ: fromBoot پیرامیٹر شامل کیا گیا ہے تاکہ بیک گراؤنڈ میں پرمیشن کا مسئلہ نہ ہو
+  static Future<void> scheduleHourlyReminder({bool fromBoot = false}) async {
     if (kIsWeb) return;
 
     // ⭐ Fasting Mode Sync Check
@@ -196,7 +197,8 @@ class NotificationService {
 
     if (kDebugMode) debugPrint("CLEANING AND RE-SCHEDULING (PLAY STORE SAFE)");
 
-    await init();
+    // ⭐ اہم تبدیلی: اب یہ پیرامیٹر کے مطابق انیشلائز ہوگا
+    await init(fromBoot: fromBoot);
 
     await prefs.setInt(_intervalKey, 60);
     await prefs.setBool(_scheduleFlagKey, true);
@@ -252,7 +254,8 @@ class NotificationService {
           _randomBodies[_random.nextInt(_randomBodies.length)],
           _nextInstanceOfHour(hour),
           details,
-          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          // ⭐ اہم تبدیلی: اب یہ 'exact' موڈ استعمال کرے گا تاکہ الارم وقت پر آئیں
+          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.time,
         );
@@ -425,22 +428,24 @@ class NotificationService {
     }
   }
 
-  // ==========================================
+ // ==========================================
   // SECTION 7: BOOT RESCHEDULE LOGIC (Phase 10)
-  // اردو کمنٹ: فون ری اسٹارٹ ہونے پر ریمائنڈرز کو دوبارہ شیڈول کرنے کا طریقہ
+  // اردو کمنٹ: فون ری اسٹارٹ ہونے پر خاموشی سے ریمائنڈرز بحال کرنا
   // ==========================================
   @pragma('vm:entry-point')
   static Future<void> handleBootReschedule() async {
     if (kDebugMode) debugPrint("BOOT_RECEIVER: Device reboot detected. Rescheduling...");
     
-    // ہم شارڈ پریفرنسز چیک کریں گے کہ کیا یوزر نے ریمائنڈرز آن کیے ہوئے تھے
+    // ⭐ اہم: بیک گراؤنڈ میں انیشلائزیشن بغیر پرمیشن ڈائیلاگ کے
+    await init(fromBoot: true);
+
     final prefs = await SharedPreferences.getInstance();
     final bool isScheduled = prefs.getBool(_scheduleFlagKey) ?? false;
     final bool isFasting = prefs.getBool('isFastingMode') ?? false;
 
     if (isScheduled && !isFasting) {
       // اگر شیڈول آن تھا تو تمام ریمائنڈرز دوبارہ سیٹ کریں
-      await scheduleHourlyReminder();
+          await scheduleHourlyReminder(fromBoot: true);   // اسے ایسے بدلیں:
       if (kDebugMode) debugPrint("BOOT_RECEIVER: All reminders successfully restored.");
     } else {
       if (kDebugMode) debugPrint("BOOT_RECEIVER: No active schedule or Fasting mode active. Skipping.");

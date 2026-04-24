@@ -387,6 +387,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ],
                 ),
+
+                // ==========================================
+                // [SECTION: APP SUPPORT] (Phase 10)
+                // اردو کمنٹ: یہاں ٹیسٹ نوٹیفیکیشن اور ہیلپ کے آپشنز شامل ہیں
+                // ==========================================
+                _buildSectionTitle("App Support", isDark),
+                _buildGroupContainer(
+                  isDark: isDark,
+                  children: [
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Test Notification",
+                      subtitle: "Check if reminders are working",
+                      icon: Icons.notification_important_rounded,
+                      // اس کے لیے ہم باقی تھیم سے ہم آہنگ نیلا رنگ استعمال کر رہے ہیں
+                      trailing: Icon(
+                        Icons.play_circle_fill_rounded,
+                        color: Colors.blue.withOpacity(0.7),
+                      ),
+                      showDivider: true,
+                      onTap: () async {
+                        await NotificationService.showTestNotification();
+                        // اردو میسج کے ساتھ سنیک بار
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text("ٹیسٹ نوٹیفیکیشن بھیج دیا گیا ہے"),
+                            backgroundColor: isDark ? Colors.blueGrey[800] : Colors.blue[600],
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                    ),
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Help & Feedback",
+                      subtitle: "Report a problem or suggest a feature",
+                      icon: Icons.help_outline_rounded,
+                      showDivider: false,
+                      onTap: () {
+                        // فی الحال اسے خالی چھوڑ رہے ہیں، فیز 12 یا 13 میں اسے اپ ڈیٹ کریں گے
+                      },
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 30), // اسکرین کے آخر میں تھوڑی جگہ
+
               ],
             ),
           ),
