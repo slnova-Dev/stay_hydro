@@ -21,8 +21,19 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+
+// ==========================================
+  // [BLOCK: SPECIAL REMINDERS VARIABLES]
+  // اسپیشل ریمائنڈرز کا ڈیٹا (آن/آف، ٹائم، اور میسج)
   // ==========================================
-  // [BLOCK: STATE VARIABLES & KEYS]
+  // ہم 3 سلاٹس کے لیے لسٹ استعمال کر رہے ہیں (انڈیکس 0 سے 2 تک)
+  List<bool> _specialEnabled = [false, false, false];
+  List<int> _specialHours = [0, 0, 0];
+  List<int> _specialMinutes = [0, 0, 0];
+  List<String> _specialMessages = ["Special 1", "Special 2", "Special 3"];
+
+  // ==========================================
+  // [BLOCK: STATE VARIABLES & KEYS] (Updated)
   // تمام متغیرات اور لوکل ڈیٹا کی کیز یہاں محفوظ ہیں
   // ==========================================
   late bool _fasting;
@@ -56,6 +67,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _sleepEndMinute = 0;
     _loadSound();
     _loadSleepHours();
+    _loadSpecialReminders(); // اسپیشل ریمائنڈرز لوڈ کرنے کا فنکشن
+  }
+
+// ==========================================
+  // [BLOCK: SPECIAL DATA LOADING]
+  // محفوظ شدہ اسپیشل ریمائنڈرز کا ڈیٹا لوڈ کرنا
+  // ==========================================
+  Future<void> _loadSpecialReminders() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      for (int i = 0; i < 3; i++) {
+        int id = 201 + i;
+        _specialEnabled[i] = prefs.getBool('special_${id}_enabled') ?? false;
+        _specialHours[i] = prefs.getInt('special_${id}_hour') ?? 0;
+        _specialMinutes[i] = prefs.getInt('special_${id}_min') ?? 0;
+        _specialMessages[i] = prefs.getString('special_${id}_msg') ?? "Special ${i + 1}";
+      }
+    });
   }
 
   // ==========================================
@@ -107,6 +137,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Sleep hours updated & Scheduled')),
     );
+  }
+
+// ==========================================
+  // [BLOCK: SAVE SPECIAL REMINDER]
+  // اسپیشل ریمائنڈر کو میموری میں محفوظ کرنا اور شیڈول کرنا
+  // ==========================================
+  Future<void> _saveSpecialReminder(int index, bool enabled, int h, int m, String msg) async {
+    final prefs = await SharedPreferences.getInstance();
+    int id = 201 + index; // IDs: 201, 202, 203
+
+    // ڈیٹا کو لوکل سٹوریج میں محفوظ کرنا
+    await prefs.setBool('special_${id}_enabled', enabled);
+    await prefs.setInt('special_${id}_hour', h);
+    await prefs.setInt('special_${id}_min', m);
+    await prefs.setString('special_${id}_msg', msg);
+
+    // اگر آن ہے تو نوٹیفیکیشن سروس میں شیڈول کرنا، ورنہ کینسل کرنا
+    if (enabled) {
+      await NotificationService.scheduleSpecialReminder(id, h, m, msg);
+    } else {
+      await NotificationService.cancelNotification(id);
+    }
+
+    _loadSpecialReminders(); // UI کو اپ ڈیٹ کرنے کے لیے دوبارہ لوڈ کریں
   }
 
   // ==========================================
@@ -264,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ), // یہاں Opacity کی بریکٹ بند ہوئی
         ), // یہاں Positioned کی بریکٹ بند ہوئی
 
-          // اصلی کانٹینٹ
+// اصلی کانٹینٹ
           SingleChildScrollView(
             key: UniqueKey(), 
             physics: const AlwaysScrollableScrollPhysics(),
@@ -272,7 +326,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // [SECTION: APPEARANCE]
+                
+                // ==========================================
+                // [SECTION 1: APPEARANCE & LOOK]
+                // اردو کمنٹ: ایپ کی ظاہری شکل اور تھیم کی سیٹنگز
+                // ==========================================
                 _buildSectionTitle("Appearance", isDark),
                 _buildGroupContainer(
                   isDark: isDark,
@@ -294,8 +352,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
 
-                // [SECTION: NOTIFICATIONS]
-                _buildSectionTitle("Notifications", isDark),
+                // ==========================================
+                // [SECTION 2: NOTIFICATION CENTER]
+                // اردو کمنٹ: یہاں ریمائنڈرز کے بنیادی طریقے (موڈ) اور ساؤنڈز کی سیٹنگ ہے
+                // ==========================================
+                _buildSectionTitle("Notification Center", isDark),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
@@ -327,14 +388,124 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       showDivider: false,
                       onTap: _openSoundSelector,
                     ),
+                    // نوٹ: یہاں فیز 11 میں "Custom vs Hourly" کا سلیکٹر شامل کریں گے
                   ],
                 ),
 
-                // [SECTION: SYSTEM]
-                _buildSectionTitle("System", isDark),
+                // ==========================================
+                // [SECTION 3: SPECIAL REMINDERS] (Phase 10.2)
+                // اردو کمنٹ: یہ ریمائنڈرز فاسٹنگ موڈ میں بھی کام کریں گے
+                // ==========================================
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildSectionTitle("Special Reminders", isDark),
+                    IconButton(
+                      icon: Icon(Icons.info_outline_rounded, 
+                        size: 18, color: isDark ? Colors.white30 : Colors.blue.shade200),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Special reminders remain active even during Fasting Mode."),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+
+// ⭐ یہ وہ 3 لائنیں ہیں جو مِس ہو گئی تھیں
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
+// [CARD: SPECIAL 1]
+// اردو کمنٹ: پہلا اسپیشل ریمائڈر - ڈیٹا لوڈ کرنے اور ایڈٹ کرنے کی صلاحیت کے ساتھ
+
+_buildSettingTile(
+  isDark: isDark,
+  // اگر یوزر نے نام بدلا ہے تو وہ دکھائے گا، ورنہ ڈیفالٹ "Special 1"
+  title: _specialMessages[0], 
+  // اگر آن ہے تو وقت دکھائے گا، ورنہ "Off" لکھا آئے گا
+  subtitle: _specialEnabled[0] 
+      ? "Active at ${_formatTime(_specialHours[0], _specialMinutes[0])}" 
+      : "Off",
+  // اگر آن ہے تو بھرا ہوا ستارہ (star)، ورنہ صرف آؤٹ لائن والا ستارہ
+  icon: _specialEnabled[0] ? Icons.star_rounded : Icons.star_outline_rounded,
+  showDivider: true,
+  // کلک کرنے پر باٹم شیٹ کھولے گا اور انڈیکس 0 (پہلا کارڈ) پاس کرے گا
+  onTap: () => _showSpecialEditor(0), 
+),
+
+// [CARD: SPECIAL 2]
+// اردو کمنٹ: دوسرا اسپیشل ریمائڈر - ڈیٹا لوڈ کرنے اور ایڈٹ کرنے کی صلاحیت کے ساتھ
+_buildSettingTile(
+  isDark: isDark,
+  // اگر یوزر نے نام بدلا ہے تو وہ دکھائے گا، ورنہ ڈیفالٹ "Special 2"
+  title: _specialMessages[1], 
+  // اگر آن ہے تو وقت دکھائے گا، ورنہ "Off" لکھا آئے گا
+  subtitle: _specialEnabled[1] 
+      ? "Active at ${_formatTime(_specialHours[1], _specialMinutes[1])}" 
+      : "Off",
+  // اگر آن ہے تو بھرا ہوا ستارہ (star)، ورنہ صرف آؤٹ لائن والا ستارہ
+  icon: _specialEnabled[1] ? Icons.star_rounded : Icons.star_outline_rounded,
+  showDivider: true,
+  // کلک کرنے پر باٹم شیٹ کھولے گا اور انڈیکس 1 (دوسرا کارڈ) پاس کرے گا
+  onTap: () => _showSpecialEditor(1), 
+),
+
+// [CARD: SPECIAL 3]
+// اردو کمنٹ: تیسرا اسپیشل ریمائڈر - ڈیٹا لوڈ کرنے اور ایڈٹ کرنے کی صلاحیت کے ساتھ
+
+_buildSettingTile(
+  isDark: isDark,
+  // اگر یوزر نے نام بدلا ہے تو وہ دکھائے گا، ورنہ ڈیفالٹ "Special 3"
+  title: _specialMessages[2], 
+  // اگر آن ہے تو وقت دکھائے گا، ورنہ "Off" لکھا آئے گا
+  subtitle: _specialEnabled[2] 
+      ? "Active at ${_formatTime(_specialHours[2], _specialMinutes[2])}" 
+      : "Off",
+  // اگر آن ہے تو بھرا ہوا ستارہ (star)، ورنہ صرف آؤٹ لائن والا ستارہ
+  icon: _specialEnabled[2] ? Icons.star_rounded : Icons.star_outline_rounded,
+  showDivider: false,
+  // کلک کرنے پر باٹم شیٹ کھولے گا اور انڈیکس 2 (تیسرا کارڈ) پاس کرے گا
+  onTap: () => _showSpecialEditor(2), 
+),
+], // یہ پہلی بند ہونے والی بریکٹ (children کی ہے)
+                ), // یہ دوسری بند ہونے والی بریکٹ (_buildGroupContainer کی ہے)
+
+                // ==========================================
+                // [SECTION 4: SCHEDULE & SYSTEM]
+                // اردو کمنٹ: سونے کے اوقات اور بیٹری کی اہم سیٹنگز
+                // ==========================================
+                _buildSectionTitle("Schedule & System", isDark),
+                _buildGroupContainer(
+                  isDark: isDark,
+                  children: [
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Sleep Start Hour",
+                      subtitle: _formatTime(_sleepStartHour, _sleepStartMinute),
+                      icon: Icons.bedtime_rounded,
+                      showDivider: true,
+                      onTap: () => _selectSleepHour(
+                        isStartHour: true,
+                        initialHour: _sleepStartHour,
+                        initialMinute: _sleepStartMinute,
+                      ),
+                    ),
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Sleep End Hour",
+                      subtitle: _formatTime(_sleepEndHour, _sleepEndMinute),
+                      icon: Icons.wb_sunny_rounded,
+                      showDivider: true,
+                      onTap: () => _selectSleepHour(
+                        isStartHour: false,
+                        initialHour: _sleepEndHour,
+                        initialMinute: _sleepEndMinute,
+                      ),
+                    ),
                     _buildSettingTile(
                       isDark: isDark,
                       title: "Battery Optimization",
@@ -356,41 +527,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
 
-                // [SECTION: SCHEDULE]
-                _buildSectionTitle("Schedule", isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Sleep Start Hour",
-                      subtitle: _formatTime(_sleepStartHour, _sleepStartMinute),
-                      icon: Icons.bedtime_rounded,
-                      showDivider: true,
-                      onTap: () => _selectSleepHour(
-                        isStartHour: true,
-                        initialHour: _sleepStartHour,
-                        initialMinute: _sleepStartMinute,
-                      ),
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Sleep End Hour",
-                      subtitle: _formatTime(_sleepEndHour, _sleepEndMinute),
-                      icon: Icons.wb_sunny_rounded,
-                      showDivider: false,
-                      onTap: () => _selectSleepHour(
-                        isStartHour: false,
-                        initialHour: _sleepEndHour,
-                        initialMinute: _sleepEndMinute,
-                      ),
-                    ),
-                  ],
-                ),
-
                 // ==========================================
-                // [SECTION: APP SUPPORT] (Phase 10)
-                // اردو کمنٹ: یہاں ٹیسٹ نوٹیفیکیشن اور ہیلپ کے آپشنز شامل ہیں
+                // [SECTION 5: APP SUPPORT]
+                // اردو کمنٹ: ٹیسٹ نوٹیفیکیشن اور ہیلپ
                 // ==========================================
                 _buildSectionTitle("App Support", isDark),
                 _buildGroupContainer(
@@ -401,7 +540,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: "Test Notification",
                       subtitle: "Check if reminders are working",
                       icon: Icons.notification_important_rounded,
-                      // اس کے لیے ہم باقی تھیم سے ہم آہنگ نیلا رنگ استعمال کر رہے ہیں
                       trailing: Icon(
                         Icons.play_circle_fill_rounded,
                         color: Colors.blue.withOpacity(0.7),
@@ -409,10 +547,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       showDivider: true,
                       onTap: () async {
                         await NotificationService.showTestNotification();
-                        // اردو میسج کے ساتھ سنیک بار
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text("ٹیسٹ نوٹیفیکیشن بھیج دیا گیا ہے"),
+                            content: const Text("Test notification sent!"),
                             backgroundColor: isDark ? Colors.blueGrey[800] : Colors.blue[600],
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -425,19 +562,119 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       subtitle: "Report a problem or suggest a feature",
                       icon: Icons.help_outline_rounded,
                       showDivider: false,
-                      onTap: () {
-                        // فی الحال اسے خالی چھوڑ رہے ہیں، فیز 12 یا 13 میں اسے اپ ڈیٹ کریں گے
-                      },
+                      onTap: () {},
                     ),
                   ],
                 ),
                 
-                const SizedBox(height: 30), // اسکرین کے آخر میں تھوڑی جگہ
+                const SizedBox(height: 30), 
 
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+// ==========================================
+  // [BLOCK: SPECIAL REMINDER EDITOR]
+  // اسپیشل ریمائنڈر کو ایڈٹ کرنے والی باٹم شیٹ
+  // ==========================================
+  void _showSpecialEditor(int index) {
+    final bool isDark = _darkTheme;
+    // ٹیکسٹ کنٹرولر تاکہ یوزر کا میسج ایڈٹ ہو سکے
+    TextEditingController msgController = TextEditingController(text: _specialMessages[index]);
+    int tempHour = _specialHours[index];
+    int tempMinute = _specialMinutes[index];
+    bool tempEnabled = _specialEnabled[index];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent, // گلاس مورفزم کے لیے
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) => Container(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 20, top: 20, left: 20, right: 20),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // اوپر والی چھوٹی لائن (Handle)
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.withOpacity(0.3), borderRadius: BorderRadius.circular(10))),
+              const SizedBox(height: 20),
+              
+              // ٹائٹل اور سوئچ
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Edit Special Reminder", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: isDark ? Colors.white : Colors.blue.shade900)),
+                  Switch(
+                    value: tempEnabled,
+                    onChanged: (val) => setSheetState(() => tempEnabled = val),
+                    activeColor: Colors.blue.shade400,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // ٹائم سلیکٹر بٹن
+              ListTile(
+                tileColor: Colors.blue.withOpacity(0.05),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                leading: const Icon(Icons.access_time_rounded, color: Colors.blue),
+                title: const Text("Select Time"),
+                trailing: Text(_formatTime(tempHour, tempMinute), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                onTap: () async {
+                  final TimeOfDay? picked = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay(hour: tempHour, minute: tempMinute),
+                  );
+                  if (picked != null) {
+                    setSheetState(() {
+                      tempHour = picked.hour;
+                      tempMinute = picked.minute;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 15),
+
+              // میسج لکھنے کی جگہ (TextField)
+              TextField(
+                controller: msgController,
+                maxLength: 25,
+                style: TextStyle(color: isDark ? Colors.white : Colors.black),
+                decoration: InputDecoration(
+                  labelText: "Reminder Message",
+                  prefixIcon: const Icon(Icons.edit_note_rounded),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // سیو بٹن
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade600,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  ),
+                  onPressed: () {
+                    _saveSpecialReminder(index, tempEnabled, tempHour, tempMinute, msgController.text);
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Save Reminder", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

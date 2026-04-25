@@ -191,9 +191,12 @@ class NotificationService {
     
     if (isFasting) {
       if (kDebugMode) debugPrint("Fasting Mode Active: Cancellation triggered instead of schedule.");
-      await cancelAll(); 
-      return;
-    }
+// ⭐ صرف پانی والے ریمائنڈرز کینسل کریں (100 سے 124)
+      // اسپیشل ریمائنڈرز (201-203) محفوظ رہیں گے
+// ⭐ تبدیلی: اب مینوئل لوپ کی جگہ ہم اپنا نیا فنکشن کال کریں گے
+    await cancelRegularReminders(); 
+    return;  // یہاں سے فنکشن واپس چلا جائے گا
+  } // 👈 یہ بریکٹ یقینی بنائیں کہ یہاں موجود ہے
 
     if (kDebugMode) debugPrint("CLEANING AND RE-SCHEDULING (PLAY STORE SAFE)");
 
@@ -223,9 +226,8 @@ class NotificationService {
     final details = NotificationDetails(android: androidDetails);
 
     // Cancel all previous hourly IDs (100 to 124)
-    for (int i = 0; i < 24; i++) {
-      await _notifications.cancel(100 + i);
-    }
+// ⭐ تبدیلی: یہاں بھی پرانا لوپ ہٹا کر نیا فنکشن کال کر سکتے ہیں
+  await cancelRegularReminders();
 
     // ⭐ Debug Lists for logging
     List<int> scheduledHours = [];
@@ -270,7 +272,20 @@ class NotificationService {
       debugPrint('Sleep Hours (Skipped): ${skippedHours.join(", ")}');
       debugPrint('------------------------------------');
     }
-  }
+
+// ⭐ درست جگہ: فنکشن ختم ہونے والی بریکٹ سے پہلے
+      // ⭐ آخر میں اسپیشل ریمائنڈرز کو دوبارہ زندہ (Restore) کریں
+    // تاکہ ری شیڈولنگ کے دوران اگر کچھ مِس ہوا ہو تو وہ بحال ہو جائے
+    for (int id = 201; id <= 203; id++) {
+      final bool isEnabled = prefs.getBool('special_${id}_enabled') ?? false;
+      if (isEnabled) {
+        final h = prefs.getInt('special_${id}_hour') ?? 0;
+        final m = prefs.getInt('special_${id}_min') ?? 0;
+        final msg = prefs.getString('special_${id}_msg') ?? "Special Reminder";
+        await scheduleSpecialReminder(id, h, m, msg);
+      }
+    }
+  }  // 👈 یہ ہے فنکشن کی آخری بریکٹ، لوپ اس کے اندر ہونا چاہیے
 
   static tz.TZDateTime _nextInstanceOfHour(int hour) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
@@ -334,6 +349,61 @@ class NotificationService {
     }
   }
 
+  // ============ SPECIAL REMINDERS ============
+// اسپیشل ریمائنڈر شیڈول کرنے کا فنکشن
+static Future<void> scheduleSpecialReminder(int id, int hour, int minute, String message) async {
+  if (kIsWeb) return;
+
+  await init();
+
+  final androidDetails = AndroidNotificationDetails(
+    'special_reminders',
+    'Special Reminders',
+    channelDescription: 'Reminders for medicine, sehri, or iftar',
+    importance: Importance.max,
+    priority: Priority.high,
+    // آپ چاہیں تو یہاں اسپیشل ساؤنڈ بھی لگا سکتے ہیں
+  );
+
+  final details = NotificationDetails(android: androidDetails);
+
+  final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+  tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute, 0);
+
+  if (scheduledDate.isBefore(now)) {
+    scheduledDate = scheduledDate.add(const Duration(days: 1));
+  }
+
+  await _notifications.zonedSchedule(
+    id, // 201, 202 or 203
+    "Special Reminder",
+    message,
+    scheduledDate,
+    details,
+    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+    matchDateTimeComponents: DateTimeComponents.time,
+  );
+  
+  if (kDebugMode) debugPrint("Special Reminder $id set for $hour:$minute with message: $message");
+}
+// مخصوص نوٹیفیکیشن کینسل کرنے کا فنکشن (آئی ڈی کے ذریعے)
+static Future<void> cancelNotification(int id) async {
+  await _notifications.cancel(id);
+  if (kDebugMode) debugPrint("Notification $id cancelled.");
+}
+
+// ⭐ نیا شامل شدہ فنکشن: تمام عام ریمائنڈرز کینسل کرنے کا محفوظ طریقہ
+static Future<void> cancelRegularReminders() async {
+  if (kIsWeb) return;
+  // صرف 100 سے 150 تک کینسل کریں (پانی پینے والے ریمائنڈرز)
+  // اسپیشل ریمائنڈرز (201, 202, 203) محفوظ رہیں گے
+  for (int i = 100; i <= 150; i++) {
+    await _notifications.cancel(i);
+  }
+  if (kDebugMode) debugPrint("Regular reminders (100-150) cancelled. Special ones kept safe.");
+}
+
   // ============ TEST ============
   static Future<void> showTestNotification() async {
     if (kIsWeb) return;
@@ -359,18 +429,20 @@ class NotificationService {
     );
   }
 
-  // ============ CANCEL ============
-  static Future<void> cancelAll() async {
-    if (kIsWeb) return;
+// ============ CANCEL ============
+// اس فنکشن کو اب ہم نے 'Selective' بنا دیا ہے تاکہ 'Star' ریمائنڈرز نہ رکیں
+static Future<void> cancelAll() async {
+  if (kIsWeb) return;
 
-    await _notifications.cancelAll();
+  // ⭐ بڑی تبدیلی: اب ہم مکمل ایپ کے نوٹیفیکیشن صاف نہیں کریں گے
+  // بلکہ صرف واٹر ریمائنڈرز صاف کریں گے
+  await cancelRegularReminders();
 
-    final prefs = await SharedPreferences.getInstance();
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setBool(_scheduleFlagKey, false);
 
-    await prefs.setBool(_scheduleFlagKey, false);
-
-    if (kDebugMode) debugPrint('Notifications cancelled');
-  }
+  if (kDebugMode) debugPrint('Water notifications cancelled. Special reminders preserved.');
+}
 
   // ============ DEVICE RELIABILITY ============
   static Future<void> openBatteryOptimizationSettings() async {
@@ -432,23 +504,36 @@ class NotificationService {
   // SECTION 7: BOOT RESCHEDULE LOGIC (Phase 10)
   // اردو کمنٹ: فون ری اسٹارٹ ہونے پر خاموشی سے ریمائنڈرز بحال کرنا
   // ==========================================
-  @pragma('vm:entry-point')
+@pragma('vm:entry-point')
   static Future<void> handleBootReschedule() async {
     if (kDebugMode) debugPrint("BOOT_RECEIVER: Device reboot detected. Rescheduling...");
     
-    // ⭐ اہم: بیک گراؤنڈ میں انیشلائزیشن بغیر پرمیشن ڈائیلاگ کے
     await init(fromBoot: true);
-
     final prefs = await SharedPreferences.getInstance();
+    
+    // --- حصہ 1: عام واٹر ریمائنڈرز (فاسٹنگ موڈ کے تابع) ---
     final bool isScheduled = prefs.getBool(_scheduleFlagKey) ?? false;
     final bool isFasting = prefs.getBool('isFastingMode') ?? false;
 
     if (isScheduled && !isFasting) {
-      // اگر شیڈول آن تھا تو تمام ریمائنڈرز دوبارہ سیٹ کریں
-          await scheduleHourlyReminder(fromBoot: true);   // اسے ایسے بدلیں:
-      if (kDebugMode) debugPrint("BOOT_RECEIVER: All reminders successfully restored.");
+      await scheduleHourlyReminder(fromBoot: true); 
+      if (kDebugMode) debugPrint("BOOT_RECEIVER: Water reminders restored.");
     } else {
-      if (kDebugMode) debugPrint("BOOT_RECEIVER: No active schedule or Fasting mode active. Skipping.");
+      if (kDebugMode) debugPrint("BOOT_RECEIVER: Water reminders skipped (Fasting or Off).");
     }
+
+    // --- حصہ 2: اسپیشل ریمائنڈرز (فاسٹنگ موڈ سے آزاد) ---
+    // یہ حصہ 'if/else' سے باہر ہے تاکہ ہر حال میں چلے
+    for (int id = 201; id <= 203; id++) {
+      final bool isEnabled = prefs.getBool('special_${id}_enabled') ?? false;
+      if (isEnabled) {
+        final h = prefs.getInt('special_${id}_hour') ?? 0;
+        final m = prefs.getInt('special_${id}_min') ?? 0;
+        final msg = prefs.getString('special_${id}_msg') ?? "Special Reminder";
+        await scheduleSpecialReminder(id, h, m, msg);
+      }
+    }
+    
+    if (kDebugMode) debugPrint("BOOT_RECEIVER: Special reminders check completed.");
   }
 }
