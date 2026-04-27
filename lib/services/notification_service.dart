@@ -5,6 +5,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
+import 'package:stay_hydro/services/sound_service.dart'; // اگر فولڈر کا پاتھ یہی ہے تو
 
 // ==========================================
 // سیکشن 1: نوٹیفیکیشن سروس کلاس
@@ -95,13 +96,13 @@ class NotificationService {
     try {
       // ⭐ Fixed without any extra package:
       // This will correctly identify 'Asia/Karachi' based on device clock
-      final String timeZoneName = DateTime.now().timeZoneName; 
-      
+      final String timeZoneName = DateTime.now().timeZoneName;
+
       // If timeZoneName is PST or PKT, we need to map it correctly
       if (timeZoneName == 'PKT' || timeZoneName == 'PST') {
-          tz.setLocalLocation(tz.getLocation('Asia/Karachi'));
+        tz.setLocalLocation(tz.getLocation('Asia/Karachi'));
       } else {
-          tz.setLocalLocation(tz.getLocation(timeZoneName));
+        tz.setLocalLocation(tz.getLocation(timeZoneName));
       }
     } catch (e) {
       // Strict Fallback for Pakistan
@@ -159,12 +160,8 @@ class NotificationService {
   static Future<void> recreateReminderChannel() async {
     if (kIsWeb) return;
 
-    final soundKey = await _getSelectedSound();
-
-    final androidPlugin = _notifications
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
+    final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
 
     await androidPlugin?.deleteNotificationChannel(_channelId);
 
@@ -173,8 +170,9 @@ class NotificationService {
       _channelName,
       description: _channelDescription,
       importance: Importance.high,
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound(soundKey),
+      // [CRITICAL UPDATE] اردو کمنٹ: سسٹم ساؤنڈ کو یہاں بھی بند کریں تاکہ ہماری کسٹم ساؤنڈ بج سکے
+      playSound: false,
+      enableVibration: false,
     );
 
     await androidPlugin?.createNotificationChannel(androidChannel);
@@ -188,15 +186,17 @@ class NotificationService {
     // ⭐ Fasting Mode Sync Check
     final prefs = await SharedPreferences.getInstance();
     final bool isFasting = prefs.getBool('isFastingMode') ?? false;
-    
+
     if (isFasting) {
-      if (kDebugMode) debugPrint("Fasting Mode Active: Cancellation triggered instead of schedule.");
+      if (kDebugMode)
+        debugPrint(
+            "Fasting Mode Active: Cancellation triggered instead of schedule.");
 // ⭐ صرف پانی والے ریمائنڈرز کینسل کریں (100 سے 124)
       // اسپیشل ریمائنڈرز (201-203) محفوظ رہیں گے
 // ⭐ تبدیلی: اب مینوئل لوپ کی جگہ ہم اپنا نیا فنکشن کال کریں گے
-    await cancelRegularReminders(); 
-    return;  // یہاں سے فنکشن واپس چلا جائے گا
-  } // 👈 یہ بریکٹ یقینی بنائیں کہ یہاں موجود ہے
+      await cancelRegularReminders();
+      return; // یہاں سے فنکشن واپس چلا جائے گا
+    } // 👈 یہ بریکٹ یقینی بنائیں کہ یہاں موجود ہے
 
     if (kDebugMode) debugPrint("CLEANING AND RE-SCHEDULING (PLAY STORE SAFE)");
 
@@ -213,21 +213,23 @@ class NotificationService {
 
     final soundKey = await _getSelectedSound();
 
+// جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
     final androidDetails = AndroidNotificationDetails(
       _channelId,
       _channelName,
       channelDescription: _channelDescription,
       importance: Importance.high,
       priority: Priority.high,
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound(soundKey),
+      // [CRITICAL CHANGE] اینڈرائیڈ کو آواز بجانے سے روکیں
+      playSound: false,
+      enableVibration: false, // وائبریشن بھی ہم خود سنبھالیں گے
     );
 
     final details = NotificationDetails(android: androidDetails);
 
     // Cancel all previous hourly IDs (100 to 124)
 // ⭐ تبدیلی: یہاں بھی پرانا لوپ ہٹا کر نیا فنکشن کال کر سکتے ہیں
-  await cancelRegularReminders();
+    await cancelRegularReminders();
 
     // ⭐ Debug Lists for logging
     List<int> scheduledHours = [];
@@ -236,7 +238,7 @@ class NotificationService {
     // Schedule for each hour except sleep hours
     for (int hour = 0; hour < 24; hour++) {
       bool isSleep = false;
-      
+
       // Precise calculation for sleep window
       double currentT = hour.toDouble();
       double startT = sleepStartH + (sleepStartM / 60.0);
@@ -258,7 +260,8 @@ class NotificationService {
           details,
           // ⭐ اہم تبدیلی: اب یہ 'exact' موڈ استعمال کرے گا تاکہ الارم وقت پر آئیں
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.time,
         );
       } else {
@@ -274,7 +277,7 @@ class NotificationService {
     }
 
 // ⭐ درست جگہ: فنکشن ختم ہونے والی بریکٹ سے پہلے
-      // ⭐ آخر میں اسپیشل ریمائنڈرز کو دوبارہ زندہ (Restore) کریں
+    // ⭐ آخر میں اسپیشل ریمائنڈرز کو دوبارہ زندہ (Restore) کریں
     // تاکہ ری شیڈولنگ کے دوران اگر کچھ مِس ہوا ہو تو وہ بحال ہو جائے
     for (int id = 201; id <= 203; id++) {
       final bool isEnabled = prefs.getBool('special_${id}_enabled') ?? false;
@@ -285,12 +288,13 @@ class NotificationService {
         await scheduleSpecialReminder(id, h, m, msg);
       }
     }
-  }  // 👈 یہ ہے فنکشن کی آخری بریکٹ، لوپ اس کے اندر ہونا چاہیے
+  } // 👈 یہ ہے فنکشن کی آخری بریکٹ، لوپ اس کے اندر ہونا چاہیے
 
   static tz.TZDateTime _nextInstanceOfHour(int hour) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     // Precise strike at :00:00 (Inexact system will still shift it slightly)
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, 0, 0);
+    tz.TZDateTime scheduledDate =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, 0, 0);
 
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
@@ -317,7 +321,7 @@ class NotificationService {
     for (int i = 1; i <= 24; i++) {
       final check = now.add(Duration(hours: i));
       bool isSleep = false;
-      
+
       double checkT = check.hour.toDouble();
       double startT = sleepStartH + (sleepStartM / 60.0);
       double endT = sleepEndH + (sleepEndM / 60.0);
@@ -351,58 +355,69 @@ class NotificationService {
 
   // ============ SPECIAL REMINDERS ============
 // اسپیشل ریمائنڈر شیڈول کرنے کا فنکشن
-static Future<void> scheduleSpecialReminder(int id, int hour, int minute, String message) async {
-  if (kIsWeb) return;
+  static Future<void> scheduleSpecialReminder(
+      int id, int hour, int minute, String message) async {
+    if (kIsWeb) return;
 
-  await init();
+    await init();
 
-  final androidDetails = AndroidNotificationDetails(
-    'special_reminders',
-    'Special Reminders',
-    channelDescription: 'Reminders for medicine, sehri, or iftar',
-    importance: Importance.max,
-    priority: Priority.high,
-    // آپ چاہیں تو یہاں اسپیشل ساؤنڈ بھی لگا سکتے ہیں
-  );
+// جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
+    final androidDetails = AndroidNotificationDetails(
+      'special_reminders',
+      'Special Reminders',
+      channelDescription: 'Reminders for medicine, sehri, or iftar',
+      importance: Importance.max,
+      priority: Priority.high,
+      // [UPDATE] ابھی اسے خاموش رکھتے ہیں، فیچر مکمل کرتے وقت آواز بدلیں گے
+      playSound: false,
+      enableVibration: false,
+    );
 
-  final details = NotificationDetails(android: androidDetails);
+    final details = NotificationDetails(android: androidDetails);
 
-  final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-  tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute, 0);
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute, 0);
 
-  if (scheduledDate.isBefore(now)) {
-    scheduledDate = scheduledDate.add(const Duration(days: 1));
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    await _notifications.zonedSchedule(
+      id, // 201, 202 or 203
+      "Special Reminder",
+      message,
+      scheduledDate,
+      details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+    );
+
+    if (kDebugMode)
+      debugPrint(
+          "Special Reminder $id set for $hour:$minute with message: $message");
   }
 
-  await _notifications.zonedSchedule(
-    id, // 201, 202 or 203
-    "Special Reminder",
-    message,
-    scheduledDate,
-    details,
-    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-    matchDateTimeComponents: DateTimeComponents.time,
-  );
-  
-  if (kDebugMode) debugPrint("Special Reminder $id set for $hour:$minute with message: $message");
-}
 // مخصوص نوٹیفیکیشن کینسل کرنے کا فنکشن (آئی ڈی کے ذریعے)
-static Future<void> cancelNotification(int id) async {
-  await _notifications.cancel(id);
-  if (kDebugMode) debugPrint("Notification $id cancelled.");
-}
+  static Future<void> cancelNotification(int id) async {
+    await _notifications.cancel(id);
+    if (kDebugMode) debugPrint("Notification $id cancelled.");
+  }
 
 // ⭐ نیا شامل شدہ فنکشن: تمام عام ریمائنڈرز کینسل کرنے کا محفوظ طریقہ
-static Future<void> cancelRegularReminders() async {
-  if (kIsWeb) return;
-  // صرف 100 سے 150 تک کینسل کریں (پانی پینے والے ریمائنڈرز)
-  // اسپیشل ریمائنڈرز (201, 202, 203) محفوظ رہیں گے
-  for (int i = 100; i <= 150; i++) {
-    await _notifications.cancel(i);
+  static Future<void> cancelRegularReminders() async {
+    if (kIsWeb) return;
+    // صرف 100 سے 150 تک کینسل کریں (پانی پینے والے ریمائنڈرز)
+    // اسپیشل ریمائنڈرز (201, 202, 203) محفوظ رہیں گے
+    for (int i = 100; i <= 150; i++) {
+      await _notifications.cancel(i);
+    }
+    if (kDebugMode)
+      debugPrint(
+          "Regular reminders (100-150) cancelled. Special ones kept safe.");
   }
-  if (kDebugMode) debugPrint("Regular reminders (100-150) cancelled. Special ones kept safe.");
-}
 
   // ============ TEST ============
   static Future<void> showTestNotification() async {
@@ -410,12 +425,16 @@ static Future<void> cancelRegularReminders() async {
 
     await init();
 
+// جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
     const androidDetails = AndroidNotificationDetails(
       'water_test',
       'Water Reminder Test',
       channelDescription: 'Test notifications',
       importance: Importance.max,
       priority: Priority.high,
+      // [UPDATE] ٹیسٹ میں بھی کسٹم ساؤنڈ بجانے کے لیے سسٹم ساؤنڈ بند
+      playSound: false,
+      enableVibration: false,
     );
 
     final randomTitle =
@@ -427,22 +446,26 @@ static Future<void> cancelRegularReminders() async {
       _randomBodies[_random.nextInt(_randomBodies.length)],
       const NotificationDetails(android: androidDetails),
     );
+
+    // [TEST FIX] اردو کمنٹ: نوٹیفکیشن دکھانے کے فوراً بعد اپنی کسٹم ساؤنڈ بجائیں
+    await SoundService.playWaterSound();
   }
 
 // ============ CANCEL ============
 // اس فنکشن کو اب ہم نے 'Selective' بنا دیا ہے تاکہ 'Star' ریمائنڈرز نہ رکیں
-static Future<void> cancelAll() async {
-  if (kIsWeb) return;
+  static Future<void> cancelAll() async {
+    if (kIsWeb) return;
 
-  // ⭐ بڑی تبدیلی: اب ہم مکمل ایپ کے نوٹیفیکیشن صاف نہیں کریں گے
-  // بلکہ صرف واٹر ریمائنڈرز صاف کریں گے
-  await cancelRegularReminders();
+    // ⭐ بڑی تبدیلی: اب ہم مکمل ایپ کے نوٹیفیکیشن صاف نہیں کریں گے
+    // بلکہ صرف واٹر ریمائنڈرز صاف کریں گے
+    await cancelRegularReminders();
 
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setBool(_scheduleFlagKey, false);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_scheduleFlagKey, false);
 
-  if (kDebugMode) debugPrint('Water notifications cancelled. Special reminders preserved.');
-}
+    if (kDebugMode)
+      debugPrint('Water notifications cancelled. Special reminders preserved.');
+  }
 
   // ============ DEVICE RELIABILITY ============
   static Future<void> openBatteryOptimizationSettings() async {
@@ -500,26 +523,28 @@ static Future<void> cancelAll() async {
     }
   }
 
- // ==========================================
+  // ==========================================
   // SECTION 7: BOOT RESCHEDULE LOGIC (Phase 10)
   // اردو کمنٹ: فون ری اسٹارٹ ہونے پر خاموشی سے ریمائنڈرز بحال کرنا
   // ==========================================
-@pragma('vm:entry-point')
+  @pragma('vm:entry-point')
   static Future<void> handleBootReschedule() async {
-    if (kDebugMode) debugPrint("BOOT_RECEIVER: Device reboot detected. Rescheduling...");
-    
+    if (kDebugMode)
+      debugPrint("BOOT_RECEIVER: Device reboot detected. Rescheduling...");
+
     await init(fromBoot: true);
     final prefs = await SharedPreferences.getInstance();
-    
+
     // --- حصہ 1: عام واٹر ریمائنڈرز (فاسٹنگ موڈ کے تابع) ---
     final bool isScheduled = prefs.getBool(_scheduleFlagKey) ?? false;
     final bool isFasting = prefs.getBool('isFastingMode') ?? false;
 
     if (isScheduled && !isFasting) {
-      await scheduleHourlyReminder(fromBoot: true); 
+      await scheduleHourlyReminder(fromBoot: true);
       if (kDebugMode) debugPrint("BOOT_RECEIVER: Water reminders restored.");
     } else {
-      if (kDebugMode) debugPrint("BOOT_RECEIVER: Water reminders skipped (Fasting or Off).");
+      if (kDebugMode)
+        debugPrint("BOOT_RECEIVER: Water reminders skipped (Fasting or Off).");
     }
 
     // --- حصہ 2: اسپیشل ریمائنڈرز (فاسٹنگ موڈ سے آزاد) ---
@@ -533,7 +558,8 @@ static Future<void> cancelAll() async {
         await scheduleSpecialReminder(id, h, m, msg);
       }
     }
-    
-    if (kDebugMode) debugPrint("BOOT_RECEIVER: Special reminders check completed.");
+
+    if (kDebugMode)
+      debugPrint("BOOT_RECEIVER: Special reminders check completed.");
   }
 }

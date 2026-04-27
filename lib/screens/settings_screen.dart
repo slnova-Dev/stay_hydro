@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/notification_service.dart';
+import 'package:file_picker/file_picker.dart'; // اسے یہاں ہونا چاہیے، فائل کے آخر میں نہیں
+import 'package:stay_hydro/services/sound_service.dart'; // یہاں اپنے پراجیکٹ کا صحیح پاتھ دیں
+import 'package:permission_handler/permission_handler.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool isDark;
@@ -32,8 +35,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   List<int> _specialMinutes = [0, 0, 0];
   List<String> _specialMessages = ["Special 1", "Special 2", "Special 3"];
 
-  // ==========================================
-  // [BLOCK: STATE VARIABLES & KEYS] (Updated)
+// ==========================================
+  // [BLOCK: STATE VARIABLES & KEYS] (Updated Phase 10.3)
   // تمام متغیرات اور لوکل ڈیٹا کی کیز یہاں محفوظ ہیں
   // ==========================================
   late bool _fasting;
@@ -43,31 +46,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late int _sleepEndHour;
   late int _sleepEndMinute;
 
-  String _selectedSound = 'water_glass';
-  static const String _soundPrefKey = 'selected_sound';
+  // آواز اور ریمائنڈر موڈ کے نئے ویریبلز
+  String _currentMode = 'Sound + Vibrate';
+  String _selectedSoundKey = 'water_glass';
+  String _selectedSoundName = 'Water Flow';
+  int _dailyGoal = 2000; // یوزر کا روزانہ کا ہدف (ڈیفالٹ: 2000ml)
+
+  // سونے کے اوقات کی لوکل کیز
   static const String _sleepStartHourKey = 'sleep_start_hour';
   static const String _sleepStartMinuteKey = 'sleep_start_minute';
   static const String _sleepEndHourKey = 'sleep_end_hour';
   static const String _sleepEndMinuteKey = 'sleep_end_minute';
-
-  static const Map<String, String> _sounds = {
-    'water_glass': 'Water Glass',
-    'soft_knock': 'Soft Knock',
-    'water_drop': 'Water Drop',
-  };
 
   @override
   void initState() {
     super.initState();
     _fasting = widget.isFastingMode;
     _darkTheme = widget.isDark;
+    
+    // ڈیفالٹ ویلیوز (اگر میموری سے نہ ملیں)
     _sleepStartHour = 23;
     _sleepStartMinute = 0;
     _sleepEndHour = 7;
     _sleepEndMinute = 0;
-    _loadSound();
-    _loadSleepHours();
-    _loadSpecialReminders(); // اسپیشل ریمائنڈرز لوڈ کرنے کا فنکشن
+
+    // تمام سیٹنگز لوڈ کرنے والے فنکشنز
+    _loadSoundSettings(); // آواز کی نئی سیٹنگز کے لیے (Phase 10.3)
+    _loadSleepHours();     // سونے کے اوقات لوڈ کرنے کے لیے
+    _loadSpecialReminders(); // اسپیشل ریمائنڈرز لوڈ کرنے کے لیے
+  }
+
+  // ==========================================
+  // [FUNCTION: LOAD SOUND SETTINGS]
+  // اردو کمنٹ: محفوظ شدہ آواز اور موڈ کو میموری سے واپس لانا
+  // ==========================================
+  void _loadSoundSettings() async {
+    final mode = await SoundService.getReminderMode();
+    final soundKey = await SoundService.getSound();
+    final customPath = await SoundService.getCustomPath();
+    
+    setState(() {
+      _currentMode = mode;
+      _selectedSoundKey = soundKey;
+      
+      // اگر کسٹم فائل ہے تو اس کا نام دکھائیں، ورنہ لسٹ سے نام اٹھائیں
+      if (soundKey == 'custom' && customPath != null) {
+        _selectedSoundName = customPath.split('/').last;
+      } else {
+        _selectedSoundName = SoundService.waterSounds[soundKey] ?? 'Water Flow';
+      }
+    });
   }
 
 // ==========================================
@@ -88,16 +116,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  // ==========================================
+// ==========================================
   // [BLOCK: DATA LOADING LOGIC]
+  // اردو کمنٹ: میموری سے ڈیٹا لوڈ کرنے کی لاجک
   // ==========================================
-  Future<void> _loadSound() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!mounted) return;
-    setState(() {
-      _selectedSound = prefs.getString(_soundPrefKey) ?? 'water_glass';
-    });
-  }
+  
+  // نوٹ: پرانا _loadSound اب _loadSoundSettings میں منتقل ہو چکا ہے
 
   Future<void> _loadSleepHours() async {
     final prefs = await SharedPreferences.getInstance();
@@ -113,12 +137,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // ==========================================
   // [BLOCK: STORAGE & ACTIONS LOGIC]
   // ==========================================
-  Future<void> _saveSound(String value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_soundPrefKey, value);
-    await NotificationService.scheduleHourlyReminder();
-  }
-
   Future<void> _saveSleepHours({
     int? startHour,
     int? startMin,
@@ -209,45 +227,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _openSoundSelector() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: widget.isDark ? const Color(0xFF1E293B) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          "Reminder Sound",
-          style: TextStyle(
-            color: widget.isDark ? Colors.white : Colors.blue.shade900,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: _sounds.entries.map((entry) {
-            return RadioListTile<String>(
-              activeColor: Colors.blue.shade400,
-              title: Text(
-                entry.value,
-                style: TextStyle(
-                  color: widget.isDark ? Colors.white : Colors.black87,
-                ),
-              ),
-              value: entry.key,
-              groupValue: _selectedSound,
-              onChanged: (value) async {
-                if (value == null) return;
-                await _saveSound(value);
-                await NotificationService.recreateReminderChannel();
-                if (!mounted) return;
-                setState(() => _selectedSound = value);
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
 
   String _formatTime(int hour, int minute) {
     final normalizedHour = hour % 24;
@@ -319,213 +298,220 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ), // یہاں Positioned کی بریکٹ بند ہوئی
 
 // اصلی کانٹینٹ
-          SingleChildScrollView(
-            key: UniqueKey(), 
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(top: 120, bottom: 100, left: 20, right: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+// ==========================================
+// [SECTION: MAIN CONTENT SCROLL] (Updated)
+// اردو کمنٹ: سکرول پوزیشن کو محفوظ رکھنے کے لیے PageStorageKey کا استعمال
+// ==========================================
+SingleChildScrollView(
+  key: const PageStorageKey<String>('settings_scroll_position'), // اب سکرول اوپر نہیں بھاگے گا
+  physics: const AlwaysScrollableScrollPhysics(),
+  padding: const EdgeInsets.only(top: 120, bottom: 100, left: 20, right: 20),
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+       // ... آپ کا باقی تمام کوڈ یہاں آئے گا
                 
-                // ==========================================
-                // [SECTION 1: APPEARANCE & LOOK]
-                // اردو کمنٹ: ایپ کی ظاہری شکل اور تھیم کی سیٹنگز
-                // ==========================================
-                _buildSectionTitle("Appearance", isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Dark Theme",
-                      icon: Icons.dark_mode_rounded,
-                      showDivider: false,
-                      trailing: Switch(
-                        activeColor: Colors.blue.shade400,
-                        value: _darkTheme,
-                        onChanged: (value) {
-                          setState(() => _darkTheme = value);
-                          widget.onThemeToggle(value);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-
-                // ==========================================
-                // [SECTION 2: NOTIFICATION CENTER]
-                // اردو کمنٹ: یہاں ریمائنڈرز کے بنیادی طریقے (موڈ) اور ساؤنڈز کی سیٹنگ ہے
-                // ==========================================
-                _buildSectionTitle("Notification Center", isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Fasting Mode",
-                      subtitle: "Pause hydration reminders",
-                      icon: Icons.timer_off_rounded,
-                      showDivider: true,
-                      trailing: Switch(
-                        activeColor: Colors.blue.shade400,
-                        value: _fasting,
-                        onChanged: (value) async {
-                          setState(() => _fasting = value);
-                          widget.onFastingToggle(value);
-                          if (value) {
-                            await NotificationService.cancelAll();
-                          } else {
-                            await NotificationService.scheduleHourlyReminder();
-                          }
-                        },
-                      ),
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Reminder Sound",
-                      subtitle: _sounds[_selectedSound] ?? '',
-                      icon: Icons.notifications_active_rounded,
-                      showDivider: false,
-                      onTap: _openSoundSelector,
-                    ),
-                    // نوٹ: یہاں فیز 11 میں "Custom vs Hourly" کا سلیکٹر شامل کریں گے
-                  ],
-                ),
-
-                // ==========================================
-                // [SECTION 3: SPECIAL REMINDERS] (Phase 10.2)
-                // اردو کمنٹ: یہ ریمائنڈرز فاسٹنگ موڈ میں بھی کام کریں گے
-                // ==========================================
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildSectionTitle("Special Reminders", isDark),
-                    IconButton(
-                      icon: Icon(Icons.info_outline_rounded, 
-                        size: 18, color: isDark ? Colors.white30 : Colors.blue.shade200),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Special reminders remain active even during Fasting Mode."),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-
-// ⭐ یہ وہ 3 لائنیں ہیں جو مِس ہو گئی تھیں
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-// [CARD: SPECIAL 1]
-// اردو کمنٹ: پہلا اسپیشل ریمائڈر - ڈیٹا لوڈ کرنے اور ایڈٹ کرنے کی صلاحیت کے ساتھ
-
-_buildSettingTile(
+// ==========================================
+// [SECTION 1: APPEARANCE & PERSONALIZATION]
+// اردو کمنٹ: تھیم، زبان اور روزانہ کے ہدف کی سیٹنگز
+// ==========================================
+_buildSectionTitle("Appearance & Personalization", isDark),
+_buildGroupContainer(
   isDark: isDark,
-  // اگر یوزر نے نام بدلا ہے تو وہ دکھائے گا، ورنہ ڈیفالٹ "Special 1"
-  title: _specialMessages[0], 
-  // اگر آن ہے تو وقت دکھائے گا، ورنہ "Off" لکھا آئے گا
-  subtitle: _specialEnabled[0] 
-      ? "Active at ${_formatTime(_specialHours[0], _specialMinutes[0])}" 
-      : "Off",
-  // اگر آن ہے تو بھرا ہوا ستارہ (star)، ورنہ صرف آؤٹ لائن والا ستارہ
-  icon: _specialEnabled[0] ? Icons.star_rounded : Icons.star_outline_rounded,
-  showDivider: true,
-  // کلک کرنے پر باٹم شیٹ کھولے گا اور انڈیکس 0 (پہلا کارڈ) پاس کرے گا
-  onTap: () => _showSpecialEditor(0), 
+  children: [
+    // 1: تھیم (Dark Theme)
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Dark Theme",
+      icon: Icons.dark_mode_rounded,
+      showDivider: true,
+      trailing: Switch(
+        activeColor: Colors.blue.shade400,
+        value: _darkTheme,
+        onChanged: (value) {
+          setState(() => _darkTheme = value);
+          widget.onThemeToggle(value);
+        },
+      ),
+    ),
+    
+    // 2: زبان (Language Selector) - فیز 10.3 کا حصہ
+    _buildSettingTile(
+      isDark: isDark,
+      title: "App Language",
+      subtitle: "English", // یہاں منتخب زبان کا نام آئے گا
+      icon: Icons.translate_rounded,
+      showDivider: true,
+      onTap: () {
+        // یہاں زبان منتخب کرنے کا ڈائیلاگ آئے گا
+      },
+    ),
+
+    // 3: ڈیلی گول (Daily Goal)
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Daily Goal",
+      subtitle: "$_dailyGoal ml", // ڈیلی گول کا ویریبل
+      icon: Icons.water_drop_rounded,
+      showDivider: false,
+      onTap: () {
+        // یہاں گول سیٹ کرنے کا ڈائیلاگ آئے گا
+      },
+    ),
+  ],
 ),
 
-// [CARD: SPECIAL 2]
-// اردو کمنٹ: دوسرا اسپیشل ریمائڈر - ڈیٹا لوڈ کرنے اور ایڈٹ کرنے کی صلاحیت کے ساتھ
-_buildSettingTile(
+// ==========================================
+// [SECTION 2: NOTIFICATION & SOUNDS]
+// اردو کمنٹ: ریمائنڈرز کے موڈ، آوازیں اور فاسٹنگ موڈ
+// ==========================================
+_buildSectionTitle("Notification & Sounds", isDark),
+_buildGroupContainer(
   isDark: isDark,
-  // اگر یوزر نے نام بدلا ہے تو وہ دکھائے گا، ورنہ ڈیفالٹ "Special 2"
-  title: _specialMessages[1], 
-  // اگر آن ہے تو وقت دکھائے گا، ورنہ "Off" لکھا آئے گا
-  subtitle: _specialEnabled[1] 
-      ? "Active at ${_formatTime(_specialHours[1], _specialMinutes[1])}" 
-      : "Off",
-  // اگر آن ہے تو بھرا ہوا ستارہ (star)، ورنہ صرف آؤٹ لائن والا ستارہ
-  icon: _specialEnabled[1] ? Icons.star_rounded : Icons.star_outline_rounded,
-  showDivider: true,
-  // کلک کرنے پر باٹم شیٹ کھولے گا اور انڈیکس 1 (دوسرا کارڈ) پاس کرے گا
-  onTap: () => _showSpecialEditor(1), 
+  children: [
+    // 1: فاسٹنگ موڈ (Fasting Mode)
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Fasting Mode",
+      subtitle: "Pause hydration reminders",
+      icon: Icons.timer_off_rounded,
+      showDivider: true,
+      trailing: Switch(
+        activeColor: Colors.blue.shade400,
+        value: _fasting,
+        onChanged: (value) async {
+          setState(() => _fasting = value);
+          widget.onFastingToggle(value);
+          if (value) {
+            await NotificationService.cancelAll();
+          } else {
+            await NotificationService.scheduleHourlyReminder();
+          }
+        },
+      ),
+    ),
+
+    // 2: ریمائنڈر موڈ (Sound/Vibrate/Silent)
+    // اردو کمنٹ: شو موڈ پکر (showModePicker) یہاں سے کال ہوگا
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Reminder Mode",
+      subtitle: _currentMode, 
+      icon: Icons.notifications_active_rounded,
+      showDivider: true,
+      onTap: () => _showModePicker(context, isDark),
+    ),
+
+    // 3: ریمائنڈر ساؤنڈ (Sound Selector)
+    // اردو کمنٹ: شو ساؤنڈ پکر (showSoundPicker) یہاں سے کال ہوگا
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Reminder Sound",
+      subtitle: _selectedSoundName, 
+      icon: Icons.music_note_rounded,
+      showDivider: false,
+      onTap: () => _showSoundPicker(context, isDark),
+    ),
+  ],
 ),
 
-// [CARD: SPECIAL 3]
-// اردو کمنٹ: تیسرا اسپیشل ریمائڈر - ڈیٹا لوڈ کرنے اور ایڈٹ کرنے کی صلاحیت کے ساتھ
-
-_buildSettingTile(
-  isDark: isDark,
-  // اگر یوزر نے نام بدلا ہے تو وہ دکھائے گا، ورنہ ڈیفالٹ "Special 3"
-  title: _specialMessages[2], 
-  // اگر آن ہے تو وقت دکھائے گا، ورنہ "Off" لکھا آئے گا
-  subtitle: _specialEnabled[2] 
-      ? "Active at ${_formatTime(_specialHours[2], _specialMinutes[2])}" 
-      : "Off",
-  // اگر آن ہے تو بھرا ہوا ستارہ (star)، ورنہ صرف آؤٹ لائن والا ستارہ
-  icon: _specialEnabled[2] ? Icons.star_rounded : Icons.star_outline_rounded,
-  showDivider: false,
-  // کلک کرنے پر باٹم شیٹ کھولے گا اور انڈیکس 2 (تیسرا کارڈ) پاس کرے گا
-  onTap: () => _showSpecialEditor(2), 
+// ==========================================
+// [SECTION 3: SPECIAL REMINDERS] 
+// اردو کمنٹ: یہ ریمائنڈرز فاسٹنگ موڈ میں بھی فعال رہتے ہیں
+// ==========================================
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    _buildSectionTitle("Special Reminders", isDark),
+    IconButton(
+      icon: Icon(Icons.info_outline_rounded, 
+        size: 18, color: isDark ? Colors.white30 : Colors.blue.shade200),
+      onPressed: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Special reminders remain active even during Fasting Mode."),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+    ),
+  ],
 ),
-], // یہ پہلی بند ہونے والی بریکٹ (children کی ہے)
-                ), // یہ دوسری بند ہونے والی بریکٹ (_buildGroupContainer کی ہے)
+_buildGroupContainer(
+  isDark: isDark,
+  children: [
+    // CARD: SPECIAL 1
+    _buildSettingTile(
+      isDark: isDark,
+      title: _specialMessages[0], 
+      subtitle: _specialEnabled[0] ? "Active at ${_formatTime(_specialHours[0], _specialMinutes[0])}" : "Off",
+      icon: _specialEnabled[0] ? Icons.star_rounded : Icons.star_outline_rounded,
+      showDivider: true,
+      onTap: () => _showSpecialEditor(0), 
+    ),
+    // CARD: SPECIAL 2
+    _buildSettingTile(
+      isDark: isDark,
+      title: _specialMessages[1], 
+      subtitle: _specialEnabled[1] ? "Active at ${_formatTime(_specialHours[1], _specialMinutes[1])}" : "Off",
+      icon: _specialEnabled[1] ? Icons.star_rounded : Icons.star_outline_rounded,
+      showDivider: true,
+      onTap: () => _showSpecialEditor(1), 
+    ),
+    // CARD: SPECIAL 3
+    _buildSettingTile(
+      isDark: isDark,
+      title: _specialMessages[2], 
+      subtitle: _specialEnabled[2] ? "Active at ${_formatTime(_specialHours[2], _specialMinutes[2])}" : "Off",
+      icon: _specialEnabled[2] ? Icons.star_rounded : Icons.star_outline_rounded,
+      showDivider: false,
+      onTap: () => _showSpecialEditor(2), 
+    ),
+  ],
+),
 
-                // ==========================================
-                // [SECTION 4: SCHEDULE & SYSTEM]
-                // اردو کمنٹ: سونے کے اوقات اور بیٹری کی اہم سیٹنگز
-                // ==========================================
-                _buildSectionTitle("Schedule & System", isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Sleep Start Hour",
-                      subtitle: _formatTime(_sleepStartHour, _sleepStartMinute),
-                      icon: Icons.bedtime_rounded,
-                      showDivider: true,
-                      onTap: () => _selectSleepHour(
-                        isStartHour: true,
-                        initialHour: _sleepStartHour,
-                        initialMinute: _sleepStartMinute,
-                      ),
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Sleep End Hour",
-                      subtitle: _formatTime(_sleepEndHour, _sleepEndMinute),
-                      icon: Icons.wb_sunny_rounded,
-                      showDivider: true,
-                      onTap: () => _selectSleepHour(
-                        isStartHour: false,
-                        initialHour: _sleepEndHour,
-                        initialMinute: _sleepEndMinute,
-                      ),
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Battery Optimization",
-                      subtitle: "Essential for on-time alerts",
-                      icon: Icons.battery_saver_rounded,
-                      showDivider: true,
-                      onTap: () async =>
-                          await NotificationService.openBatteryOptimizationSettings(),
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Enable Auto Start",
-                      subtitle: "Keep reminders active after restart",
-                      icon: Icons.power_settings_new_rounded,
-                      showDivider: false,
-                      onTap: () async =>
-                          await NotificationService.openAutoStartSettings(),
-                    ),
-                  ],
-                ),
+// ==========================================
+// [SECTION 4: SCHEDULE & SYSTEM]
+// اردو کمنٹ: سونے کے اوقات اور بیٹری کی اہم سیٹنگز
+// ==========================================
+_buildSectionTitle("Schedule & System", isDark),
+_buildGroupContainer(
+  isDark: isDark,
+  children: [
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Sleep Start Hour",
+      subtitle: _formatTime(_sleepStartHour, _sleepStartMinute),
+      icon: Icons.bedtime_rounded,
+      showDivider: true,
+      onTap: () => _selectSleepHour(isStartHour: true, initialHour: _sleepStartHour, initialMinute: _sleepStartMinute),
+    ),
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Sleep End Hour",
+      subtitle: _formatTime(_sleepEndHour, _sleepEndMinute),
+      icon: Icons.wb_sunny_rounded,
+      showDivider: true,
+      onTap: () => _selectSleepHour(isStartHour: false, initialHour: _sleepEndHour, initialMinute: _sleepEndMinute),
+    ),
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Battery Optimization",
+      subtitle: "Essential for on-time alerts",
+      icon: Icons.battery_saver_rounded,
+      showDivider: true,
+      onTap: () async => await NotificationService.openBatteryOptimizationSettings(),
+    ),
+    _buildSettingTile(
+      isDark: isDark,
+      title: "Enable Auto Start",
+      subtitle: "Keep reminders active after restart",
+      icon: Icons.power_settings_new_rounded,
+      showDivider: false,
+      onTap: () async => await NotificationService.openAutoStartSettings(),
+    ),
+  ],
+),
 
                 // ==========================================
                 // [SECTION 5: APP SUPPORT]
@@ -679,6 +665,145 @@ _buildSettingTile(
     );
   }
 
+// ==========================================
+// [FUNCTION: SHOW MODE PICKER] (Updated Phase 10.4)
+// اردو کمنٹ: ریمائنڈر کے طریقے منتخب کرنے اور فوری فیڈ بیک دینے کا فنکشن
+// ==========================================
+void _showModePicker(BuildContext context, bool isDark) {
+  final List<String> modes = [
+    'Sound + Vibrate',
+    'Sound only',
+    'Vibrate only',
+    'Silent'
+  ];
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: isDark ? const Color(0xFF1A1C1E) : Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Select Reminder Mode", 
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, 
+              color: isDark ? Colors.white : Colors.black87)),
+            const SizedBox(height: 10),
+            ...modes.map((mode) => ListTile(
+              leading: Icon(
+                mode == 'Silent' ? Icons.notifications_off_rounded : Icons.notifications_active_rounded,
+                color: _currentMode == mode ? Colors.blue.shade400 : Colors.grey,
+              ),
+              title: Text(mode, style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
+              trailing: _currentMode == mode ? Icon(Icons.check_circle, color: Colors.blue.shade400) : null,
+onTap: () async {
+                setState(() => _currentMode = mode);
+                await SoundService.setReminderMode(mode);
+                
+                // [UX FEEDBACK - UPDATED]
+                // اب یہ ایک ہی فنکشن موڈ دیکھ کر آواز بھی بجائے گا اور وائبریٹ بھی کرے گا
+                SoundService.playWaterSound(); 
+                
+                Navigator.pop(context);
+              },
+                            
+            )).toList(),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+// ==========================================
+// [FUNCTION: SHOW SOUND PICKER] (Updated Phase 10.4)
+// اردو کمنٹ: آواز منتخب کرنے اور منتخب شدہ آواز کا فوری پریویو (Preview) سنانے کا فنکشن
+// ==========================================
+void _showSoundPicker(BuildContext context, bool isDark) async {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: isDark ? const Color(0xFF1A1C1E) : Colors.white,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Select Notification Sound", 
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, 
+              color: isDark ? Colors.white : Colors.black87)),
+            const SizedBox(height: 10),
+            
+            ...SoundService.waterSounds.entries.where((e) => e.key != 'custom').map((entry) => ListTile(
+              leading: Icon(Icons.music_note_rounded, 
+                color: _selectedSoundKey == entry.key ? Colors.blue.shade400 : Colors.grey),
+              title: Text(entry.value, style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
+              onTap: () async {
+                setState(() {
+                  _selectedSoundKey = entry.key;
+                  _selectedSoundName = entry.value;
+                });
+                await SoundService.setSound(entry.key);
+                SoundService.playWaterSound(); // ڈیفالٹ آواز کا پریویو
+                Navigator.pop(context);
+              },
+            )).toList(),
+
+            const Divider(),
+
+            ListTile(
+              leading: Icon(Icons.folder_open_rounded, color: Colors.orange.shade400),
+              title: Text("Select from Device", style: TextStyle(color: isDark ? Colors.white : Colors.black87)),
+              subtitle: const Text("MP3, OGG or WAV files"),
+              onTap: () async {
+                Navigator.pop(context); 
+// 1. سب سے پہلے پرمیشن مانگیں (یہ فائل پِکر کھولنے سے پہلے ہونا چاہیے)
+if (await Permission.audio.request().isGranted || await Permission.storage.request().isGranted) {
+    
+    // 2. اب فائل پِکر کھولیں (یہاں آپ کا وہ کوڈ آئے گا جو فائل سلیکٹ کرتا ہے)
+    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.audio);
+
+    if (result != null && result.files.single.path != null) {
+        String path = result.files.single.path!;
+        String fileName = result.files.single.name;
+        
+        setState(() {
+            _selectedSoundKey = 'custom';
+            _selectedSoundName = fileName;
+        });
+
+        await SoundService.setSound('custom');
+        await SoundService.setCustomPath(path);
+
+        // [IMPORTANT] یہ فنکشن ابھی ہم نے بنانا ہے
+        await NotificationService.recreateReminderChannel();
+        
+        // پریویو بجائیں
+        SoundService.playWaterSound(); 
+    }
+} else {
+    // اگر یوزر پرمیشن نہ دے تو یہاں کوئی میسج دکھا دیں
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("فائل سلیکٹ کرنے کے لیے پرمیشن لازمی ہے"))
+    );
+}
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+
   // ==========================================
   // [BLOCK: UI HELPER WIDGETS]
   // ==========================================
@@ -720,18 +845,26 @@ _buildSettingTile(
     );
   }
 
-  Widget _buildSettingTile({
-    required bool isDark,
-    required String title,
-    String? subtitle,
-    required IconData icon,
-    Widget? trailing,
-    VoidCallback? onTap,
-    bool showDivider = true,
-  }) {
-    return Column(
-      children: [
-        ListTile(
+// ==========================================
+// [FUNCTION: BUILD SETTING TILE] (Updated Phase 10.4)
+// اردو کمنٹ: تمام کارڈز کی اونچائی (Height) کو ایک جیسا رکھنے کے لیے Constraints کا اضافہ
+// ==========================================
+Widget _buildSettingTile({
+  required bool isDark,
+  required String title,
+  String? subtitle,
+  required IconData icon,
+  Widget? trailing,
+  VoidCallback? onTap,
+  bool showDivider = true,
+}) {
+  return Column(
+    children: [
+      // Container کے ذریعے کم از کم اونچائی فکس کر دی گئی ہے
+      Container(
+        constraints: const BoxConstraints(minHeight: 70), // کارڈز کی یکساں موٹائی کے لیے
+        alignment: Alignment.center,
+        child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           leading: Container(
             padding: const EdgeInsets.all(8),
@@ -744,7 +877,7 @@ _buildSettingTile(
           title: Text(
             title,
             style: TextStyle(
-              fontWeight: FontWeight.bold, // ٹیکسٹ کو تھوڑا مزید گہرا کیا
+              fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : Colors.blue.shade900,
             ),
           ),
@@ -765,22 +898,23 @@ _buildSettingTile(
               ),
           onTap: onTap,
         ),
-        if (showDivider)
-          Padding(
-            padding: const EdgeInsets.only(left: 56),
-            child: Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    isDark ? Colors.white10 : Colors.blue.shade100.withOpacity(0.3),
-                    Colors.transparent,
-                  ],
-                ),
+      ),
+      if (showDivider)
+        Padding(
+          padding: const EdgeInsets.only(left: 56),
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  isDark ? Colors.white10 : Colors.blue.shade100.withOpacity(0.3),
+                  Colors.transparent,
+                ],
               ),
             ),
           ),
-      ],
-    );
-  }
+        ),
+    ],
+  );
+}
 }
