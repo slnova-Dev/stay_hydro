@@ -165,9 +165,8 @@ class _HomeScreenState extends State<HomeScreen>
   String _selectMascotAsset() {
     final random = Random();
     if (widget.isFastingMode) {
-      final assets = _mascotAssets
-          .where((a) => a.contains('/fasting'))
-          .toList();
+      final assets =
+          _mascotAssets.where((a) => a.contains('/fasting')).toList();
       return assets.isNotEmpty
           ? assets[random.nextInt(assets.length)]
           : _mascotAssets[0];
@@ -184,9 +183,8 @@ class _HomeScreenState extends State<HomeScreen>
       _sleepEndHour,
       _sleepEndMinute,
     )) {
-      final sleeping = _mascotAssets
-          .where((a) => a.contains('/sleeping'))
-          .toList();
+      final sleeping =
+          _mascotAssets.where((a) => a.contains('/sleeping')).toList();
       if (sleeping.isNotEmpty) return sleeping[random.nextInt(sleeping.length)];
     }
     if (currentIntake >= dailyGoal && happyAssets.isNotEmpty) {
@@ -197,9 +195,8 @@ class _HomeScreenState extends State<HomeScreen>
         _nextReminderTime != null && _nextReminderTime!.isBefore(now);
     final isVeryLow = currentIntake < (dailyGoal ~/ 4);
     if ((isVeryLow || isReminderOverdue) && !_justDrank) {
-      final thirsty = _mascotAssets
-          .where((a) => a.contains('/thirsty'))
-          .toList();
+      final thirsty =
+          _mascotAssets.where((a) => a.contains('/thirsty')).toList();
       return thirsty.isNotEmpty
           ? thirsty[random.nextInt(thirsty.length)]
           : _mascotAssets[0];
@@ -499,10 +496,16 @@ class _HomeScreenState extends State<HomeScreen>
 
     if (result != null) {
       final int amount = result['amount'];
-      final String time = result['time'] ?? DateFormat('hh:mm a').format(DateTime.now()); // اگر وقت ملے ورنہ موجودہ وقت
+
+      // ⭐ تبدیلی: یہاں ہم یقینی بنا رہے ہیں کہ وقت سٹرنگ میں تبدیل ہو کر جائے
+      final dynamic rawTime = result['time'];
+      final String time = (rawTime is TimeOfDay)
+          ? "${rawTime.hour}:${rawTime.minute.toString().padLeft(2, '0')}"
+          : rawTime?.toString() ?? DateFormat('hh:mm a').format(DateTime.now());
+
       final int prev = currentIntake;
 
-      // مسڈ انٹری کو بھی ہسٹری میں وقت کے ساتھ شامل کرنا
+      // مسڈ انٹری کو ہسٹری میں شامل کرنا
       await HistoryService.addToHistory(amount, time);
 
       setState(() {
@@ -737,7 +740,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   widget.isFastingMode ? "Paused" : timeStr,
                                   style: TextStyle(
                                     // اگر ٹیکسٹ بڑا ہو تو سائز خودکار طور پر تھوڑا چھوٹا ہو جائے گا
-                                   fontSize: widget.isFastingMode ? 18 : 22,
+                                    fontSize: widget.isFastingMode ? 18 : 22,
                                     fontWeight: FontWeight.bold,
                                     color: isDark
                                         ? Colors.white

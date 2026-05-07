@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:stay_hydro/services/sound_service.dart'; // اگر فولڈر کا پاتھ یہی ہے تو
+import 'dart:typed_data';
+import 'package:flutter/material.dart'; // یا import 'package:flutter/painting.dart';
 
 // ==========================================
 // سیکشن 1: نوٹیفیکیشن سروس کلاس
@@ -24,9 +26,7 @@ class NotificationService {
   static const String _sleepEndHourKey = 'sleep_end_hour';
   static const String _sleepEndMinuteKey = 'sleep_end_minute';
 
-  static const String _channelId = 'water_hourly';
-  static const String _channelName = 'Water Reminder';
-  static const String _channelDescription = 'Hourly hydration reminders';
+  // اسے 'water_hourly' سے بدل کر 'water_reminder_v3' کر دیں
 
   // ⭐ Random Notification Messages
   static const List<String> _randomMessages = [
@@ -111,7 +111,7 @@ class NotificationService {
   }
 
 // ============ INIT ============
-  // اردو کمنٹ: اس میں fromBoot کا اضافہ کیا گیا ہے تاکہ بیک گراؤنڈ میں کریش نہ ہو
+// اردو کمنٹ: اس میں fromBoot کا اضافہ کیا گیا ہے تاکہ بیک گراؤنڈ میں کریش نہ ہو
   static Future<void> init({bool fromBoot = false}) async {
     if (_initialized) return;
 
@@ -136,6 +136,9 @@ class NotificationService {
           debugPrint('Notification tapped: ${response.id}');
         }
       },
+      // ⭐ یہ لائن بیک گراؤنڈ کلک ہینڈلر کو جوڑ رہی ہے
+      onDidReceiveBackgroundNotificationResponse:
+          NotificationService.notificationTapBackground,
     );
 
     // ⭐ لاجک: اگر یہ بوٹ (Boot) سے چل رہا ہے تو پرمیشن نہیں مانگنی
@@ -146,41 +149,104 @@ class NotificationService {
           ?.requestNotificationsPermission();
     }
 
-    await recreateReminderChannel();
+// =========================================================
+// ⭐⭐⭐ CRITICAL FIX: Dynamic Channel Creation (REAL SOLUTION)
+// =========================================================
+
+    final prefs = await SharedPreferences.getInstance();
+
+// ⭐ منتخب ساؤنڈ حاصل کریں
+    final String soundName = prefs.getString(_soundPrefKey) ?? 'water_glass';
+
+// ⭐ DEBUG: init میں اصل loaded value دیکھیں
+    if (kDebugMode) {
+      debugPrint("LOADED SOUND FROM PREFS: $soundName");
+    }
+
+// ⭐ ساؤنڈ اور چینل آئی ڈی سیٹ کریں
+    String finalSound = 'water_glass';
+    String channelId = 'water_glass_channel_V8';
+
+    if (soundName == 'soft_knock') {
+      finalSound = 'soft_knock';
+      channelId = 'soft_knock_channel_V8';
+    } else if (soundName == 'water_drop') {
+      finalSound = 'water_drop';
+      channelId = 'water_drop_channel_V8';
+    }
+
+    if (kDebugMode) {
+      debugPrint("INIT SELECTED SOUND: $soundName");
+      debugPrint("INIT CHANNEL ID: $channelId");
+    }
+
+    // ⭐ صرف ایک بار سب چینلز بنا دو
+    await createAllNotificationChannels();
 
     _initialized = true;
   }
 
-  // ============ SOUND ============
+  // اردو کمنٹ: تمام ضروری چینلز کو پہلے سے بنا کر رکھنا تاکہ سسٹم تیار رہے
+
+// ============ SOUND ============
   static Future<String> _getSelectedSound() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_soundPrefKey) ?? 'water_glass';
   }
 
-  static Future<void> recreateReminderChannel() async {
+  // ⭐ نیا فنکشن: تمام 3 آوازوں کے لیے مستقل چینلز بنانا
+  static Future<void> createAllNotificationChannels() async {
     if (kIsWeb) return;
 
     final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
 
-    await androidPlugin?.deleteNotificationChannel(_channelId);
+    // 1. Water Flow (Default)
+    await androidPlugin?.createNotificationChannel(AndroidNotificationChannel(
+      'water_glass_channel_V8',
+      'Water Flow Reminder',
+      description: 'Notifications with water flow sound',
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+      vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
+      sound: const RawResourceAndroidNotificationSound('water_glass'),
+    ));
 
-    final androidChannel = AndroidNotificationChannel(
-      _channelId,
-      _channelName,
-      description: _channelDescription,
-      importance: Importance.high,
-      // [CRITICAL UPDATE] اردو کمنٹ: سسٹم ساؤنڈ کو یہاں بھی بند کریں تاکہ ہماری کسٹم ساؤنڈ بج سکے
-      playSound: false,
-      enableVibration: false,
-    );
+    // 2. Soft Knock
+    await androidPlugin?.createNotificationChannel(AndroidNotificationChannel(
+      'soft_knock_channel_V8',
+      'Soft Knock Reminder',
+      description: 'Notifications with soft knock sound',
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+      vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
+      sound: const RawResourceAndroidNotificationSound('soft_knock'),
+    ));
 
-    await androidPlugin?.createNotificationChannel(androidChannel);
+    // 3. Water Drop
+    await androidPlugin?.createNotificationChannel(AndroidNotificationChannel(
+      'water_drop_channel_V8',
+      'Water Drop Reminder',
+      description: 'Notifications with water drop sound',
+      importance: Importance.max,
+      playSound: true,
+      enableVibration: true,
+      vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
+      sound: const RawResourceAndroidNotificationSound('water_drop'),
+    ));
+  }
+
+  // اردو کمنٹ: پرانا recreateReminderChannel اب createAllNotificationChannels میں ضم ہو چکا ہے
+  static Future<void> recreateReminderChannel() async {
+    await createAllNotificationChannels();
   }
 
 // ============ SCHEDULE (UPDATED TO OPTION 2) ============
-  // اردو کمنٹ: fromBoot پیرامیٹر شامل کیا گیا ہے تاکہ بیک گراؤنڈ میں پرمیشن کا مسئلہ نہ ہو
+// اردو کمنٹ: fromBoot پیرامیٹر شامل کیا گیا ہے تاکہ بیک گراؤنڈ میں پرمیشن کا مسئلہ نہ ہو
   static Future<void> scheduleHourlyReminder({bool fromBoot = false}) async {
+    debugPrint("⭐⭐⭐ SCHEDULE FUNCTION TRIGGERED ⭐⭐⭐"); // یہاں شامل کریں
     if (kIsWeb) return;
 
     // ⭐ Fasting Mode Sync Check
@@ -191,17 +257,21 @@ class NotificationService {
       if (kDebugMode)
         debugPrint(
             "Fasting Mode Active: Cancellation triggered instead of schedule.");
-// ⭐ صرف پانی والے ریمائنڈرز کینسل کریں (100 سے 124)
-      // اسپیشل ریمائنڈرز (201-203) محفوظ رہیں گے
-// ⭐ تبدیلی: اب مینوئل لوپ کی جگہ ہم اپنا نیا فنکشن کال کریں گے
+      // ⭐ صرف پانی والے ریمائنڈرز کینسل کریں (100 سے 124)
       await cancelRegularReminders();
-      return; // یہاں سے فنکشن واپس چلا جائے گا
-    } // 👈 یہ بریکٹ یقینی بنائیں کہ یہاں موجود ہے
+      return;
+    }
 
     if (kDebugMode) debugPrint("CLEANING AND RE-SCHEDULING (PLAY STORE SAFE)");
 
     // ⭐ اہم تبدیلی: اب یہ پیرامیٹر کے مطابق انیشلائز ہوگا
     await init(fromBoot: fromBoot);
+
+    // ⭐ ensure channels exist before scheduling
+    await createAllNotificationChannels();
+
+// ⭐ چھوٹا delay تاکہ OS channel properly register کر لے
+    await Future.delayed(const Duration(milliseconds: 300));
 
     await prefs.setInt(_intervalKey, 60);
     await prefs.setBool(_scheduleFlagKey, true);
@@ -211,24 +281,74 @@ class NotificationService {
     final sleepEndH = prefs.getInt(_sleepEndHourKey) ?? 7;
     final sleepEndM = prefs.getInt(_sleepEndMinuteKey) ?? 0;
 
-    final soundKey = await _getSelectedSound();
+    // ⭐ سیف لاجک: آواز کے انتخاب کے مطابق صحیح چینل آئی ڈی اور فائل کا تعین
+    // آواز کا نام حاصل کریں
+    final String soundName = await _getSelectedSound();
 
-// جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
+    // ⭐ DEBUG: اصل loaded sound چیک کریں
+    if (kDebugMode) {
+      print("LOADED SOUND IN SCHEDULE: $soundName");
+    }
+
+    // ⭐ SAFE لاجک: اب fallback بھی correct ہوگا اور debug بھی clear ہوگا
+    String finalSound;
+    String channelId;
+
+    switch (soundName) {
+      case 'soft_knock':
+        finalSound = 'soft_knock';
+        channelId = 'soft_knock_channel_V8'; // ⭐ Capital V to match init
+        break;
+
+      case 'water_drop':
+        finalSound = 'water_drop';
+        channelId = 'water_drop_channel_V8'; // ⭐ Capital V to match init
+        break;
+
+      case 'water_glass':
+      default:
+        finalSound = 'water_glass';
+        channelId = 'water_glass_channel_V8'; // ⭐ Capital V to match init
+        break;
+    }
+
+    // ⭐ DEBUG (بہت اہم)
+    if (kDebugMode) {
+      print("SELECTED SOUND: $soundName");
+      print("FINAL CHANNEL ID: $channelId");
+    }
+
+// نوٹیفیکیشن کی تفصیلات تیار کریں
     final androidDetails = AndroidNotificationDetails(
-      _channelId,
-      _channelName,
-      channelDescription: _channelDescription,
-      importance: Importance.high,
+      channelId, // ⭐ درست چینل (اب یہ باہر سے V6 کے ساتھ آئے گا)
+
+      'Water Reminders',
+      channelDescription: 'Hourly hydration alerts',
+
+      importance: Importance.max,
       priority: Priority.high,
-      // [CRITICAL CHANGE] اینڈرائیڈ کو آواز بجانے سے روکیں
-      playSound: false,
-      enableVibration: false, // وائبریشن بھی ہم خود سنبھالیں گے
+
+      // playSound: true,
+
+      // ⭐ وائبریشن
+      // enableVibration: true,
+      // vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
+
+      // ❌ یہاں sound مت ڈالنا (channel already handle کر رہا ہے)
+
+      //enableLights: true,
+      //ledColor: const Color.fromARGB(255, 0, 255, 255),
+      //ledOnMs: 1000,
+      //ledOffMs: 500,
+
+      ticker: 'Stay Hydro Reminder',
     );
 
-    final details = NotificationDetails(android: androidDetails);
+    final notificationDetails = NotificationDetails(android: androidDetails);
+
+    // یہاں سے آگے آپ کا ریمائنڈر لوپ (Loop) شروع ہوگا...
 
     // Cancel all previous hourly IDs (100 to 124)
-// ⭐ تبدیلی: یہاں بھی پرانا لوپ ہٹا کر نیا فنکشن کال کر سکتے ہیں
     await cancelRegularReminders();
 
     // ⭐ Debug Lists for logging
@@ -239,7 +359,6 @@ class NotificationService {
     for (int hour = 0; hour < 24; hour++) {
       bool isSleep = false;
 
-      // Precise calculation for sleep window
       double currentT = hour.toDouble();
       double startT = sleepStartH + (sleepStartM / 60.0);
       double endT = sleepEndH + (sleepEndM / 60.0);
@@ -257,12 +376,12 @@ class NotificationService {
           _randomMessages[_random.nextInt(_randomMessages.length)],
           _randomBodies[_random.nextInt(_randomBodies.length)],
           _nextInstanceOfHour(hour),
-          details,
-          // ⭐ اہم تبدیلی: اب یہ 'exact' موڈ استعمال کرے گا تاکہ الارم وقت پر آئیں
+          notificationDetails,
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.time,
+          payload: 'water_reminder',
         );
       } else {
         skippedHours.add(hour);
@@ -273,12 +392,12 @@ class NotificationService {
       debugPrint('--- NOTIFICATION SCHEDULE REPORT ---');
       debugPrint('Active Hours: ${scheduledHours.join(", ")}');
       debugPrint('Sleep Hours (Skipped): ${skippedHours.join(", ")}');
+      print("SCHEDULE CHANNEL ID: $channelId");
       debugPrint('------------------------------------');
     }
 
-// ⭐ درست جگہ: فنکشن ختم ہونے والی بریکٹ سے پہلے
+    // ⭐ اب یہ لوپ فنکشن کے اندر ہے (لائن 301 ایرر حل)
     // ⭐ آخر میں اسپیشل ریمائنڈرز کو دوبارہ زندہ (Restore) کریں
-    // تاکہ ری شیڈولنگ کے دوران اگر کچھ مِس ہوا ہو تو وہ بحال ہو جائے
     for (int id = 201; id <= 203; id++) {
       final bool isEnabled = prefs.getBool('special_${id}_enabled') ?? false;
       if (isEnabled) {
@@ -288,7 +407,7 @@ class NotificationService {
         await scheduleSpecialReminder(id, h, m, msg);
       }
     }
-  } // 👈 یہ ہے فنکشن کی آخری بریکٹ، لوپ اس کے اندر ہونا چاہیے
+  } // 👈 یہ ہے فنکشن کی اصل آخری بریکٹ
 
   static tz.TZDateTime _nextInstanceOfHour(int hour) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
@@ -354,14 +473,14 @@ class NotificationService {
   }
 
   // ============ SPECIAL REMINDERS ============
-// اسپیشل ریمائنڈر شیڈول کرنے کا فنکشن
+  // اسپیشل ریمائنڈر شیڈول کرنے کا فنکشن
   static Future<void> scheduleSpecialReminder(
       int id, int hour, int minute, String message) async {
     if (kIsWeb) return;
 
     await init();
 
-// جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
+    // جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
     final androidDetails = AndroidNotificationDetails(
       'special_reminders',
       'Special Reminders',
@@ -400,13 +519,13 @@ class NotificationService {
           "Special Reminder $id set for $hour:$minute with message: $message");
   }
 
-// مخصوص نوٹیفیکیشن کینسل کرنے کا فنکشن (آئی ڈی کے ذریعے)
+  // مخصوص نوٹیفیکیشن کینسل کرنے کا فنکشن (آئی ڈی کے ذریعے)
   static Future<void> cancelNotification(int id) async {
     await _notifications.cancel(id);
     if (kDebugMode) debugPrint("Notification $id cancelled.");
   }
 
-// ⭐ نیا شامل شدہ فنکشن: تمام عام ریمائنڈرز کینسل کرنے کا محفوظ طریقہ
+  // ⭐ نیا شامل شدہ فنکشن: تمام عام ریمائنڈرز کینسل کرنے کا محفوظ طریقہ
   static Future<void> cancelRegularReminders() async {
     if (kIsWeb) return;
     // صرف 100 سے 150 تک کینسل کریں (پانی پینے والے ریمائنڈرز)
@@ -419,15 +538,16 @@ class NotificationService {
           "Regular reminders (100-150) cancelled. Special ones kept safe.");
   }
 
-  // ============ TEST ============
+// ============ TEST ============
   static Future<void> showTestNotification() async {
     if (kIsWeb) return;
 
     await init();
 
-// جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
+    // جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
+    // ⭐ [FIX] ٹیسٹ کے لیے بھی ایک مخصوص V6 آئی ڈی استعمال کریں تاکہ ڈپلیکیٹ نہ بنیں
     const androidDetails = AndroidNotificationDetails(
-      'water_test',
+      'water_test_channel_V8', // 👈 V4 سے V6 میں تبدیلی
       'Water Reminder Test',
       channelDescription: 'Test notifications',
       importance: Importance.max,
@@ -451,8 +571,8 @@ class NotificationService {
     await SoundService.playWaterSound();
   }
 
-// ============ CANCEL ============
-// اس فنکشن کو اب ہم نے 'Selective' بنا دیا ہے تاکہ 'Star' ریمائنڈرز نہ رکیں
+  // ============ CANCEL ============
+  // اس فنکشن کو اب ہم نے 'Selective' بنا دیا ہے تاکہ 'Star' ریمائنڈرز نہ رکیں
   static Future<void> cancelAll() async {
     if (kIsWeb) return;
 
@@ -523,9 +643,9 @@ class NotificationService {
     }
   }
 
-  // ==========================================
-  // SECTION 7: BOOT RESCHEDULE LOGIC (Phase 10)
-  // اردو کمنٹ: فون ری اسٹارٹ ہونے پر خاموشی سے ریمائنڈرز بحال کرنا
+// ==========================================
+  // SECTION 7: BOOT & BACKGROUND HANDLER (Phase 10.3)
+  // اردو کمنٹ: فون ری اسٹارٹ ہونے پر یا بیک گراؤنڈ میں ایونٹس کو ہینڈل کرنا
   // ==========================================
   @pragma('vm:entry-point')
   static Future<void> handleBootReschedule() async {
@@ -561,5 +681,17 @@ class NotificationService {
 
     if (kDebugMode)
       debugPrint("BOOT_RECEIVER: Special reminders check completed.");
+  }
+
+// ⭐ یہ فنکشن اب بھی ضروری ہے تاکہ نوٹیفکیشن کلک کو ہینڈل کیا جا سکے
+  @pragma('vm:entry-point')
+  static void notificationTapBackground(NotificationResponse response) {
+    // اردو کمنٹ: اگر یہ واٹر ریمائنڈر ہے (ID >= 100) تو آواز بجائیں
+    if ((response.id ?? 0) >= 100) {
+      // صرف ساؤنڈ سروس استعمال کریں
+      SoundService.playWaterSound();
+
+      // ⭐ بیک گراؤنڈ سروس والا تمام پرانا کوڈ یہاں سے ہٹا دیا گیا ہے
+    }
   }
 }
