@@ -198,55 +198,56 @@ class NotificationService {
 // ============ SHARED NOTIFICATION ENGINE (10.4A) ============
 // اردو کمنٹ: تمام reminders کے لیے ایک ہی جگہ سے sound/mode/channel/details بنیں گے
 
-static Future<String> _getCurrentReminderMode() async {
-  final prefs = await SharedPreferences.getInstance();
-  return prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
-}
-
-static String _modeSuffix(String mode) {
-  switch (mode) {
-    case 'Sound only':
-      return 's';
-    case 'Vibrate only':
-      return 'v';
-    case 'Silent':
-      return 'silent';
-    case 'Sound + Vibrate':
-    default:
-      return 'sv';
-  }
-}
-
-static Future<NotificationDetails> buildNotificationDetails({
-  String? soundKey,
-  String? mode,
-}) async {
-  final selectedSound = soundKey ?? await _getSelectedSound();
-  final selectedMode = mode ?? await _getCurrentReminderMode();
-
-  final channelId = '${selectedSound}_${_modeSuffix(selectedMode)}_channel_V14';
-
-  if (kDebugMode) {
-    debugPrint('ENGINE SOUND: $selectedSound');
-    debugPrint('ENGINE MODE: $selectedMode');
-    debugPrint('ENGINE CHANNEL ID: $channelId');
+  static Future<String> _getCurrentReminderMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
   }
 
-  final androidDetails = AndroidNotificationDetails(
-    channelId,
-    'Water Reminders',
-    channelDescription: 'Hourly hydration alerts',
-    importance: selectedMode == 'Silent' ? Importance.high : Importance.max,
-    priority: Priority.high,
-    ticker: 'Stay Hydro Reminder',
+  static String _modeSuffix(String mode) {
+    switch (mode) {
+      case 'Sound only':
+        return 's';
+      case 'Vibrate only':
+        return 'v';
+      case 'Silent':
+        return 'silent';
+      case 'Sound + Vibrate':
+      default:
+        return 'sv';
+    }
+  }
 
-    // اہم:
-    // یہاں playSound / enableVibration / vibrationPattern نہیں دیں گے
-    // کیونکہ اصل behavior channel createAllNotificationChannels() میں lock ہے
-  );
+  static Future<NotificationDetails> buildNotificationDetails({
+    String? soundKey,
+    String? mode,
+  }) async {
+    final selectedSound = soundKey ?? await _getSelectedSound();
+    final selectedMode = mode ?? await _getCurrentReminderMode();
 
-  return NotificationDetails(android: androidDetails);
-}
+    final channelId =
+        '${selectedSound}_${_modeSuffix(selectedMode)}_channel_V14';
+
+    if (kDebugMode) {
+      debugPrint('ENGINE SOUND: $selectedSound');
+      debugPrint('ENGINE MODE: $selectedMode');
+      debugPrint('ENGINE CHANNEL ID: $channelId');
+    }
+
+    final androidDetails = AndroidNotificationDetails(
+      channelId,
+      'Water Reminders',
+      channelDescription: 'Hourly hydration alerts',
+      importance: selectedMode == 'Silent' ? Importance.high : Importance.max,
+      priority: Priority.high,
+      ticker: 'Stay Hydro Reminder',
+
+      // اہم:
+      // یہاں playSound / enableVibration / vibrationPattern نہیں دیں گے
+      // کیونکہ اصل behavior channel createAllNotificationChannels() میں lock ہے
+    );
+
+    return NotificationDetails(android: androidDetails);
+  }
 
   // ⭐ نیا فنکشن:
 // ⭐ تمام sounds + modes کے لیے channels
@@ -395,19 +396,19 @@ static Future<NotificationDetails> buildNotificationDetails({
     }
 
 // ⭐ موجودہ mode حاصل کریں
-final currentMode = prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
+    final currentMode = prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
 
 // ⭐ Shared Notification Engine استعمال کریں
 // اردو کمنٹ: sound + mode کے مطابق درست channel/details ایک ہی جگہ سے بنیں گے
-final notificationDetails = await buildNotificationDetails(
-  soundKey: soundKey,
-  mode: currentMode,
-);
+    final notificationDetails = await buildNotificationDetails(
+      soundKey: soundKey,
+      mode: currentMode,
+    );
 
-if (kDebugMode) {
-  print("SELECTED SOUND: $soundKey");
-  print("CURRENT MODE: $currentMode");
-}
+    if (kDebugMode) {
+      print("SELECTED SOUND: $soundKey");
+      print("CURRENT MODE: $currentMode");
+    }
 
 // =========================================
 // TEMP TEST NOTIFICATION (3 MINUTES)
@@ -465,17 +466,7 @@ if (kDebugMode) {
       debugPrint('------------------------------------');
     }
 
-    // ⭐ اب یہ لوپ فنکشن کے اندر ہے (لائن 301 ایرر حل)
-    // ⭐ آخر میں اسپیشل ریمائنڈرز کو دوبارہ زندہ (Restore) کریں
-    for (int id = 201; id <= 203; id++) {
-      final bool isEnabled = prefs.getBool('special_${id}_enabled') ?? false;
-      if (isEnabled) {
-        final h = prefs.getInt('special_${id}_hour') ?? 0;
-        final m = prefs.getInt('special_${id}_min') ?? 0;
-        final msg = prefs.getString('special_${id}_msg') ?? "Special Reminder";
-        await scheduleSpecialReminder(id, h, m, msg);
-      }
-    }
+//یہاں سے سپیشل ریمائنڈر دوبارہ زندہ ہونے کا فنکشن اڑا دیا پلس کے کہنے پر
   } // 👈 یہ ہے فنکشن کی اصل آخری بریکٹ
 
   static tz.TZDateTime _nextInstanceOfHour(int hour) {
@@ -543,49 +534,65 @@ if (kDebugMode) {
 
   // ============ SPECIAL REMINDERS ============
   // اسپیشل ریمائنڈر شیڈول کرنے کا فنکشن
+  // [PHASE 10.4B]
+  // اسپیشل ریمائنڈرز کو بھی Shared Notification Engine پر منتقل کر دیا گیا ہے
+  //
+  // اہم بات:
+  // - اسپیشل ریمائنڈرز کے لیے الگ sound/mode نہیں رکھا گیا
+  // - یہ app کے global selected notification mode اور sound کو follow کریں گے
+  // - یوزر کے لیے special value custom message ہی رہے گی
+  // - Fasting Mode میں بھی یہ reminders active رہیں گے
+
   static Future<void> scheduleSpecialReminder(
       int id, int hour, int minute, String message) async {
     if (kIsWeb) return;
 
     await init();
 
-    // جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
-    final androidDetails = AndroidNotificationDetails(
-      'special_reminders',
-      'Special Reminders',
-      channelDescription: 'Reminders for medicine, sehri, or iftar',
-      importance: Importance.max,
-      priority: Priority.high,
-      // [UPDATE] ابھی اسے خاموش رکھتے ہیں، فیچر مکمل کرتے وقت آواز بدلیں گے
-      playSound: false,
-      enableVibration: false,
-    );
-
-    final details = NotificationDetails(android: androidDetails);
+    // Shared engine سے notification details بنائیں
+    // اس سے special reminders بھی وہی mode/sound/channel استعمال کریں گے
+    // جو hourly reminders اور test notifications استعمال کر رہے ہیں
+    final NotificationDetails details = await buildNotificationDetails();
 
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate =
-        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute, 0);
 
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+      0,
+    );
+
+    // اگر آج کا وقت گزر چکا ہو تو کل کے لیے schedule کریں
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
     await _notifications.zonedSchedule(
-      id, // 201, 202 or 203
+      id, // 201, 202, or 203
       "Special Reminder",
-      message,
+      message.trim().isEmpty ? "Time to hydrate 💧" : message.trim(),
       scheduledDate,
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
+
+      // روزانہ اسی وقت repeat کرنے کے لیے
       matchDateTimeComponents: DateTimeComponents.time,
     );
 
-    if (kDebugMode)
-      debugPrint(
-          "Special Reminder $id set for $hour:$minute with message: $message");
+    if (kDebugMode) {
+      debugPrint("========== SPECIAL REMINDER SCHEDULED ==========");
+      debugPrint("SPECIAL ID: $id");
+      debugPrint("SPECIAL TIME: $hour:$minute");
+      debugPrint("SPECIAL MESSAGE: ${message.trim()}");
+      debugPrint("SPECIAL ENGINE: Shared Notification Engine");
+      debugPrint("================================================");
+    }
   }
 
   // مخصوص نوٹیفیکیشن کینسل کرنے کا فنکشن (آئی ڈی کے ذریعے)

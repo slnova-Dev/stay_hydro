@@ -161,25 +161,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // [BLOCK: SAVE SPECIAL REMINDER]
   // اسپیشل ریمائنڈر کو میموری میں محفوظ کرنا اور شیڈول کرنا
   // ==========================================
+  // [BLOCK: SAVE SPECIAL REMINDER]
+  // [PHASE 10.4B LOCKED BEHAVIOR]
+  //
+  // اردو کمنٹ:
+  // اسپیشل ریمائنڈر کو memory میں محفوظ کرنا اور schedule/cancel کرنا
+  //
+  // اہم اصول:
+  // - جب reminder ON کر کے save ہو گا، وہ اسی وقت کے active sound + mode
+  //   کے ساتھ schedule ہو گا
+  // - بعد میں global sound/mode بدلنے سے یہ reminder خود update نہیں ہو گا
+  // - sound/mode بدلنے کے لیے user کو مطلوبہ mode/sound منتخب کر کے
+  //   special reminder دوبارہ Save کرنا ہو گا
+  // ==========================================
   Future<void> _saveSpecialReminder(
       int index, bool enabled, int h, int m, String msg) async {
     final prefs = await SharedPreferences.getInstance();
-    int id = 201 + index; // IDs: 201, 202, 203
 
-    // ڈیٹا کو لوکل سٹوریج میں محفوظ کرنا
+    final int id = 201 + index; // IDs: 201, 202, 203
+
+    // خالی message سے بچنے کے لیے safe fallback
+    final String cleanMessage =
+        msg.trim().isEmpty ? "Special Reminder" : msg.trim();
+
+    // پہلے پرانا notification cancel کریں
+    // تاکہ same ID کے ساتھ duplicate یا پرانا mode/channel باقی نہ رہے
+    await NotificationService.cancelNotification(id);
+
+    // ڈیٹا کو local storage میں محفوظ کریں
     await prefs.setBool('special_${id}_enabled', enabled);
     await prefs.setInt('special_${id}_hour', h);
     await prefs.setInt('special_${id}_min', m);
-    await prefs.setString('special_${id}_msg', msg);
+    await prefs.setString('special_${id}_msg', cleanMessage);
 
-    // اگر آن ہے تو نوٹیفیکیشن سروس میں شیڈول کرنا، ورنہ کینسل کرنا
+    // اگر ON ہے تو موجودہ active sound + mode کے مطابق دوبارہ schedule کریں
+    // اگر OFF ہے تو اوپر cancel ہو چکا ہے، اس لیے مزید کچھ نہیں کرنا
     if (enabled) {
-      await NotificationService.scheduleSpecialReminder(id, h, m, msg);
-    } else {
-      await NotificationService.cancelNotification(id);
+      await NotificationService.scheduleSpecialReminder(
+        id,
+        h,
+        m,
+        cleanMessage,
+      );
     }
 
-    _loadSpecialReminders(); // UI کو اپ ڈیٹ کرنے کے لیے دوبارہ لوڈ کریں
+    // UI کو اپ ڈیٹ کرنے کے لیے دوبارہ load کریں
+    await _loadSpecialReminders();
   }
 
   // ==========================================
@@ -424,16 +451,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     _buildSectionTitle("Special Reminders", isDark),
                     IconButton(
-                      icon: Icon(Icons.info_outline_rounded,
-                          size: 18,
-                          color:
-                              isDark ? Colors.white30 : Colors.blue.shade200),
+                      icon: Icon(
+                        Icons.info_outline_rounded,
+                        size: 18,
+                        color: isDark ? Colors.white30 : Colors.blue.shade900,
+                      ),
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text(
-                                "Special reminders remain active even during Fasting Mode."),
                             behavior: SnackBarBehavior.floating,
+                            duration: Duration(seconds: 6),
+                            content: Text(
+                              "• Special reminders remain active even during Fasting Mode.\n\n"
+                              "• Special reminders use the sound and mode active at the time of saving.\n"
+                              "To change their sound or mode, select the desired sound/mode and save the reminder again.",
+                            ),
                           ),
                         );
                       },
@@ -695,10 +727,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                   ),
-                  onPressed: () {
-                    _saveSpecialReminder(index, tempEnabled, tempHour,
-                        tempMinute, msgController.text);
-                    Navigator.pop(context);
+                  onPressed: () async {
+                    await _saveSpecialReminder(
+                      index,
+                      tempEnabled,
+                      tempHour,
+                      tempMinute,
+                      msgController.text,
+                    );
+                    if (context.mounted) Navigator.pop(context);
                   },
                   child: const Text("Save Reminder",
                       style: TextStyle(
@@ -761,10 +798,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             : null,
                         onTap: () async {
                           setState(() => _currentMode = mode);
+
+                          // [PHASE 10.4C]
+                          // نیا mode save کریں
                           await SoundService.setReminderMode(mode);
 
-                          // [UX FEEDBACK - UPDATED]
-                          // اب یہ ایک ہی فنکشن موڈ دیکھ کر آواز بھی بجائے گا اور وائبریٹ بھی کرے گا
+                          // Hourly reminders کو نئے mode کے مطابق دوبارہ schedule کریں
+                          // Special reminders کو یہاں touch نہیں کریں گے
+                          await NotificationService.scheduleHourlyReminder();
+
+                          // Preview صرف user feedback کے لیے
                           SoundService.playWaterSound();
 
                           Navigator.pop(context);
@@ -838,52 +881,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         },
                       ))
                   .toList(),
-              const Divider(),
-              ListTile(
-                leading: Icon(Icons.folder_open_rounded,
-                    color: Colors.orange.shade400),
-                title: Text("Select from Device",
-                    style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87)),
-                subtitle: const Text("MP3, OGG or WAV files"),
-                onTap: () async {
-                  Navigator.pop(context);
-// 1. سب سے پہلے پرمیشن مانگیں (یہ فائل پِکر کھولنے سے پہلے ہونا چاہیے)
-                  if (await Permission.audio.request().isGranted ||
-                      await Permission.storage.request().isGranted) {
-                    // 2. اب فائل پِکر کھولیں (یہاں آپ کا وہ کوڈ آئے گا جو فائل سلیکٹ کرتا ہے)
-                    FilePickerResult? result = await FilePicker.platform
-                        .pickFiles(type: FileType.audio);
-
-                    if (result != null && result.files.single.path != null) {
-                      String path = result.files.single.path!;
-                      String fileName = result.files.single.name;
-
-                      setState(() {
-                        _selectedSoundKey = 'custom';
-                        _selectedSoundName = fileName;
-                      });
-
-                      await SoundService.setSound('custom');
-                      await SoundService.setCustomPath(path);
-
-                      // [IMPORTANT] یہ فنکشن ابھی ہم نے بنانا ہے
-                      await NotificationService.recreateReminderChannel();
-
-                      // ⭐ نئی custom sound کے ساتھ reminders دوبارہ schedule کریں
-                      await NotificationService.scheduleHourlyReminder();
-
-                      // پریویو بجائیں
-                      SoundService.playWaterSound();
-                    }
-                  } else {
-                    // اگر یوزر پرمیشن نہ دے تو یہاں کوئی میسج دکھا دیں
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        content:
-                            Text("فائل سلیکٹ کرنے کے لیے پرمیشن لازمی ہے")));
-                  }
-                },
-              ),
             ],
           ),
         );
