@@ -195,6 +195,59 @@ class NotificationService {
     return prefs.getString(_soundPrefKey) ?? 'water_glass';
   }
 
+// ============ SHARED NOTIFICATION ENGINE (10.4A) ============
+// اردو کمنٹ: تمام reminders کے لیے ایک ہی جگہ سے sound/mode/channel/details بنیں گے
+
+static Future<String> _getCurrentReminderMode() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
+}
+
+static String _modeSuffix(String mode) {
+  switch (mode) {
+    case 'Sound only':
+      return 's';
+    case 'Vibrate only':
+      return 'v';
+    case 'Silent':
+      return 'silent';
+    case 'Sound + Vibrate':
+    default:
+      return 'sv';
+  }
+}
+
+static Future<NotificationDetails> buildNotificationDetails({
+  String? soundKey,
+  String? mode,
+}) async {
+  final selectedSound = soundKey ?? await _getSelectedSound();
+  final selectedMode = mode ?? await _getCurrentReminderMode();
+
+  final channelId = '${selectedSound}_${_modeSuffix(selectedMode)}_channel_V14';
+
+  if (kDebugMode) {
+    debugPrint('ENGINE SOUND: $selectedSound');
+    debugPrint('ENGINE MODE: $selectedMode');
+    debugPrint('ENGINE CHANNEL ID: $channelId');
+  }
+
+  final androidDetails = AndroidNotificationDetails(
+    channelId,
+    'Water Reminders',
+    channelDescription: 'Hourly hydration alerts',
+    importance: selectedMode == 'Silent' ? Importance.high : Importance.max,
+    priority: Priority.high,
+    ticker: 'Stay Hydro Reminder',
+
+    // اہم:
+    // یہاں playSound / enableVibration / vibrationPattern نہیں دیں گے
+    // کیونکہ اصل behavior channel createAllNotificationChannels() میں lock ہے
+  );
+
+  return NotificationDetails(android: androidDetails);
+}
+
   // ⭐ نیا فنکشن:
 // ⭐ تمام sounds + modes کے لیے channels
   static Future<void> createAllNotificationChannels() async {
@@ -342,67 +395,19 @@ class NotificationService {
     }
 
 // ⭐ موجودہ mode حاصل کریں
-    final currentMode = prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
+final currentMode = prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
 
-// ⭐ mode کے مطابق channel منتخب کریں
-    String channelId;
+// ⭐ Shared Notification Engine استعمال کریں
+// اردو کمنٹ: sound + mode کے مطابق درست channel/details ایک ہی جگہ سے بنیں گے
+final notificationDetails = await buildNotificationDetails(
+  soundKey: soundKey,
+  mode: currentMode,
+);
 
-    switch (currentMode) {
-      case 'Sound only':
-        channelId = '${soundKey}_s_channel_V14';
-        break;
-
-      case 'Vibrate only':
-        channelId = '${soundKey}_v_channel_V14';
-        break;
-
-      case 'Silent':
-        channelId = '${soundKey}_silent_channel_V14';
-        break;
-
-      case 'Sound + Vibrate':
-      default:
-        channelId = '${soundKey}_sv_channel_V14';
-        break;
-    }
-
-    if (kDebugMode) {
-      print("SELECTED SOUND: $soundKey");
-      print("CURRENT MODE: $currentMode");
-      print("FINAL CHANNEL ID: $channelId");
-    }
-
-// نوٹیفیکیشن کی تفصیلات تیار کریں
-// ⭐ MODE کے مطابق actual behavior
-    final bool shouldPlaySound =
-        currentMode == 'Sound + Vibrate' || currentMode == 'Sound only';
-
-    final bool shouldVibrate =
-        currentMode == 'Sound + Vibrate' || currentMode == 'Vibrate only';
-
-// ⭐ Notification Details
-    final androidDetails = AndroidNotificationDetails(
-      channelId,
-      'Water Reminders',
-      channelDescription: 'Hourly hydration alerts',
-
-      importance: Importance.max,
-      priority: Priority.high,
-
-      // ⭐ اب mode کے مطابق
-      //playSound: shouldPlaySound,
-
-      //enableVibration: shouldVibrate,
-
-      // ⭐ صرف vibration modes میں pattern
-      //vibrationPattern:
-      //   shouldVibrate ? Int64List.fromList([100, 500, 200, 500]) : null,
-
-      ticker: 'Stay Hydro Reminder',
-      icon: '@mipmap/ic_launcher', // یہ لائن لکھی رہنے دیں
-    );
-
-    final notificationDetails = NotificationDetails(android: androidDetails);
+if (kDebugMode) {
+  print("SELECTED SOUND: $soundKey");
+  print("CURRENT MODE: $currentMode");
+}
 
 // =========================================
 // TEMP TEST NOTIFICATION (3 MINUTES)
@@ -456,7 +461,7 @@ class NotificationService {
       debugPrint('--- NOTIFICATION SCHEDULE REPORT ---');
       debugPrint('Active Hours: ${scheduledHours.join(", ")}');
       debugPrint('Sleep Hours (Skipped): ${skippedHours.join(", ")}');
-      print("SCHEDULE CHANNEL ID: $channelId");
+      print("SCHEDULE DETAILS CREATED BY SHARED ENGINE");
       debugPrint('------------------------------------');
     }
 
