@@ -143,10 +143,16 @@ class NotificationService {
 
     // ⭐ لاجک: اگر یہ بوٹ (Boot) سے چل رہا ہے تو پرمیشن نہیں مانگنی
     if (!fromBoot) {
-      await _notifications
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.requestNotificationsPermission();
+      try {
+        await _notifications
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>()
+            ?.requestNotificationsPermission();
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint("Notification permission request skipped safely: $e");
+        }
+      }
     }
 
 // =========================================================
@@ -368,54 +374,33 @@ class NotificationService {
 
     // ⭐ سیف لاجک: آواز کے انتخاب کے مطابق صحیح چینل آئی ڈی اور فائل کا تعین
     // آواز کا نام حاصل کریں
-    final String soundName = await _getSelectedSound();
+    // =========================================
+    // [PHASE 10.4C] CURRENT SOUND + MODE
+    // اردو کمنٹ:
+    // hourly reminders ہمیشہ current global sound + mode کے مطابق schedule ہوں گے
+    // mode/sound change پر settings screen سے یہ function دوبارہ call ہو گا
+    // =========================================
 
-    // ⭐ DEBUG: اصل loaded sound چیک کریں
-    if (kDebugMode) {
-      print("LOADED SOUND IN SCHEDULE: $soundName");
-    }
+    final String selectedSound = await _getSelectedSound();
+    final String currentMode =
+        prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
 
-    // ⭐ SAFE لاجک: اب fallback بھی correct ہوگا اور debug بھی clear ہوگا
-
-// ⭐ موجودہ sound
-    String soundKey;
-
-    switch (soundName) {
-      case 'soft_knock':
-        soundKey = 'soft_knock';
-        break;
-
-      case 'water_drop':
-        soundKey = 'water_drop';
-        break;
-
-      case 'water_glass':
-      default:
-        soundKey = 'water_glass';
-        break;
-    }
-
-// ⭐ موجودہ mode حاصل کریں
-    final currentMode = prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
-
-// ⭐ Shared Notification Engine استعمال کریں
-// اردو کمنٹ: sound + mode کے مطابق درست channel/details ایک ہی جگہ سے بنیں گے
-    final notificationDetails = await buildNotificationDetails(
-      soundKey: soundKey,
+    final NotificationDetails notificationDetails =
+        await buildNotificationDetails(
+      soundKey: selectedSound,
       mode: currentMode,
     );
 
     if (kDebugMode) {
-      print("SELECTED SOUND: $soundKey");
-      print("CURRENT MODE: $currentMode");
+      debugPrint("HOURLY SELECTED SOUND: $selectedSound");
+      debugPrint("HOURLY CURRENT MODE: $currentMode");
     }
 
-// =========================================
-// TEMP TEST NOTIFICATION (3 MINUTES)
-// =========================================
-
-//تین منٹ ٹیسٹ والا تمام کوڈ پلس جی پی ٹی کے مشورے پر ہٹا دیا
-
+    // =========================================
+    // HOURLY REMINDER LOOP
+    // اردو کمنٹ:
+    // sleep hours کے علاوہ ہر active hour کے لیے daily repeating notification schedule ہو گا
+    // =========================================
     // یہاں سے آگے آپ کا ریمائنڈر لوپ (Loop) شروع ہوگا...
 
     // Cancel all previous hourly IDs (100 to 124)
@@ -614,24 +599,17 @@ class NotificationService {
           "Regular reminders (100-150) cancelled. Special ones kept safe.");
   }
 
-// ============ TEST ============
+// ============ TEST NOTIFICATION ============
+// [PHASE 10.4C]
+// اردو کمنٹ:
+// ٹیسٹ نوٹیفکیشن بھی اب اسی Shared Notification Engine کو استعمال کرے گا
+// تاکہ test behavior hourly اور special reminders جیسا ہی ہو
   static Future<void> showTestNotification() async {
     if (kIsWeb) return;
 
     await init();
 
-    // جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
-    // ⭐ [FIX] ٹیسٹ کے لیے بھی ایک مخصوص V6 آئی ڈی استعمال کریں تاکہ ڈپلیکیٹ نہ بنیں
-    const androidDetails = AndroidNotificationDetails(
-      'water_test_channel_V10', // 👈 V4 سے V6 میں تبدیلی
-      'Water Reminder Test',
-      channelDescription: 'Test notifications',
-      importance: Importance.max,
-      priority: Priority.high,
-      // [UPDATE] ٹیسٹ میں بھی کسٹم ساؤنڈ بجانے کے لیے سسٹم ساؤنڈ بند
-      playSound: false,
-      enableVibration: false,
-    );
+    final NotificationDetails details = await buildNotificationDetails();
 
     final randomTitle =
         _randomMessages[_random.nextInt(_randomMessages.length)];
@@ -640,11 +618,16 @@ class NotificationService {
       999,
       randomTitle,
       _randomBodies[_random.nextInt(_randomBodies.length)],
-      const NotificationDetails(android: androidDetails),
+      details,
+      payload: 'test_notification',
     );
 
-    // [TEST FIX] اردو کمنٹ: نوٹیفکیشن دکھانے کے فوراً بعد اپنی کسٹم ساؤنڈ بجائیں
-    await SoundService.playWaterSound();
+    if (kDebugMode) {
+      debugPrint("========== TEST NOTIFICATION SENT ==========");
+      debugPrint("TEST ENGINE: Shared Notification Engine");
+      debugPrint("TEST ID: 999");
+      debugPrint("============================================");
+    }
   }
 
   // ============ CANCEL ============
