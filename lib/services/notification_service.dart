@@ -161,24 +161,25 @@ class NotificationService {
 // ⭐ DEBUG: init میں اصل loaded value دیکھیں
     if (kDebugMode) {
       debugPrint("LOADED SOUND FROM PREFS: $soundName");
+      debugPrint("INIT SELECTED SOUND: $soundName");
     }
 
 // ⭐ ساؤنڈ اور چینل آئی ڈی سیٹ کریں
-    String finalSound = 'water_glass';
-    String channelId = 'water_glass_channel_V8';
+    //  String finalSound = 'water_glass';
+    // String channelId = 'water_glass_channel_V10';
 
-    if (soundName == 'soft_knock') {
-      finalSound = 'soft_knock';
-      channelId = 'soft_knock_channel_V8';
-    } else if (soundName == 'water_drop') {
-      finalSound = 'water_drop';
-      channelId = 'water_drop_channel_V8';
-    }
-
-    if (kDebugMode) {
-      debugPrint("INIT SELECTED SOUND: $soundName");
-      debugPrint("INIT CHANNEL ID: $channelId");
-    }
+    // if (soundName == 'soft_knock') {
+    //   finalSound = 'soft_knock';
+    //   channelId = 'soft_knock_channel_V10';
+    // } else if (soundName == 'water_drop') {
+    //   finalSound = 'water_drop';
+    //   channelId = 'water_drop_channel_V10';
+    // }
+// ⭐ DEBUG ONLY
+    //if (kDebugMode) {
+    // debugPrint("INIT SELECTED SOUND: $soundName");
+    //   debugPrint("INIT CHANNEL ID: $channelId");
+    //}
 
     // ⭐ صرف ایک بار سب چینلز بنا دو
     await createAllNotificationChannels();
@@ -194,48 +195,82 @@ class NotificationService {
     return prefs.getString(_soundPrefKey) ?? 'water_glass';
   }
 
-  // ⭐ نیا فنکشن: تمام 3 آوازوں کے لیے مستقل چینلز بنانا
+  // ⭐ نیا فنکشن:
+// ⭐ تمام sounds + modes کے لیے channels
   static Future<void> createAllNotificationChannels() async {
     if (kIsWeb) return;
 
     final androidPlugin = _notifications.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
 
-    // 1. Water Flow (Default)
-    await androidPlugin?.createNotificationChannel(AndroidNotificationChannel(
-      'water_glass_channel_V8',
-      'Water Flow Reminder',
-      description: 'Notifications with water flow sound',
-      importance: Importance.max,
-      playSound: true,
-      enableVibration: true,
-      vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
-      sound: const RawResourceAndroidNotificationSound('water_glass'),
-    ));
+    final sounds = [
+      'water_glass',
+      'soft_knock',
+      'water_drop',
+    ];
 
-    // 2. Soft Knock
-    await androidPlugin?.createNotificationChannel(AndroidNotificationChannel(
-      'soft_knock_channel_V8',
-      'Soft Knock Reminder',
-      description: 'Notifications with soft knock sound',
-      importance: Importance.max,
-      playSound: true,
-      enableVibration: true,
-      vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
-      sound: const RawResourceAndroidNotificationSound('soft_knock'),
-    ));
+    for (final sound in sounds) {
+      // =========================================
+      // SOUND + VIBRATE
+      // =========================================
+      await androidPlugin?.createNotificationChannel(
+        AndroidNotificationChannel(
+          '${sound}_sv_channel_V14',
+          '$sound Sound + Vibrate',
+          description: 'Sound and vibration reminders',
+          importance: Importance.max,
+          playSound: true,
+          enableVibration: true,
+          vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
+          sound: RawResourceAndroidNotificationSound(sound),
+        ),
+      );
 
-    // 3. Water Drop
-    await androidPlugin?.createNotificationChannel(AndroidNotificationChannel(
-      'water_drop_channel_V8',
-      'Water Drop Reminder',
-      description: 'Notifications with water drop sound',
-      importance: Importance.max,
-      playSound: true,
-      enableVibration: true,
-      vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
-      sound: const RawResourceAndroidNotificationSound('water_drop'),
-    ));
+      // =========================================
+      // SOUND ONLY
+      // =========================================
+      await androidPlugin?.createNotificationChannel(
+        AndroidNotificationChannel(
+          '${sound}_s_channel_V14',
+          '$sound Sound Only',
+          description: 'Sound only reminders',
+          importance: Importance.max,
+          playSound: true,
+          enableVibration: false,
+          sound: RawResourceAndroidNotificationSound(sound),
+        ),
+      );
+
+      // =========================================
+      // VIBRATE ONLY
+      // =========================================
+      await androidPlugin?.createNotificationChannel(
+        AndroidNotificationChannel(
+          '${sound}_v_channel_V14',
+          '$sound Vibrate Only',
+          description: 'Vibration only reminders',
+          importance: Importance.max,
+          playSound: false,
+          enableVibration: true,
+          vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
+        ),
+      );
+
+      // =========================================
+      // SILENT
+      // =========================================
+      await androidPlugin?.createNotificationChannel(
+        AndroidNotificationChannel(
+          '${sound}_silent_channel_V14',
+          '$sound Silent',
+          description: 'Silent reminders',
+          // ⭐ visible but silent
+          importance: Importance.high,
+          playSound: false,
+          enableVibration: false,
+        ),
+      );
+    }
   }
 
   // اردو کمنٹ: پرانا recreateReminderChannel اب createAllNotificationChannels میں ضم ہو چکا ہے
@@ -268,10 +303,6 @@ class NotificationService {
     await init(fromBoot: fromBoot);
 
     // ⭐ ensure channels exist before scheduling
-    await createAllNotificationChannels();
-
-// ⭐ چھوٹا delay تاکہ OS channel properly register کر لے
-    await Future.delayed(const Duration(milliseconds: 300));
 
     await prefs.setInt(_intervalKey, 60);
     await prefs.setBool(_scheduleFlagKey, true);
@@ -291,60 +322,93 @@ class NotificationService {
     }
 
     // ⭐ SAFE لاجک: اب fallback بھی correct ہوگا اور debug بھی clear ہوگا
-    String finalSound;
-    String channelId;
+
+// ⭐ موجودہ sound
+    String soundKey;
 
     switch (soundName) {
       case 'soft_knock':
-        finalSound = 'soft_knock';
-        channelId = 'soft_knock_channel_V8'; // ⭐ Capital V to match init
+        soundKey = 'soft_knock';
         break;
 
       case 'water_drop':
-        finalSound = 'water_drop';
-        channelId = 'water_drop_channel_V8'; // ⭐ Capital V to match init
+        soundKey = 'water_drop';
         break;
 
       case 'water_glass':
       default:
-        finalSound = 'water_glass';
-        channelId = 'water_glass_channel_V8'; // ⭐ Capital V to match init
+        soundKey = 'water_glass';
         break;
     }
 
-    // ⭐ DEBUG (بہت اہم)
+// ⭐ موجودہ mode حاصل کریں
+    final currentMode = prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
+
+// ⭐ mode کے مطابق channel منتخب کریں
+    String channelId;
+
+    switch (currentMode) {
+      case 'Sound only':
+        channelId = '${soundKey}_s_channel_V14';
+        break;
+
+      case 'Vibrate only':
+        channelId = '${soundKey}_v_channel_V14';
+        break;
+
+      case 'Silent':
+        channelId = '${soundKey}_silent_channel_V14';
+        break;
+
+      case 'Sound + Vibrate':
+      default:
+        channelId = '${soundKey}_sv_channel_V14';
+        break;
+    }
+
     if (kDebugMode) {
-      print("SELECTED SOUND: $soundName");
+      print("SELECTED SOUND: $soundKey");
+      print("CURRENT MODE: $currentMode");
       print("FINAL CHANNEL ID: $channelId");
     }
 
 // نوٹیفیکیشن کی تفصیلات تیار کریں
-    final androidDetails = AndroidNotificationDetails(
-      channelId, // ⭐ درست چینل (اب یہ باہر سے V6 کے ساتھ آئے گا)
+// ⭐ MODE کے مطابق actual behavior
+    final bool shouldPlaySound =
+        currentMode == 'Sound + Vibrate' || currentMode == 'Sound only';
 
+    final bool shouldVibrate =
+        currentMode == 'Sound + Vibrate' || currentMode == 'Vibrate only';
+
+// ⭐ Notification Details
+    final androidDetails = AndroidNotificationDetails(
+      channelId,
       'Water Reminders',
       channelDescription: 'Hourly hydration alerts',
 
       importance: Importance.max,
       priority: Priority.high,
 
-      // playSound: true,
+      // ⭐ اب mode کے مطابق
+      //playSound: shouldPlaySound,
 
-      // ⭐ وائبریشن
-      // enableVibration: true,
-      // vibrationPattern: Int64List.fromList([100, 500, 200, 500]),
+      //enableVibration: shouldVibrate,
 
-      // ❌ یہاں sound مت ڈالنا (channel already handle کر رہا ہے)
-
-      //enableLights: true,
-      //ledColor: const Color.fromARGB(255, 0, 255, 255),
-      //ledOnMs: 1000,
-      //ledOffMs: 500,
+      // ⭐ صرف vibration modes میں pattern
+      //vibrationPattern:
+      //   shouldVibrate ? Int64List.fromList([100, 500, 200, 500]) : null,
 
       ticker: 'Stay Hydro Reminder',
+      icon: '@mipmap/ic_launcher', // یہ لائن لکھی رہنے دیں
     );
 
     final notificationDetails = NotificationDetails(android: androidDetails);
+
+// =========================================
+// TEMP TEST NOTIFICATION (3 MINUTES)
+// =========================================
+
+//تین منٹ ٹیسٹ والا تمام کوڈ پلس جی پی ٹی کے مشورے پر ہٹا دیا
 
     // یہاں سے آگے آپ کا ریمائنڈر لوپ (Loop) شروع ہوگا...
 
@@ -547,7 +611,7 @@ class NotificationService {
     // جہاں نوٹیفیکیشن کی تفصیلات سیٹ ہو رہی ہیں
     // ⭐ [FIX] ٹیسٹ کے لیے بھی ایک مخصوص V6 آئی ڈی استعمال کریں تاکہ ڈپلیکیٹ نہ بنیں
     const androidDetails = AndroidNotificationDetails(
-      'water_test_channel_V8', // 👈 V4 سے V6 میں تبدیلی
+      'water_test_channel_V10', // 👈 V4 سے V6 میں تبدیلی
       'Water Reminder Test',
       channelDescription: 'Test notifications',
       importance: Importance.max,
@@ -687,11 +751,10 @@ class NotificationService {
   @pragma('vm:entry-point')
   static void notificationTapBackground(NotificationResponse response) {
     // اردو کمنٹ: اگر یہ واٹر ریمائنڈر ہے (ID >= 100) تو آواز بجائیں
-    if ((response.id ?? 0) >= 100) {
-      // صرف ساؤنڈ سروس استعمال کریں
-      SoundService.playWaterSound();
+    //if ((response.id ?? 0) >= 100) {
+    // صرف ساؤنڈ سروس استعمال کریں
+    //SoundService.playWaterSound();
 
-      // ⭐ بیک گراؤنڈ سروس والا تمام پرانا کوڈ یہاں سے ہٹا دیا گیا ہے
-    }
+    // ⭐ بیک گراؤنڈ سروس والا تمام پرانا کوڈ یہاں سے ہٹا دیا گیا ہے
   }
 }
