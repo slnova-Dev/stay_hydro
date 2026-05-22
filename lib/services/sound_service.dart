@@ -8,7 +8,8 @@ class SoundService {
   static const String _customPathKey = 'custom_sound_path';
   static const String _modeKey = 'reminder_mode'; // Sound, Vibrate, etc.
 
-  static const MethodChannel _channel = MethodChannel('stayhydro_sound_channel');
+  static const MethodChannel _channel =
+      MethodChannel('stayhydro_sound_channel');
 
   // ============ SOUND OPTIONS ============
   // اردو کمنٹ: ایپ کی اپنی آوازیں
@@ -16,7 +17,6 @@ class SoundService {
     'water_glass': 'Water Flow',
     'soft_knock': 'Soft Knock',
     'water_drop': 'Water Drop',
-    'custom': 'Custom Sound (Device)',
   };
 
   // ============ GETTERS & SETTERS ============
@@ -65,7 +65,7 @@ class SoundService {
   static Future<void> triggerVibration() async {
     try {
       // اینڈرائیڈ کو وائبریشن کا سگنل بھیجیں
-      await _channel.invokeMethod('vibrate'); 
+      await _channel.invokeMethod('vibrate');
     } catch (e) {
       debugPrint("Vibration Error: $e");
     }
@@ -80,7 +80,7 @@ class SoundService {
       if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
 
       final mode = await getReminderMode();
-      
+
       // وائبریشن پریویو (اگر موڈ میں وائبریشن شامل ہو)
       if (mode.contains('Vibrate')) {
         triggerVibration();
@@ -90,7 +90,7 @@ class SoundService {
       if (mode == 'Silent' || mode == 'Vibrate only') return;
 
       final soundKey = await getSound();
-      
+
       if (soundKey == 'custom') {
         final path = await getCustomPath();
         if (path != null && path.isNotEmpty) {
@@ -103,6 +103,31 @@ class SoundService {
       }
     } catch (e) {
       debugPrint("Error in playWaterSound: $e");
+    }
+  }
+
+  // ==========================================
+  // [FUNCTION: BUTTON FEEDBACK SOUND]
+  // [PHASE 10.4C UI FEEDBACK LOCK]
+  //
+  // اردو کمنٹ:
+  // Add Water اور Missed Entry جیسے UI buttons کے لیے مستقل feedback sound
+  //
+  // اہم اصول:
+  // - یہ reminder mode کو follow نہیں کرے گا
+  // - یہ selected reminder sound کو follow نہیں کرے گا
+  // - ہمیشہ water_glass / Water Flow sound بجائے گا
+  // - vibration کبھی نہیں دے گا
+  // ==========================================
+  static Future<void> playButtonFeedbackSound() async {
+    try {
+      if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+
+      await _channel.invokeMethod('play_sound', {
+        'sound': 'water_glass',
+      });
+    } catch (e) {
+      debugPrint("Error in playButtonFeedbackSound: $e");
     }
   }
 }

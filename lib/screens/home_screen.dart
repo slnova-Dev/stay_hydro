@@ -459,7 +459,7 @@ class _HomeScreenState extends State<HomeScreen>
       }
     });
 
-    await SoundService.playWaterSound();
+    await SoundService.playButtonFeedbackSound();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('currentIntake', currentIntake);
 
@@ -512,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen>
         currentIntake += amount;
       });
 
-      await SoundService.playWaterSound();
+      await SoundService.playButtonFeedbackSound();
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('currentIntake', currentIntake);
 
