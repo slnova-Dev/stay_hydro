@@ -518,26 +518,27 @@ class NotificationService {
   }
 
   // ============ SPECIAL REMINDERS ============
-  // اسپیشل ریمائنڈر شیڈول کرنے کا فنکشن
-  // [PHASE 10.4B]
-  // اسپیشل ریمائنڈرز کو بھی Shared Notification Engine پر منتقل کر دیا گیا ہے
+  // [PHASE 10.3B / 10.4B LOCKED SPECIAL BEHAVIOR]
   //
-  // اہم بات:
-  // - اسپیشل ریمائنڈرز کے لیے الگ sound/mode نہیں رکھا گیا
-  // - یہ app کے global selected notification mode اور sound کو follow کریں گے
-  // - یوزر کے لیے special value custom message ہی رہے گی
-  // - Fasting Mode میں بھی یہ reminders active رہیں گے
-
+  // اردو کمنٹ:
+  // Special reminders save-time locked sound + mode استعمال کریں گے
+  // Hourly/test reminders global sound + mode follow کریں گے
   static Future<void> scheduleSpecialReminder(
-      int id, int hour, int minute, String message) async {
+    int id,
+    int hour,
+    int minute,
+    String message, {
+    String? soundKey,
+    String? mode,
+  }) async {
     if (kIsWeb) return;
 
     await init();
 
-    // Shared engine سے notification details بنائیں
-    // اس سے special reminders بھی وہی mode/sound/channel استعمال کریں گے
-    // جو hourly reminders اور test notifications استعمال کر رہے ہیں
-    final NotificationDetails details = await buildNotificationDetails();
+    final NotificationDetails details = await buildNotificationDetails(
+      soundKey: soundKey,
+      mode: mode,
+    );
 
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
 
@@ -551,13 +552,12 @@ class NotificationService {
       0,
     );
 
-    // اگر آج کا وقت گزر چکا ہو تو کل کے لیے schedule کریں
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
     await _notifications.zonedSchedule(
-      id, // 201, 202, or 203
+      id,
       "Special Reminder",
       message.trim().isEmpty ? "Time to hydrate 💧" : message.trim(),
       scheduledDate,
@@ -565,8 +565,6 @@ class NotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-
-      // روزانہ اسی وقت repeat کرنے کے لیے
       matchDateTimeComponents: DateTimeComponents.time,
     );
 
@@ -575,28 +573,98 @@ class NotificationService {
       debugPrint("SPECIAL ID: $id");
       debugPrint("SPECIAL TIME: $hour:$minute");
       debugPrint("SPECIAL MESSAGE: ${message.trim()}");
+      debugPrint("SPECIAL LOCKED SOUND: ${soundKey ?? 'global/current'}");
+      debugPrint("SPECIAL LOCKED MODE: ${mode ?? 'global/current'}");
       debugPrint("SPECIAL ENGINE: Shared Notification Engine");
       debugPrint("================================================");
     }
   }
 
-  // مخصوص نوٹیفیکیشن کینسل کرنے کا فنکشن (آئی ڈی کے ذریعے)
-  static Future<void> cancelNotification(int id) async {
-    await _notifications.cancel(id);
-    if (kDebugMode) debugPrint("Notification $id cancelled.");
+    // ==========================================
+  // [FUNCTION: RESTORE SPECIAL REMINDERS]
+  // [PHASE 10.3B RELIABILITY FIX]
+  //
+  // اردو کمنٹ:
+  // App start / reinstall / update / boot کے بعد enabled special reminders
+  // کو دوبارہ schedule کرنے کا محفوظ فنکشن
+  //
+  // اہم اصول:
+  // - یہ fasting mode سے متاثر نہیں ہوں گے
+  // - یہ hourly reminders کو touch نہیں کرے گا
+  // - صرف 201, 202, 203 IDs restore ہوں گی
+  // ==========================================
+  static Future<void> restoreSpecialReminders({bool fromBoot = false}) async {
+    if (kIsWeb) return;
+
+    await init(fromBoot: fromBoot);
+
+    final prefs = await SharedPreferences.getInstance();
+
+    for (int id = 201; id <= 203; id++) {
+      final bool isEnabled = prefs.getBool('special_${id}_enabled') ?? false;
+
+      if (isEnabled) {
+        final int h = prefs.getInt('special_${id}_hour') ?? 0;
+        final int m = prefs.getInt('special_${id}_min') ?? 0;
+        final String msg =
+            prefs.getString('special_${id}_msg') ?? "Special Reminder";
+
+                final String sound =
+            prefs.getString('special_${id}_sound') ?? await _getSelectedSound();
+
+        final String reminderMode =
+            prefs.getString('special_${id}_mode') ?? await _getCurrentReminderMode();
+
+        await scheduleSpecialReminder(
+          id,
+          h,
+          m,
+          msg,
+          soundKey: sound,
+          mode: reminderMode,
+        );
+      }
+    }
+
+    if (kDebugMode) {
+      debugPrint("SPECIAL REMINDERS RESTORE CHECK COMPLETED.");
+    }
   }
 
-  // ⭐ نیا شامل شدہ فنکشن: تمام عام ریمائنڈرز کینسل کرنے کا محفوظ طریقہ
+    // ==========================================
+  // [FUNCTION: CANCEL SINGLE NOTIFICATION]
+  // اردو کمنٹ:
+  // کسی ایک notification کو ID کے ذریعے cancel کرنے کا محفوظ فنکشن
+  // Special reminders save/update/off کرتے وقت استعمال ہوتا ہے
+  // ==========================================
+  static Future<void> cancelNotification(int id) async {
+    if (kIsWeb) return;
+
+    await _notifications.cancel(id);
+
+    if (kDebugMode) {
+      debugPrint("Notification $id cancelled.");
+    }
+  }
+
+  // ==========================================
+  // [FUNCTION: CANCEL REGULAR REMINDERS ONLY]
+  // اردو کمنٹ:
+  // صرف hourly water reminders cancel ہوں گے
+  // Special reminders IDs 201, 202, 203 محفوظ رہیں گے
+  // ==========================================
   static Future<void> cancelRegularReminders() async {
     if (kIsWeb) return;
-    // صرف 100 سے 150 تک کینسل کریں (پانی پینے والے ریمائنڈرز)
-    // اسپیشل ریمائنڈرز (201, 202, 203) محفوظ رہیں گے
+
     for (int i = 100; i <= 150; i++) {
       await _notifications.cancel(i);
     }
-    if (kDebugMode)
+
+    if (kDebugMode) {
       debugPrint(
-          "Regular reminders (100-150) cancelled. Special ones kept safe.");
+        "Regular reminders (100-150) cancelled. Special ones kept safe.",
+      );
+    }
   }
 
 // ============ TEST NOTIFICATION ============
@@ -728,15 +796,8 @@ class NotificationService {
 
     // --- حصہ 2: اسپیشل ریمائنڈرز (فاسٹنگ موڈ سے آزاد) ---
     // یہ حصہ 'if/else' سے باہر ہے تاکہ ہر حال میں چلے
-    for (int id = 201; id <= 203; id++) {
-      final bool isEnabled = prefs.getBool('special_${id}_enabled') ?? false;
-      if (isEnabled) {
-        final h = prefs.getInt('special_${id}_hour') ?? 0;
-        final m = prefs.getInt('special_${id}_min') ?? 0;
-        final msg = prefs.getString('special_${id}_msg') ?? "Special Reminder";
-        await scheduleSpecialReminder(id, h, m, msg);
-      }
-    }
+    await restoreSpecialReminders(fromBoot: true);
+
 
     if (kDebugMode)
       debugPrint("BOOT_RECEIVER: Special reminders check completed.");

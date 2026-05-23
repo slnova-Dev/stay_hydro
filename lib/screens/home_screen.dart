@@ -36,7 +36,8 @@ class _HomeScreenState extends State<HomeScreen>
   // SECTION LOCK: CORE STATE & GOALS
   // ==========================================
   int currentIntake = 0;
-  final int dailyGoal = 2000;
+  int dailyGoal = 2000;
+static const String _dailyGoalKey = 'daily_goal';
   int selectedIntake = 200;
   int streakDays = 0;
   bool _reminderScheduled = false;
@@ -242,9 +243,10 @@ class _HomeScreenState extends State<HomeScreen>
     final random = Random();
     _dailyTip = _dailyWaterTips[random.nextInt(_dailyWaterTips.length)];
     _currentMascotAsset = _selectMascotAsset();
-    _loadDailyState();
-    _loadSelectedIntake();
-    _loadStreak();
+_loadDailyGoal();
+_loadDailyState();
+_loadSelectedIntake();
+_loadStreak();
     _loadSleepHours();
     _startupSequence();
     _startReminderRefreshTimer();
@@ -264,8 +266,9 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _loadSleepHours();
-      _refreshNextReminderTime();
+_loadDailyGoal();
+_loadSleepHours();
+_refreshNextReminderTime();
     }
   }
 
@@ -326,12 +329,13 @@ class _HomeScreenState extends State<HomeScreen>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isFastingMode != widget.isFastingMode) {
       if (widget.isFastingMode) {
-        NotificationService.cancelAll();
+        NotificationService.cancelRegularReminders();
         _reminderScheduled = false;
         _refreshNextReminderTime();
       } else {
         _setupReminder();
         _refreshNextReminderTime();
+            _loadDailyGoal();
       }
     }
   }
@@ -358,6 +362,23 @@ class _HomeScreenState extends State<HomeScreen>
     }
     if (mounted) setState(() {});
   }
+
+    // ==========================================
+  // SECTION LOCK: DAILY GOAL LOADING
+  // اردو کمنٹ:
+  // Settings screen سے محفوظ daily goal کو Home screen پر load کرنا
+  // ==========================================
+  Future<void> _loadDailyGoal() async {
+    final prefs = await SharedPreferences.getInstance();
+    dailyGoal = prefs.getInt(_dailyGoalKey) ?? 2000;
+
+    if (mounted) {
+      setState(() {
+        _currentMascotAsset = _selectMascotAsset();
+      });
+    }
+  }
+
 
   Future<void> _loadSelectedIntake() async {
     final prefs = await SharedPreferences.getInstance();

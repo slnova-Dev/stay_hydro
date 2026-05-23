@@ -25,8 +25,8 @@ void main() async {
   // ✅ نوٹیفیکیشن سروس کافی ہے (background service کی ضرورت نہیں)
   await NotificationService.init();
 
-  // ❌ REMOVE: background service init
-  // await initializeBackgroundService();
+  // App start/update/reinstall کے بعد enabled special reminders restore کریں
+  await NotificationService.restoreSpecialReminders();
 
   runApp(const StayHydroApp());
 }

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/notification_service.dart';
-import 'package:file_picker/file_picker.dart'; // اسے یہاں ہونا چاہیے، فائل کے آخر میں نہیں
 import 'package:stay_hydro/services/sound_service.dart'; // یہاں اپنے پراجیکٹ کا صحیح پاتھ دیں
-import 'package:permission_handler/permission_handler.dart';
+
 
 class SettingsScreen extends StatefulWidget {
   final bool isDark;
@@ -51,6 +50,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _selectedSoundName = 'Water Flow';
   int _dailyGoal = 2000; // یوزر کا روزانہ کا ہدف (ڈیفالٹ: 2000ml)
 
+// ڈیلی گول key شامل کی
+    static const String _dailyGoalKey = 'daily_goal';
+
   // سونے کے اوقات کی لوکل کیز
   static const String _sleepStartHourKey = 'sleep_start_hour';
   static const String _sleepStartMinuteKey = 'sleep_start_minute';
@@ -62,6 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _fasting = widget.isFastingMode;
     _darkTheme = widget.isDark;
+    
 
     // ڈیفالٹ ویلیوز (اگر میموری سے نہ ملیں)
     _sleepStartHour = 23;
@@ -73,6 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadSoundSettings(); // آواز کی نئی سیٹنگز کے لیے (Phase 10.3)
     _loadSleepHours(); // سونے کے اوقات لوڈ کرنے کے لیے
     _loadSpecialReminders(); // اسپیشل ریمائنڈرز لوڈ کرنے کے لیے
+        _loadDailyGoal(); // ڈیلی گول لوڈ کرنے کے لیے
   }
 
   // ==========================================
@@ -134,6 +138,102 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+    // ==========================================
+  // [BLOCK: DAILY GOAL LOGIC]
+  // اردو کمنٹ: روزانہ پانی کے ہدف کو load/save/edit کرنے کی logic
+  // ==========================================
+
+  Future<void> _loadDailyGoal() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+
+    setState(() {
+      _dailyGoal = prefs.getInt(_dailyGoalKey) ?? 2000;
+    });
+  }
+
+  Future<void> _saveDailyGoal(int goal) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_dailyGoalKey, goal);
+
+    if (!mounted) return;
+    setState(() {
+      _dailyGoal = goal;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Daily goal updated to $goal ml")),
+    );
+  }
+
+    void _showDailyGoalPicker() {
+    final List<int> goals = [
+      600, 800, 1000, 1200, 1500, 1800,
+      2000, 2500, 3000, 3500, 4000,
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: _darkTheme ? const Color(0xFF1A1C1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.65,
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                Text(
+                  "Select Daily Goal",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: _darkTheme ? Colors.white : Colors.blue.shade900,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: goals.length,
+                    itemBuilder: (context, index) {
+                      final goal = goals[index];
+
+                      return ListTile(
+                        leading: Icon(
+                          Icons.water_drop_rounded,
+                          color: _dailyGoal == goal
+                              ? Colors.blue.shade400
+                              : Colors.grey,
+                        ),
+                        title: Text(
+                          "$goal ml",
+                          style: TextStyle(
+                            color: _darkTheme ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        trailing: _dailyGoal == goal
+                            ? Icon(Icons.check_circle,
+                                color: Colors.blue.shade400)
+                            : null,
+                        onTap: () async {
+                          await _saveDailyGoal(goal);
+                          if (context.mounted) Navigator.pop(context);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // ==========================================
   // [BLOCK: STORAGE & ACTIONS LOGIC]
   // ==========================================
@@ -157,22 +257,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-// ==========================================
-  // [BLOCK: SAVE SPECIAL REMINDER]
-  // اسپیشل ریمائنڈر کو میموری میں محفوظ کرنا اور شیڈول کرنا
   // ==========================================
   // [BLOCK: SAVE SPECIAL REMINDER]
-  // [PHASE 10.4B LOCKED BEHAVIOR]
+  // [PHASE 10.3B / 10.4B LOCKED SPECIAL BEHAVIOR]
   //
   // اردو کمنٹ:
-  // اسپیشل ریمائنڈر کو memory میں محفوظ کرنا اور schedule/cancel کرنا
-  //
-  // اہم اصول:
-  // - جب reminder ON کر کے save ہو گا، وہ اسی وقت کے active sound + mode
-  //   کے ساتھ schedule ہو گا
-  // - بعد میں global sound/mode بدلنے سے یہ reminder خود update نہیں ہو گا
-  // - sound/mode بدلنے کے لیے user کو مطلوبہ mode/sound منتخب کر کے
-  //   special reminder دوبارہ Save کرنا ہو گا
+  // اسپیشل ریمائنڈر save کرتے وقت current sound + mode بھی lock ہوں گے
+  // تاکہ app restart / restore / global mode change کے بعد بھی
+  // یہ reminder اسی sound + mode کے ساتھ چلے جس میں user نے اسے save کیا تھا
   // ==========================================
   Future<void> _saveSpecialReminder(
       int index, bool enabled, int h, int m, String msg) async {
@@ -180,32 +272,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final int id = 201 + index; // IDs: 201, 202, 203
 
-    // خالی message سے بچنے کے لیے safe fallback
     final String cleanMessage =
         msg.trim().isEmpty ? "Special Reminder" : msg.trim();
 
-    // پہلے پرانا notification cancel کریں
-    // تاکہ same ID کے ساتھ duplicate یا پرانا mode/channel باقی نہ رہے
+    // موجودہ global sound + mode کو special reminder کے لیے lock کریں
+    final String lockedSound = await SoundService.getSound();
+    final String lockedMode = await SoundService.getReminderMode();
+
     await NotificationService.cancelNotification(id);
 
-    // ڈیٹا کو local storage میں محفوظ کریں
     await prefs.setBool('special_${id}_enabled', enabled);
     await prefs.setInt('special_${id}_hour', h);
     await prefs.setInt('special_${id}_min', m);
     await prefs.setString('special_${id}_msg', cleanMessage);
 
-    // اگر ON ہے تو موجودہ active sound + mode کے مطابق دوبارہ schedule کریں
-    // اگر OFF ہے تو اوپر cancel ہو چکا ہے، اس لیے مزید کچھ نہیں کرنا
+    // save-time sound/mode lock
+    await prefs.setString('special_${id}_sound', lockedSound);
+    await prefs.setString('special_${id}_mode', lockedMode);
+
     if (enabled) {
       await NotificationService.scheduleSpecialReminder(
         id,
         h,
         m,
         cleanMessage,
+        soundKey: lockedSound,
+        mode: lockedMode,
       );
     }
 
-    // UI کو اپ ڈیٹ کرنے کے لیے دوبارہ load کریں
     await _loadSpecialReminders();
   }
 
@@ -366,11 +461,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     _buildSettingTile(
                       isDark: isDark,
                       title: "App Language",
-                      subtitle: "English", // یہاں منتخب زبان کا نام آئے گا
+                      subtitle: "English • More languages coming soon", // یہاں منتخب زبان کا نام آئے گا
                       icon: Icons.translate_rounded,
                       showDivider: true,
-                      onTap: () {
-                        // یہاں زبان منتخب کرنے کا ڈائیلاگ آئے گا
+                      onTap: () { // زبان منتخب کرنے کا ڈائلاگ
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Language options will be added in a future update."),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
                       },
                     ),
 
@@ -381,9 +481,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       subtitle: "$_dailyGoal ml", // ڈیلی گول کا ویریبل
                       icon: Icons.water_drop_rounded,
                       showDivider: false,
-                      onTap: () {
-                        // یہاں گول سیٹ کرنے کا ڈائیلاگ آئے گا
-                      },
+                      onTap: _showDailyGoalPicker, // گول سیٹ کرنے کا ڈائیلاگ
+                      
                     ),
                   ],
                 ),
@@ -410,7 +509,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           setState(() => _fasting = value);
                           widget.onFastingToggle(value);
                           if (value) {
-                            await NotificationService.cancelAll();
+                            await NotificationService.cancelRegularReminders();
                           } else {
                             await NotificationService.scheduleHourlyReminder();
                           }
