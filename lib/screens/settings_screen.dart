@@ -543,34 +543,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 // ==========================================
 // [SECTION 3: SPECIAL REMINDERS]
-// اردو کمنٹ: یہ ریمائنڈرز فاسٹنگ موڈ میں بھی فعال رہتے ہیں
+// اردو کمنٹ:
+// یہ reminders fasting mode میں بھی active رہتے ہیں
+// اور save-time locked sound/mode استعمال کرتے ہیں
 // ==========================================
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildSectionTitle("Special Reminders", isDark),
-                    IconButton(
-                      icon: Icon(
-                        Icons.info_outline_rounded,
-                        size: 18,
-                        color: isDark ? Colors.white30 : Colors.blue.shade900,
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            behavior: SnackBarBehavior.floating,
-                            duration: Duration(seconds: 6),
-                            content: Text(
-                              "• Special reminders remain active even during Fasting Mode.\n\n"
-                              "• Special reminders use the sound and mode active at the time of saving.\n"
-                              "To change their sound or mode, select the desired sound/mode and save the reminder again.",
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+Row(
+  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  children: [
+    _buildSectionTitle("Special Reminders", isDark),
+    IconButton(
+      icon: Icon(
+        Icons.info_outline_rounded,
+        size: 18,
+        color: isDark ? Colors.white30 : Colors.blue.shade700,
+      ),
+      onPressed: () {
+        _showReliabilityInfo(
+          title: "Special Reminders",
+          message:
+              "• Special reminders remain active even during Fasting Mode.\n\n"
+              "• Each special reminder uses the sound and mode active at the time of saving.\n\n"
+              "• To change a reminder's sound or mode, select the desired sound/mode and save the reminder again.\n\n"
+              "• Special reminders also restore automatically after phone restart.",
+        );
+      },
+    ),
+  ],
+),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
@@ -646,26 +645,235 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           initialHour: _sleepEndHour,
                           initialMinute: _sleepEndMinute),
                     ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Battery Optimization",
-                      subtitle: "Essential for on-time alerts",
-                      icon: Icons.battery_saver_rounded,
-                      showDivider: true,
-                      onTap: () async => await NotificationService
-                          .openBatteryOptimizationSettings(),
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Enable Auto Start",
-                      subtitle: "Keep reminders active after restart",
-                      icon: Icons.power_settings_new_rounded,
-                      showDivider: false,
-                      onTap: () async =>
-                          await NotificationService.openAutoStartSettings(),
-                    ),
+_buildSettingTile(
+  isDark: isDark,
+  title: "Battery Optimization",
+  subtitle: "Required for reliable reminders",
+  icon: Icons.battery_saver_rounded,
+  showDivider: true,
+  onInfoTap: () {
+    _showReliabilityInfo(
+      title: "Battery Optimization",
+      message:
+          "For reliable reminders, set StayHydro to Not Optimized in battery settings. This helps Android avoid delaying or stopping reminders.",
+    );
+  },
+  onTap: () async {
+    await NotificationService.openBatteryOptimizationSettings();
+  },
+),
+
+
+_buildSettingTile(
+  isDark: isDark,
+  title: "Auto Start & Background",
+  subtitle: "Enable auto start and background activity",
+  icon: Icons.power_settings_new_rounded,
+  showDivider: false,
+  onInfoTap: () {
+    _showReliabilityInfo(
+      title: "Auto Start & Background Activity",
+      message:
+          "Allow Auto Start and Background Activity for StayHydro, especially on Oppo, Realme, Vivo and Xiaomi phones. This helps reminders continue after restart and while the app is closed.",
+    );
+  },
+  onTap: () async {
+    await NotificationService.openAutoStartSettings();
+  },
+),
                   ],
                 ),
+
+// ==========================================
+// [SECTION: REMINDER RELIABILITY TIPS]
+// اردو کمنٹ:
+// Reminder reliability بہتر بنانے کے لیے اہم ہدایات
+// خاص طور پر Oppo / Xiaomi / Vivo devices کے لیے
+// ==========================================
+_buildSectionTitle("Reminder Reliability Tips", isDark),
+
+_buildGroupContainer(
+  isDark: isDark,
+  children: [
+    ListTile(
+      leading: Icon(
+        Icons.battery_saver_rounded,
+        color: Colors.orange.shade400,
+      ),
+      title: Text(
+        "Disable Battery Optimization",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white : Colors.blue.shade900,
+        ),
+      ),
+      subtitle: Text(
+        "Set StayHydro to Not Optimized for reliable reminders.",
+        style: TextStyle(
+          color: isDark
+              ? Colors.white54
+              : Colors.blue.shade900.withOpacity(0.6),
+        ),
+      ),
+    ),
+
+    Padding(
+  padding: const EdgeInsets.only(left: 56),
+  child: Container(
+    height: 1,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          isDark
+              ? Colors.white10
+              : Colors.blue.shade100.withOpacity(0.3),
+          Colors.transparent,
+        ],
+      ),
+    ),
+  ),
+),
+
+    ListTile(
+      leading: Icon(
+        Icons.power_settings_new_rounded,
+        color: Colors.green.shade400,
+      ),
+      title: Text(
+        "Enable Auto Start",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white : Colors.blue.shade900,
+        ),
+      ),
+      subtitle: Text(
+        "Recommended for Oppo, Xiaomi, Vivo & Realme devices.",
+        style: TextStyle(
+          color: isDark
+              ? Colors.white54
+              : Colors.blue.shade900.withOpacity(0.6),
+        ),
+      ),
+    ),
+
+    Padding(
+  padding: const EdgeInsets.only(left: 56),
+  child: Container(
+    height: 1,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          isDark
+              ? Colors.white10
+              : Colors.blue.shade100.withOpacity(0.3),
+          Colors.transparent,
+        ],
+      ),
+    ),
+  ),
+),
+
+    ListTile(
+      leading: Icon(
+        Icons.sync_rounded,
+        color: Colors.cyan.shade400,
+      ),
+      title: Text(
+        "Allow Background Activity",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white : Colors.blue.shade900,
+        ),
+      ),
+      subtitle: Text(
+        "Helps reminders continue while the app is closed.",
+        style: TextStyle(
+          color: isDark
+              ? Colors.white54
+              : Colors.blue.shade900.withOpacity(0.6),
+        ),
+      ),
+    ),
+
+    Padding(
+  padding: const EdgeInsets.only(left: 56),
+  child: Container(
+    height: 1,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          isDark
+              ? Colors.white10
+              : Colors.blue.shade100.withOpacity(0.3),
+          Colors.transparent,
+        ],
+      ),
+    ),
+  ),
+),
+
+    ListTile(
+      leading: Icon(
+        Icons.notifications_active_rounded,
+        color: Colors.blue.shade400,
+      ),
+      title: Text(
+        "Allow Notifications & Exact Alarms",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white : Colors.blue.shade900,
+        ),
+      ),
+      subtitle: Text(
+        "Required for accurate reminder delivery.",
+        style: TextStyle(
+          color: isDark
+              ? Colors.white54
+              : Colors.blue.shade900.withOpacity(0.6),
+        ),
+      ),
+    ),
+
+    Padding(
+  padding: const EdgeInsets.only(left: 56),
+  child: Container(
+    height: 1,
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [
+          isDark
+              ? Colors.white10
+              : Colors.blue.shade100.withOpacity(0.3),
+          Colors.transparent,
+        ],
+      ),
+    ),
+  ),
+),
+
+    ListTile(
+      leading: Icon(
+        Icons.restart_alt_rounded,
+        color: Colors.purple.shade300,
+      ),
+      title: Text(
+        "Restart Reliability",
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: isDark ? Colors.white : Colors.blue.shade900,
+        ),
+      ),
+      subtitle: Text(
+        "StayHydro restores reminders automatically after reboot.",
+        style: TextStyle(
+          color: isDark
+              ? Colors.white54
+              : Colors.blue.shade900.withOpacity(0.6),
+        ),
+      ),
+    ),
+  ],
+),
 
                 // ==========================================
                 // [SECTION 5: APP SUPPORT]
@@ -1028,6 +1236,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // ==========================================
+  // [FUNCTION: SHOW RELIABILITY INFO DIALOG]
+  // اردو کمنٹ:
+  // Battery / Auto Start / Background Activity کی وضاحت الگ dialog میں دکھانے کے لیے
+  // تاکہ settings screen فوراً کھلنے سے message ضائع نہ ہو
+  // ==========================================
+  void _showReliabilityInfo({
+    required String title,
+    required String message,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Got it"),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 // ==========================================
 // [FUNCTION: BUILD SETTING TILE] (Updated Phase 10.4)
 // اردو کمنٹ: تمام کارڈز کی اونچائی (Height) کو ایک جیسا رکھنے کے لیے Constraints کا اضافہ
@@ -1039,6 +1273,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     Widget? trailing,
     VoidCallback? onTap,
+    VoidCallback? onInfoTap,
     bool showDivider = true,
   }) {
     return Column(
@@ -1078,11 +1313,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   )
                 : null,
             trailing: trailing ??
-                Icon(
-                  Icons.chevron_right,
-                  size: 20,
-                  color: isDark ? Colors.white30 : Colors.blue.shade200,
-                ),
+                (onInfoTap != null
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.info_outline_rounded,
+                              size: 18,
+                              color: isDark
+                                  ? Colors.white38
+                                  : Colors.blue.shade700,
+                            ),
+                            onPressed: onInfoTap,
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            size: 20,
+                            color: isDark
+                                ? Colors.white30
+                                : Colors.blue.shade200,
+                          ),
+                        ],
+                      )
+                    : Icon(
+                        Icons.chevron_right,
+                        size: 20,
+                        color:
+                            isDark ? Colors.white30 : Colors.blue.shade200,
+                      )),
             onTap: onTap,
           ),
         ),
