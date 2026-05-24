@@ -580,7 +580,7 @@ class NotificationService {
     }
   }
 
-    // ==========================================
+  // ==========================================
   // [FUNCTION: RESTORE SPECIAL REMINDERS]
   // [PHASE 10.3B RELIABILITY FIX]
   //
@@ -609,11 +609,11 @@ class NotificationService {
         final String msg =
             prefs.getString('special_${id}_msg') ?? "Special Reminder";
 
-                final String sound =
+        final String sound =
             prefs.getString('special_${id}_sound') ?? await _getSelectedSound();
 
-        final String reminderMode =
-            prefs.getString('special_${id}_mode') ?? await _getCurrentReminderMode();
+        final String reminderMode = prefs.getString('special_${id}_mode') ??
+            await _getCurrentReminderMode();
 
         await scheduleSpecialReminder(
           id,
@@ -631,7 +631,7 @@ class NotificationService {
     }
   }
 
-    // ==========================================
+  // ==========================================
   // [FUNCTION: CANCEL SINGLE NOTIFICATION]
   // اردو کمنٹ:
   // کسی ایک notification کو ID کے ذریعے cancel کرنے کا محفوظ فنکشن
@@ -664,6 +664,101 @@ class NotificationService {
       debugPrint(
         "Regular reminders (100-150) cancelled. Special ones kept safe.",
       );
+    }
+  }
+
+  // ==========================================
+  // [FUNCTION: CANCEL CUSTOM REMINDERS ONLY]
+  // [PHASE 10.5B-5]
+  // اردو کمنٹ:
+  // صرف Custom Schedule reminders cancel ہوں گے
+  // IDs: 300–350
+  // ==========================================
+  static Future<void> cancelCustomReminders() async {
+    if (kIsWeb) return;
+
+    for (int i = 300; i <= 350; i++) {
+      await _notifications.cancel(i);
+    }
+
+    if (kDebugMode) {
+      debugPrint("Custom reminders (300-350) cancelled.");
+    }
+  }
+
+  // ==========================================
+  // [FUNCTION: SCHEDULE CUSTOM REMINDERS]
+  // [PHASE 10.5B-5]
+  // اردو کمنٹ:
+  // Custom Schedule slots کو global sound + mode کے مطابق schedule کرنا
+  // Fasting Mode میں یہ reminders schedule نہیں ہوں گے
+  // ==========================================
+  static Future<void> scheduleCustomReminders(
+    List<Map<String, dynamic>> slots, {
+    bool fromBoot = false,
+  }) async {
+    if (kIsWeb) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final bool isFasting = prefs.getBool('isFastingMode') ?? false;
+
+    await cancelCustomReminders();
+
+    if (isFasting) {
+      if (kDebugMode) {
+        debugPrint("Fasting Mode Active: Custom reminders cancelled.");
+      }
+      return;
+    }
+
+    await init(fromBoot: fromBoot);
+
+    final NotificationDetails details = await buildNotificationDetails();
+
+    int scheduledCount = 0;
+
+    for (int i = 0; i < slots.length && i < 51; i++) {
+      final slot = slots[i];
+
+      final int hour = slot['hour'] as int;
+      final int minute = slot['minute'] as int;
+      final bool enabled = slot['enabled'] as bool? ?? true;
+
+      if (!enabled) continue;
+
+      final now = tz.TZDateTime.now(tz.local);
+      var scheduledDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        hour,
+        minute,
+        0,
+      );
+
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
+
+      await _notifications.zonedSchedule(
+        300 + i,
+        _randomMessages[_random.nextInt(_randomMessages.length)],
+        _randomBodies[_random.nextInt(_randomBodies.length)],
+        scheduledDate,
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: 'custom_water_reminder',
+      );
+
+      scheduledCount++;
+    }
+
+    if (kDebugMode) {
+      debugPrint("CUSTOM REMINDERS SCHEDULED: $scheduledCount");
     }
   }
 
@@ -797,7 +892,6 @@ class NotificationService {
     // --- حصہ 2: اسپیشل ریمائنڈرز (فاسٹنگ موڈ سے آزاد) ---
     // یہ حصہ 'if/else' سے باہر ہے تاکہ ہر حال میں چلے
     await restoreSpecialReminders(fromBoot: true);
-
 
     if (kDebugMode)
       debugPrint("BOOT_RECEIVER: Special reminders check completed.");
