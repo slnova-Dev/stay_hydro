@@ -851,45 +851,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 // ==========================================
 // [SECTION: CUSTOM SCHEDULE]
-// [PHASE 10.5B-2]
+// [PHASE 10.5B-8]
 // اردو کمنٹ:
-// Custom Schedule mode کے لیے user-defined reminder times کی preview/list
-// ابھی یہ UI foundation ہے؛ actual notification scheduling اگلے step میں آئے گی
+// Smart Hourly selected ہو تو Custom Schedule card inactive/faded دکھے گا
+// مگر info button کام کرتا رہے گا
 // ==========================================
                 _buildSectionTitle("Custom Schedule", isDark),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Custom Reminder Times",
-                      subtitle: _reminderSystem == 'Custom Schedule'
-                          ? "${_customReminderSlots.length} reminder slots configured"
-                          : "Available when Custom Schedule is selected",
-                      icon: Icons.edit_calendar_rounded,
-                      showDivider: false,
-                      onInfoTap: () {
-                        _showReliabilityInfo(
-                          title: "Custom Schedule",
-                          message:
-                              "Custom Schedule lets you choose your own hydration reminder times.\n\n"
-                              "It follows your selected reminder sound and mode.\n\n"
-                              "Sleep Hours do not apply here because you control the exact reminder times.\n\n"
-                              "Fasting Mode will still pause hydration reminders.",
-                        );
-                      },
-                      onTap: () {
-                        if (_reminderSystem != 'Custom Schedule') {
+                    Opacity(
+                      opacity:
+                          _reminderSystem == 'Custom Schedule' ? 1.0 : 0.45,
+                      child: _buildSettingTile(
+                        isDark: isDark,
+                        title: "Custom Reminder Times",
+                        subtitle: _reminderSystem == 'Custom Schedule'
+                            ? "${_customReminderSlots.length} reminder slots configured"
+                            : "Only available in Custom Schedule",
+                        icon: Icons.edit_calendar_rounded,
+                        showDivider: false,
+                        onInfoTap: () {
                           _showReliabilityInfo(
-                            title: "Custom Schedule Inactive",
+                            title: "Custom Schedule",
                             message:
-                                "Select Custom Schedule from Reminder System to manage your custom reminder times.",
+                                "Custom Schedule lets you choose your own hydration reminder times.\n\n"
+                                "It follows your selected reminder sound and mode.\n\n"
+                                "Sleep Hours do not apply here because you control the exact reminder times.\n\n"
+                                "Fasting Mode will still pause hydration reminders.",
                           );
-                          return;
-                        }
+                        },
+                        onTap: () {
+                          if (_reminderSystem != 'Custom Schedule') {
+                            _showReliabilityInfo(
+                              title: "Custom Schedule Inactive",
+                              message:
+                                  "Select Custom Schedule from Reminder System to manage your custom reminder times.",
+                            );
+                            return;
+                          }
 
-                        _showCustomSchedulePreview();
-                      },
+                          _showCustomSchedulePreview();
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -976,27 +980,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Sleep Start Hour",
-                      subtitle: _formatTime(_sleepStartHour, _sleepStartMinute),
-                      icon: Icons.bedtime_rounded,
-                      showDivider: true,
-                      onTap: () => _selectSleepHour(
-                          isStartHour: true,
-                          initialHour: _sleepStartHour,
-                          initialMinute: _sleepStartMinute),
+                    Opacity(
+                      opacity: _reminderSystem == 'Smart Hourly' ? 1.0 : 0.45,
+                      child: _buildSettingTile(
+                        isDark: isDark,
+                        title: "Sleep Start Hour",
+                        subtitle: _reminderSystem == 'Smart Hourly'
+                            ? _formatTime(_sleepStartHour, _sleepStartMinute)
+                            : "Only applies to Smart Hourly",
+                        icon: Icons.bedtime_rounded,
+                        showDivider: true,
+                        onInfoTap: () {
+                          _showReliabilityInfo(
+                            title: "Sleep Hours",
+                            message:
+                                "Sleep Hours only apply to Smart Hourly reminders.\n\nCustom Schedule uses the exact times you choose, so Sleep Hours are not applied there.",
+                          );
+                        },
+                        onTap: _reminderSystem == 'Smart Hourly'
+                            ? () => _selectSleepHour(
+                                  isStartHour: true,
+                                  initialHour: _sleepStartHour,
+                                  initialMinute: _sleepStartMinute,
+                                )
+                            : null,
+                      ),
                     ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: "Sleep End Hour",
-                      subtitle: _formatTime(_sleepEndHour, _sleepEndMinute),
-                      icon: Icons.wb_sunny_rounded,
-                      showDivider: true,
-                      onTap: () => _selectSleepHour(
-                          isStartHour: false,
-                          initialHour: _sleepEndHour,
-                          initialMinute: _sleepEndMinute),
+                    Opacity(
+                      opacity: _reminderSystem == 'Smart Hourly' ? 1.0 : 0.45,
+                      child: _buildSettingTile(
+                        isDark: isDark,
+                        title: "Sleep End Hour",
+                        subtitle: _reminderSystem == 'Smart Hourly'
+                            ? _formatTime(_sleepEndHour, _sleepEndMinute)
+                            : "Only applies to Smart Hourly",
+                        icon: Icons.wb_sunny_rounded,
+                        showDivider: true,
+                        onInfoTap: () {
+                          _showReliabilityInfo(
+                            title: "Sleep Hours",
+                            message:
+                                "Sleep Hours only apply to Smart Hourly reminders.\n\nCustom Schedule uses the exact times you choose, so Sleep Hours are not applied there.",
+                          );
+                        },
+                        onTap: _reminderSystem == 'Smart Hourly'
+                            ? () => _selectSleepHour(
+                                  isStartHour: false,
+                                  initialHour: _sleepEndHour,
+                                  initialMinute: _sleepEndMinute,
+                                )
+                            : null,
+                      ),
                     ),
                     _buildSettingTile(
                       isDark: isDark,
@@ -1306,23 +1340,102 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      "Custom Reminder Times",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.blue.shade900,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Enable, disable or edit each hydration reminder time.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isDark
-                            ? Colors.white54
-                            : Colors.blue.shade900.withOpacity(0.6),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Custom Reminder Times",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? Colors.white
+                                        : Colors.blue.shade900,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  "Enable, disable or edit each hydration reminder time.",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: isDark
+                                        ? Colors.white54
+                                        : Colors.blue.shade900.withOpacity(0.6),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // RESET BUTTON
+                          IconButton(
+                            tooltip: "Reset defaults",
+                            icon: Icon(
+                              Icons.restart_alt_rounded,
+                              color: Colors.blue.shade400,
+                            ),
+                            onPressed: () async {
+                              setSheetState(() {
+                                _customReminderSlots =
+                                    _defaultCustomReminderSlots();
+                              });
+
+                              if (mounted) {
+                                setState(() {});
+                              }
+
+                              await _saveCustomReminderTimes();
+                            },
+                          ),
+
+                          // ADD BUTTON
+                          IconButton(
+                            tooltip: "Add reminder",
+                            icon: Icon(
+                              Icons.add_circle_rounded,
+                              color: Colors.blue.shade400,
+                            ),
+                            onPressed: () async {
+                              if (_customReminderSlots.length >= 20) {
+                                _showReliabilityInfo(
+                                  title: "Maximum Reached",
+                                  message:
+                                      "You can create up to 20 custom reminder times.",
+                                );
+                                return;
+                              }
+
+                              final picked = await showTimePicker(
+                                context: context,
+                                initialTime:
+                                    const TimeOfDay(hour: 12, minute: 0),
+                              );
+
+                              if (picked == null) return;
+
+                              setSheetState(() {
+                                _customReminderSlots.add({
+                                  'hour': picked.hour,
+                                  'minute': picked.minute,
+                                  'enabled': true,
+                                });
+
+                                _sortCustomReminderSlots();
+                              });
+
+                              if (mounted) {
+                                setState(() {});
+                              }
+
+                              await _saveCustomReminderTimes();
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -1346,44 +1459,203 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 final bool enabled =
                                     slot['enabled'] as bool? ?? true;
 
-                                return ListTile(
-                                  leading: Icon(
-                                    enabled
-                                        ? Icons.access_time_rounded
-                                        : Icons.timer_off_rounded,
-                                    color: enabled
-                                        ? Colors.blue.shade400
-                                        : Colors.grey,
-                                  ),
-                                  title: Text(
-                                    _formatTime(hour, minute),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
+                                return Opacity(
+                                  opacity: enabled ? 1.0 : 0.55,
+                                  child: ListTile(
+                                    leading: Icon(
+                                      enabled
+                                          ? Icons.access_time_rounded
+                                          : Icons.timer_off_rounded,
                                       color: enabled
-                                          ? (isDark
-                                              ? Colors.white
-                                              : Colors.black87)
+                                          ? Colors.blue.shade400
                                           : Colors.grey,
                                     ),
-                                  ),
-                                  subtitle: Text(
-                                    enabled
-                                        ? "Custom hydration reminder"
-                                        : "Disabled",
-                                    style: TextStyle(
-                                      color: isDark
-                                          ? Colors.white54
-                                          : Colors.blue.shade900
-                                              .withOpacity(0.6),
+                                    title: Text(
+                                      _formatTime(hour, minute),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: enabled
+                                            ? (isDark
+                                                ? Colors.white
+                                                : Colors.black87)
+                                            : Colors.grey,
+                                      ),
                                     ),
-                                  ),
-                                  trailing: Switch(
-                                    value: enabled,
-                                    activeColor: Colors.blue.shade400,
-                                    onChanged: (value) async {
+                                    subtitle: Text(
+                                      enabled
+                                          ? "Custom hydration reminder"
+                                          : "Disabled",
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? Colors.white54
+                                            : Colors.blue.shade900
+                                                .withOpacity(0.6),
+                                      ),
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.remove_circle_outline_rounded,
+                                            color: Colors.redAccent
+                                                .withOpacity(0.82),
+                                          ),
+                                          onPressed: () async {
+                                            final bool? confirmed =
+                                                await showDialog<bool>(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  backgroundColor: isDark
+                                                      ? const Color(0xFF1A1C1E)
+                                                      : Colors.white,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            18),
+                                                  ),
+                                                  title: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .warning_amber_rounded,
+                                                        color: Colors.redAccent,
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Text(
+                                                        "Delete Reminder?",
+                                                        style: TextStyle(
+                                                          color: isDark
+                                                              ? Colors.white
+                                                              : Colors.blue
+                                                                  .shade900,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  content: Text(
+                                                    "This custom reminder time will be removed permanently.",
+                                                    style: TextStyle(
+                                                      color: isDark
+                                                          ? Colors.white70
+                                                          : Colors.blue.shade900
+                                                              .withOpacity(
+                                                                  0.75),
+                                                    ),
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context, false),
+                                                      child: Text(
+                                                        "Cancel",
+                                                        style: TextStyle(
+                                                          color: isDark
+                                                              ? Colors.white60
+                                                              : Colors.blue
+                                                                  .shade700,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    FilledButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context, true),
+                                                      style: FilledButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                            Colors.redAccent,
+                                                      ),
+                                                      child:
+                                                          const Text("Delete"),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            );
+
+                                            if (confirmed != true) return;
+
+                                            setSheetState(() {
+                                              _customReminderSlots
+                                                  .removeAt(index);
+                                            });
+
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
+
+                                            await _saveCustomReminderTimes();
+
+                                            await NotificationService
+                                                .scheduleCustomReminders(
+                                              _customReminderSlots,
+                                            );
+                                          },
+                                        ),
+                                        Switch(
+                                          value: enabled,
+                                          activeColor: Colors.blue.shade400,
+                                          onChanged: (value) async {
+                                            setSheetState(() {
+                                              _customReminderSlots[index]
+                                                  ['enabled'] = value;
+                                            });
+
+                                            if (mounted) {
+                                              setState(() {});
+                                            }
+
+                                            await _saveCustomReminderTimes();
+
+                                            await _rescheduleActiveReminderSystem();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    onTap: () async {
+                                      final picked = await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay(
+                                          hour: hour,
+                                          minute: minute,
+                                        ),
+                                        builder: (context, child) {
+                                          return Theme(
+                                            data: Theme.of(context).copyWith(
+                                              timePickerTheme:
+                                                  TimePickerThemeData(
+                                                helpTextStyle: TextStyle(
+                                                  color: isDark
+                                                      ? Colors.white
+                                                      : Colors.blue.shade900,
+                                                ),
+                                              ),
+                                            ),
+                                            child: MediaQuery(
+                                              data: MediaQuery.of(context)
+                                                  .copyWith(
+                                                alwaysUse24HourFormat: true,
+                                              ),
+                                              child: child ??
+                                                  const SizedBox.shrink(),
+                                            ),
+                                          );
+                                        },
+                                      );
+
+                                      if (picked == null) return;
+
                                       setSheetState(() {
-                                        _customReminderSlots[index]['enabled'] =
-                                            value;
+                                        _customReminderSlots[index]['hour'] =
+                                            picked.hour;
+                                        _customReminderSlots[index]['minute'] =
+                                            picked.minute;
+                                        _sortCustomReminderSlots();
                                       });
 
                                       if (mounted) {
@@ -1391,55 +1663,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       }
 
                                       await _saveCustomReminderTimes();
+                                      await _rescheduleActiveReminderSystem();
                                     },
                                   ),
-                                  onTap: () async {
-                                    final picked = await showTimePicker(
-                                      context: context,
-                                      initialTime: TimeOfDay(
-                                        hour: hour,
-                                        minute: minute,
-                                      ),
-                                      builder: (context, child) {
-                                        return Theme(
-                                          data: Theme.of(context).copyWith(
-                                            timePickerTheme:
-                                                TimePickerThemeData(
-                                              helpTextStyle: TextStyle(
-                                                color: isDark
-                                                    ? Colors.white
-                                                    : Colors.blue.shade900,
-                                              ),
-                                            ),
-                                          ),
-                                          child: MediaQuery(
-                                            data:
-                                                MediaQuery.of(context).copyWith(
-                                              alwaysUse24HourFormat: true,
-                                            ),
-                                            child: child ??
-                                                const SizedBox.shrink(),
-                                          ),
-                                        );
-                                      },
-                                    );
-
-                                    if (picked == null) return;
-
-                                    setSheetState(() {
-                                      _customReminderSlots[index]['hour'] =
-                                          picked.hour;
-                                      _customReminderSlots[index]['minute'] =
-                                          picked.minute;
-                                      _sortCustomReminderSlots();
-                                    });
-
-                                    if (mounted) {
-                                      setState(() {});
-                                    }
-
-                                    await _saveCustomReminderTimes();
-                                  },
                                 );
                               },
                             ),
