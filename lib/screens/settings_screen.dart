@@ -1584,6 +1584,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  // ==========================================
+  // [FUNCTION: RESCHEDULE ACTIVE REMINDER SYSTEM]
+  // [PHASE 10.5B FIX]
+  //
+  // اردو کمنٹ:
+  // sound/mode change کے بعد صرف active reminder system دوبارہ schedule ہو گا
+  // Smart Hourly active ہو تو hourly
+  // Custom Schedule active ہو تو custom
+  // Special reminders untouched رہیں گے
+  // ==========================================
+  Future<void> _rescheduleActiveReminderSystem() async {
+    if (_reminderSystem == 'Custom Schedule') {
+      await NotificationService.scheduleCustomReminders(_customReminderSlots);
+    } else {
+      await NotificationService.scheduleHourlyReminder();
+    }
+  }
+
 // ==========================================
 // [FUNCTION: SHOW MODE PICKER] (Updated Phase 10.4)
 // اردو کمنٹ: ریمائنڈر کے طریقے منتخب کرنے اور فوری فیڈ بیک دینے کا فنکشن
@@ -1638,9 +1656,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // نیا mode save کریں
                           await SoundService.setReminderMode(mode);
 
-                          // Hourly reminders کو نئے mode کے مطابق دوبارہ schedule کریں
+                          // Hourly یا کسٹم reminders کو نئے mode کے مطابق دوبارہ schedule کریں
                           // Special reminders کو یہاں touch نہیں کریں گے
-                          await NotificationService.scheduleHourlyReminder();
+                          await _rescheduleActiveReminderSystem();
 
                           // Preview صرف user feedback کے لیے
                           SoundService.playWaterSound();
@@ -1707,7 +1725,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                           // ⭐ بہت اہم:
                           // تمام reminders دوبارہ schedule کریں
-                          await NotificationService.scheduleHourlyReminder();
+                          await _rescheduleActiveReminderSystem();
 
                           // ⭐ preview چلائیں
                           SoundService.playWaterSound();

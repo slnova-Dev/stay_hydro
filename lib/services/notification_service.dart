@@ -25,6 +25,8 @@ class NotificationService {
   static const String _sleepStartMinuteKey = 'sleep_start_minute';
   static const String _sleepEndHourKey = 'sleep_end_hour';
   static const String _sleepEndMinuteKey = 'sleep_end_minute';
+  static const String _reminderSystemKey = 'reminder_system_mode';
+  static const String _customReminderTimesKey = 'custom_reminder_times';
 
   // اسے 'water_hourly' سے بدل کر 'water_reminder_v3' کر دیں
 
@@ -354,6 +356,7 @@ class NotificationService {
             "Fasting Mode Active: Cancellation triggered instead of schedule.");
       // ⭐ صرف پانی والے ریمائنڈرز کینسل کریں (100 سے 124)
       await cancelRegularReminders();
+      await cancelCustomReminders();
       return;
     }
 
@@ -703,6 +706,7 @@ class NotificationService {
     final bool isFasting = prefs.getBool('isFastingMode') ?? false;
 
     await cancelCustomReminders();
+    await cancelRegularReminders();
 
     if (isFasting) {
       if (kDebugMode) {
@@ -871,40 +875,84 @@ class NotificationService {
   // ==========================================
   @pragma('vm:entry-point')
   static Future<void> handleBootReschedule() async {
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint("BOOT_RECEIVER: Device reboot detected. Rescheduling...");
+    }
 
     await init(fromBoot: true);
     final prefs = await SharedPreferences.getInstance();
 
-    // --- حصہ 1: عام واٹر ریمائنڈرز (فاسٹنگ موڈ کے تابع) ---
-    final bool isScheduled = prefs.getBool(_scheduleFlagKey) ?? false;
     final bool isFasting = prefs.getBool('isFastingMode') ?? false;
+    final String reminderSystem =
+        prefs.getString(_reminderSystemKey) ?? 'Smart Hourly';
 
-    if (isScheduled && !isFasting) {
-      await scheduleHourlyReminder(fromBoot: true);
-      if (kDebugMode) debugPrint("BOOT_RECEIVER: Water reminders restored.");
+    // --- حصہ 1: Hydration reminders ---
+    if (!isFasting) {
+      if (reminderSystem == 'Custom Schedule') {
+        final raw = prefs.getString(_customReminderTimesKey) ?? "";
+        final List<Map<String, dynamic>> slots = [];
+
+        if (raw.trim().isNotEmpty) {
+          for (final part in raw.split(',')) {
+            final pieces = part.split(':');
+
+            if (pieces.length >= 2) {
+              final hour = int.tryParse(pieces[0]);
+              final minute = int.tryParse(pieces[1]);
+              final enabled = pieces.length >= 3 ? pieces[2] == '1' : true;
+
+              if (hour != null &&
+                  minute != null &&
+                  hour >= 0 &&
+                  hour <= 23 &&
+                  minute >= 0 &&
+                  minute <= 59) {
+                slots.add({
+                  'hour': hour,
+                  'minute': minute,
+                  'enabled': enabled,
+                });
+              }
+            }
+          }
+        }
+
+        await cancelRegularReminders();
+        await scheduleCustomReminders(slots, fromBoot: true);
+
+        if (kDebugMode) {
+          debugPrint("BOOT_RECEIVER: Custom reminders restored.");
+        }
+      } else {
+        await scheduleHourlyReminder(fromBoot: true);
+
+        if (kDebugMode) {
+          debugPrint("BOOT_RECEIVER: Smart Hourly reminders restored.");
+        }
+      }
     } else {
-      if (kDebugMode)
-        debugPrint("BOOT_RECEIVER: Water reminders skipped (Fasting or Off).");
+      await cancelRegularReminders();
+      await cancelCustomReminders();
+
+      if (kDebugMode) {
+        debugPrint(
+            "BOOT_RECEIVER: Hydration reminders skipped due to Fasting Mode.");
+      }
     }
 
-    // --- حصہ 2: اسپیشل ریمائنڈرز (فاسٹنگ موڈ سے آزاد) ---
-    // یہ حصہ 'if/else' سے باہر ہے تاکہ ہر حال میں چلے
+    // --- حصہ 2: Special reminders always restore ---
     await restoreSpecialReminders(fromBoot: true);
 
-    if (kDebugMode)
+    if (kDebugMode) {
       debugPrint("BOOT_RECEIVER: Special reminders check completed.");
+    }
   }
 
-// ⭐ یہ فنکشن اب بھی ضروری ہے تاکہ نوٹیفکیشن کلک کو ہینڈل کیا جا سکے
+  // ⭐ یہ فنکشن اب بھی ضروری ہے تاکہ نوٹیفکیشن کلک کو ہینڈل کیا جا سکے
   @pragma('vm:entry-point')
   static void notificationTapBackground(NotificationResponse response) {
-    // اردو کمنٹ: اگر یہ واٹر ریمائنڈر ہے (ID >= 100) تو آواز بجائیں
-    //if ((response.id ?? 0) >= 100) {
-    // صرف ساؤنڈ سروس استعمال کریں
-    //SoundService.playWaterSound();
-
-    // ⭐ بیک گراؤنڈ سروس والا تمام پرانا کوڈ یہاں سے ہٹا دیا گیا ہے
+    // اردو کمنٹ:
+    // background notification tap handler
+    // فی الحال کوئی custom action نہیں چاہیے
   }
 }
