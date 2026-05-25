@@ -38,6 +38,8 @@ class _HomeScreenState extends State<HomeScreen>
   int currentIntake = 0;
   int dailyGoal = 2000;
   static const String _dailyGoalKey = 'daily_goal';
+  static const String _reminderSystemKey = 'reminder_system_mode';
+  static const String _customReminderTimesKey = 'custom_reminder_times';
   int selectedIntake = 200;
   int streakDays = 0;
   bool _reminderScheduled = false;
@@ -263,6 +265,33 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
+  DateTime? _nextCustomReminderTime(String raw) {
+    final now = DateTime.now();
+    final candidates = <DateTime>[];
+
+    for (final part in raw.split(',')) {
+      final pieces = part.split(':');
+      if (pieces.length < 2) continue;
+
+      final hour = int.tryParse(pieces[0]);
+      final minute = int.tryParse(pieces[1]);
+      final enabled = pieces.length >= 3 ? pieces[2] == '1' : true;
+
+      if (hour == null || minute == null || !enabled) continue;
+
+      var dt = DateTime(now.year, now.month, now.day, hour, minute);
+      if (!dt.isAfter(now)) {
+        dt = dt.add(const Duration(days: 1));
+      }
+
+      candidates.add(dt);
+    }
+
+    if (candidates.isEmpty) return null;
+    candidates.sort();
+    return candidates.first;
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -306,9 +335,20 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _refreshNextReminderTime() async {
     DateTime? updatedTime;
+
     if (!widget.isFastingMode) {
-      updatedTime = await NotificationService.getNextScheduledReminderTime();
+      final prefs = await SharedPreferences.getInstance();
+      final reminderSystem =
+          prefs.getString(_reminderSystemKey) ?? 'Smart Hourly';
+
+      if (reminderSystem == 'Custom Schedule') {
+        final raw = prefs.getString(_customReminderTimesKey) ?? "";
+        updatedTime = _nextCustomReminderTime(raw);
+      } else {
+        updatedTime = await NotificationService.getNextScheduledReminderTime();
+      }
     }
+
     if (!mounted) return;
     setState(() {
       _nextReminderTime = updatedTime;
@@ -317,10 +357,13 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   double _getReminderProgress() {
-    if (_nextReminderTime == null) return 0.0;
+    if (_nextReminderTime == null || widget.isFastingMode) return 0.0;
+
     final now = DateTime.now();
     final diff = _nextReminderTime!.difference(now).inMinutes;
+
     if (diff <= 0) return 1.0;
+
     return (1.0 - (diff / 60.0)).clamp(0.0, 1.0);
   }
 
