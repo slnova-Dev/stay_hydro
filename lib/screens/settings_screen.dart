@@ -143,6 +143,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+//==========================================
+// Special Reminders Helper Function
+// اردو کمنٹ: سپیشل ریمائنڈرز کے ہیلپر فنکشن
+//==========================================
+
+  String _specialFallbackTitle(int index) {
+    switch (index) {
+      case 0:
+        return "Medicine Reminder";
+      case 1:
+        return "Wellness Reminder";
+      case 2:
+        return "Bedtime Water";
+      default:
+        return "Health Reminder";
+    }
+  }
+
+  IconData _specialIcon(int index, bool enabled) {
+    if (!enabled) return Icons.notifications_none_rounded;
+
+    switch (index) {
+      case 0:
+        return Icons.medication_rounded;
+      case 1:
+        return Icons.favorite_rounded;
+      case 2:
+        return Icons.nightlight_round;
+      default:
+        return Icons.health_and_safety_rounded;
+    }
+  }
+
+  String _specialDisplayTitle(int index) {
+    final msg = _specialMessages[index].trim();
+
+    if (msg.isEmpty || msg == "Special ${index + 1}") {
+      return _specialFallbackTitle(index);
+    }
+
+    return msg;
+  }
+
   // ==========================================
   // [BLOCK: CUSTOM SCHEDULE STORAGE]
   // [PHASE 10.5B-4]
@@ -945,39 +988,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // CARD: SPECIAL 1
                     _buildSettingTile(
                       isDark: isDark,
-                      title: _specialMessages[0],
+                      title: _specialDisplayTitle(0),
                       subtitle: _specialEnabled[0]
-                          ? "Active at ${_formatTime(_specialHours[0], _specialMinutes[0])}"
-                          : "Off",
-                      icon: _specialEnabled[0]
-                          ? Icons.star_rounded
-                          : Icons.star_outline_rounded,
+                          ? "${_formatTime(_specialHours[0], _specialMinutes[0])} • Locked sound & mode"
+                          : "Off • Tap to set health reminder",
+                      icon: _specialIcon(0, _specialEnabled[0]),
                       showDivider: true,
                       onTap: () => _showSpecialEditor(0),
                     ),
                     // CARD: SPECIAL 2
                     _buildSettingTile(
                       isDark: isDark,
-                      title: _specialMessages[1],
+                      title: _specialDisplayTitle(1),
                       subtitle: _specialEnabled[1]
-                          ? "Active at ${_formatTime(_specialHours[1], _specialMinutes[1])}"
-                          : "Off",
-                      icon: _specialEnabled[1]
-                          ? Icons.star_rounded
-                          : Icons.star_outline_rounded,
+                          ? "${_formatTime(_specialHours[1], _specialMinutes[1])} • Locked sound & mode"
+                          : "Off • Tap to set health reminder",
+                      icon: _specialIcon(1, _specialEnabled[1]),
                       showDivider: true,
                       onTap: () => _showSpecialEditor(1),
                     ),
                     // CARD: SPECIAL 3
                     _buildSettingTile(
                       isDark: isDark,
-                      title: _specialMessages[2],
-                      subtitle: _specialEnabled[2]
-                          ? "Active at ${_formatTime(_specialHours[2], _specialMinutes[2])}"
-                          : "Off",
-                      icon: _specialEnabled[2]
-                          ? Icons.star_rounded
-                          : Icons.star_outline_rounded,
+                      title: _specialDisplayTitle(2),
+                      subtitle: _specialEnabled[0]
+                          ? "${_formatTime(_specialHours[2], _specialMinutes[2])} • Locked sound & mode"
+                          : "Off • Tap to set health reminder",
+                      icon: _specialIcon(2, _specialEnabled[2]),
                       showDivider: false,
                       onTap: () => _showSpecialEditor(2),
                     ),
@@ -1773,7 +1810,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Edit Special Reminder",
+                  Text(_specialFallbackTitle(index),
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -1819,7 +1856,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 maxLength: 25,
                 style: TextStyle(color: isDark ? Colors.white : Colors.black),
                 decoration: InputDecoration(
-                  labelText: "Reminder Message",
+                  labelText: "Health reminder message",
                   prefixIcon: const Icon(Icons.edit_note_rounded),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15)),
