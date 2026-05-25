@@ -1255,10 +1255,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
 
-                // ==========================================
-                // [SECTION 5: APP SUPPORT]
-                // اردو کمنٹ: ٹیسٹ نوٹیفیکیشن اور ہیلپ
-                // ==========================================
+// ==========================================
+// [SECTION 5: APP SUPPORT]
+// اردو کمنٹ: ٹیسٹ نوٹیفیکیشن، ہیلپ، ری لایبلٹی اور ایپ معلومات
+// ==========================================
                 _buildSectionTitle("App Support", isDark),
                 _buildGroupContainer(
                   isDark: isDark,
@@ -1291,8 +1291,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: "Help & Feedback",
                       subtitle: "Report a problem or suggest a feature",
                       icon: Icons.help_outline_rounded,
+                      showDivider: true,
+                      onTap: () {
+                        _showReliabilityInfo(
+                          title: "Help & Feedback",
+                          message:
+                              "Help & Feedback will be added before release.\n\n"
+                              "For now, this section is reserved for support email, bug reports and feature suggestions.",
+                        );
+                      },
+                    ),
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "Privacy & Terms",
+                      subtitle: "Coming before Play Store release",
+                      icon: Icons.privacy_tip_outlined,
+                      showDivider: true,
+                      onTap: () {
+                        _showReliabilityInfo(
+                          title: "Privacy & Terms",
+                          message:
+                              "Privacy Policy and Terms links will be added before Play Store release.",
+                        );
+                      },
+                    ),
+                    _buildSettingTile(
+                      isDark: isDark,
+                      title: "About StayHydro",
+                      subtitle: "Version 1.0.0 • SLNova",
+                      icon: Icons.info_outline_rounded,
                       showDivider: false,
-                      onTap: () {},
+                      onTap: () {
+                        _showReliabilityInfo(
+                          title: "About StayHydro",
+                          message:
+                              "StayHydro helps you build a healthy hydration routine with smart reminders, custom schedules and special reminders.\n\n"
+                              "Version: 1.0.0\n"
+                              "Developer: SLNova",
+                        );
+                      },
                     ),
                   ],
                 ),
