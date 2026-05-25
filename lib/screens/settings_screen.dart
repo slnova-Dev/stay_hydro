@@ -62,6 +62,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // ڈیلی گول key شامل کی
   static const String _dailyGoalKey = 'daily_goal';
 
+  String _selectedLanguage = 'English';
+
+  static const String _languageKey = 'app_language'; // زبان کی key شامل کی
+
   // Reminder system selector
   // Smart Hourly = موجودہ hourly reminders
   // Custom Schedule = future custom times
@@ -93,6 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadSleepHours(); // سونے کے اوقات لوڈ کرنے کے لیے
     _loadSpecialReminders(); // اسپیشل ریمائنڈرز لوڈ کرنے کے لیے
     _loadDailyGoal(); // ڈیلی گول لوڈ کرنے کے لیے
+    _loadLanguage(); // زبان تبدیلی کیے لیے
     _loadReminderSystem(); // ریمائنڈر سسٹم کے لیے
     _loadCustomReminderTimes(); // کسٹم ریمائنڈرز کے لیے
   }
@@ -280,6 +285,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _sleepStartMinute = prefs.getInt(_sleepStartMinuteKey) ?? 0;
       _sleepEndHour = prefs.getInt(_sleepEndHourKey) ?? 7;
       _sleepEndMinute = prefs.getInt(_sleepEndMinuteKey) ?? 0;
+    });
+  }
+
+//===========================================
+// LANGUAGE FUNCTION LOGIC
+// زبان لوڈ کرنے کی لاجک
+//===========================================
+
+  Future<void> _loadLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!mounted) return;
+    setState(() {
+      _selectedLanguage = prefs.getString(_languageKey) ?? 'English';
     });
   }
 
@@ -732,19 +751,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       isDark: isDark,
                       title: "App Language",
                       subtitle:
-                          "English • More languages coming soon", // یہاں منتخب زبان کا نام آئے گا
+                          "$_selectedLanguage • More languages coming soon",
                       icon: Icons.translate_rounded,
                       showDivider: true,
-                      onTap: () {
-                        // زبان منتخب کرنے کا ڈائلاگ
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                "Language options will be added in a future update."),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                      onTap: _showLanguagePicker,
                     ),
 
                     // 3: ڈیلی گول (Daily Goal)
@@ -1865,6 +1875,109 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } else {
       await NotificationService.scheduleHourlyReminder();
     }
+  }
+
+// ==========================================
+// [FUNCTION: SHOW LANGUAGE PICKER] (Updated Phase 10.3BL)
+// اردو کمنٹ: زبان منتخب کرنے اور فوری فیڈ بیک دینے کا فنکشن
+// ==========================================
+
+  void _showLanguagePicker() {
+    final languages = [
+      'English',
+      'Spanish',
+      'Arabic',
+      'Hindi',
+      'Indonesian',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: _darkTheme ? const Color(0xFF1A1C1E) : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(
+                "App Language",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: _darkTheme ? Colors.white : Colors.blue.shade900,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                "Full translations will be added before release.",
+                style: TextStyle(
+                  fontSize: 13,
+                  color: _darkTheme
+                      ? Colors.white54
+                      : Colors.blue.shade900.withOpacity(0.6),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // یہاں صرف languages.map والا حصہ رکھو
+                      ...languages.map(
+                        (language) => ListTile(
+                          leading: Icon(
+                            Icons.language_rounded,
+                            color: _selectedLanguage == language
+                                ? Colors.blue.shade400
+                                : Colors.grey,
+                          ),
+                          title: Text(
+                            language,
+                            style: TextStyle(
+                              color: _darkTheme ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          subtitle: language == 'English'
+                              ? const Text("Currently active")
+                              : const Text("Coming soon"),
+                          trailing: _selectedLanguage == language
+                              ? Icon(Icons.check_circle,
+                                  color: Colors.blue.shade400)
+                              : null,
+                          onTap: () async {
+                            if (language != 'English') {
+                              _showReliabilityInfo(
+                                title: "$language Coming Soon",
+                                message:
+                                    "$language translation will be added before release.\n\nFor now, English remains active.",
+                              );
+                              return;
+                            }
+
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setString(_languageKey, language);
+
+                            if (!mounted) return;
+                            setState(() {
+                              _selectedLanguage = language;
+                            });
+
+                            if (context.mounted) Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ]),
+          ),
+        );
+      },
+    );
   }
 
 // ==========================================
