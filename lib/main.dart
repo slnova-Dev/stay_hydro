@@ -26,7 +26,7 @@ void main() async {
   await NotificationService.init();
 
   // App start/update/reinstall کے بعد enabled special reminders restore کریں
-  await NotificationService.restoreSpecialReminders();
+  await NotificationService.restoreActiveReminderSystem();
 
   runApp(const StayHydroApp());
 }

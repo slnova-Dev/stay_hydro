@@ -869,6 +869,63 @@ class NotificationService {
     }
   }
 
+//===========================================
+  //Boot Receiver / app start restore HELPER
+  // اردو کمنٹ: ایپ ری سٹارٹ / اپ ڈیٹ/ ری بُوٹ کے بعد کسٹم اور ایکٹیو ریمائنڈر سسٹم Reliable بحال کرنے کے لیے
+//===========================================
+  static Future<List<Map<String, dynamic>>>
+      _loadCustomReminderSlotsFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_customReminderTimesKey) ?? "";
+    final slots = <Map<String, dynamic>>[];
+
+    for (final part in raw.split(',')) {
+      final pieces = part.split(':');
+      if (pieces.length >= 2) {
+        final hour = int.tryParse(pieces[0]);
+        final minute = int.tryParse(pieces[1]);
+        final enabled = pieces.length >= 3 ? pieces[2] == '1' : true;
+
+        if (hour != null &&
+            minute != null &&
+            hour >= 0 &&
+            hour <= 23 &&
+            minute >= 0 &&
+            minute <= 59) {
+          slots.add({'hour': hour, 'minute': minute, 'enabled': enabled});
+        }
+      }
+    }
+    return slots;
+  }
+
+  static Future<void> restoreActiveReminderSystem(
+      {bool fromBoot = false}) async {
+    if (kIsWeb) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final isFasting = prefs.getBool('isFastingMode') ?? false;
+    final reminderSystem =
+        prefs.getString(_reminderSystemKey) ?? 'Smart Hourly';
+
+    if (isFasting) {
+      await cancelRegularReminders();
+      await cancelCustomReminders();
+    } else if (reminderSystem == 'Custom Schedule') {
+      final slots = await _loadCustomReminderSlotsFromPrefs();
+      await scheduleCustomReminders(slots, fromBoot: fromBoot);
+    } else {
+      await cancelCustomReminders();
+      await scheduleHourlyReminder(fromBoot: fromBoot);
+    }
+
+    await restoreSpecialReminders(fromBoot: fromBoot);
+
+    if (kDebugMode) {
+      debugPrint("ACTIVE REMINDER SYSTEM RESTORED: $reminderSystem");
+    }
+  }
+
 // ==========================================
   // SECTION 7: BOOT & BACKGROUND HANDLER (Phase 10.3)
   // اردو کمنٹ: فون ری اسٹارٹ ہونے پر یا بیک گراؤنڈ میں ایونٹس کو ہینڈل کرنا
