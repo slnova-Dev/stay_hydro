@@ -53,6 +53,11 @@ class _StayHydroAppState extends State<StayHydroApp> {
   bool _isFastingMode = false;
   bool _isLoaded = false;
 
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+  static const String _firstLaunchGuideKey =
+      'first_launch_reliability_guide_seen';
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +74,8 @@ class _StayHydroAppState extends State<StayHydroApp> {
     setState(() {
       _isLoaded = true;
     });
+
+    await _showFirstLaunchGuideIfNeeded();
   }
 
   Future<void> _toggleTheme(bool value) async {
@@ -97,6 +104,41 @@ class _StayHydroAppState extends State<StayHydroApp> {
     }
   }
 
+  Future<void> _showFirstLaunchGuideIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+    final seen = prefs.getBool(_firstLaunchGuideKey) ?? false;
+
+    if (seen || !mounted) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final dialogContext = _navigatorKey.currentContext;
+      if (dialogContext == null || !mounted) return;
+
+      await showDialog(
+        context: dialogContext,
+        builder: (context) => AlertDialog(
+          title: const Text("Keep Reminders Reliable"),
+          content: const Text(
+            "For best results, allow notifications and enable Battery Optimization / Auto Start settings for StayHydro.\n\n"
+            "On Oppo, Realme, Vivo and Xiaomi phones, also allow background activity so reminders keep working after restart.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Later"),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Got it"),
+            ),
+          ],
+        ),
+      );
+
+      await prefs.setBool(_firstLaunchGuideKey, true);
+    });
+  }
+
   // ==========================================
   // UI BUILD
   // ==========================================
@@ -112,6 +154,7 @@ class _StayHydroAppState extends State<StayHydroApp> {
     return MaterialApp(
       title: 'StayHydro',
       debugShowCheckedModeBanner: false,
+      navigatorKey: _navigatorKey,
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
