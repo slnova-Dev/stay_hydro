@@ -507,7 +507,11 @@ class NotificationService {
     return null;
   }
 
-  // ============ RESCHEDULE ============
+// ============ RESCHEDULE ============
+// اردو کمنٹ:
+// active reminder system کو دوبارہ restore/reschedule کرنا
+// Smart Hourly / Custom Schedule دونوں supported
+// ====================================
   static Future<void> rescheduleNext({bool force = false}) async {
     if (kIsWeb) return;
 
@@ -516,7 +520,7 @@ class NotificationService {
     final scheduled = prefs.getBool(_scheduleFlagKey) ?? false;
 
     if (scheduled || force) {
-      await scheduleHourlyReminder();
+      await restoreActiveReminderSystem();
     }
   }
 
