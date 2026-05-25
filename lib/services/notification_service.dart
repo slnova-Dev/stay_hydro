@@ -266,9 +266,11 @@ class NotificationService {
         AndroidFlutterLocalNotificationsPlugin>();
 
     final sounds = [
-      'water_glass',
+      'digital_bell',
+      'soft_bell',
       'soft_knock',
       'water_drop',
+      'water_glass',
     ];
 
     for (final sound in sounds) {

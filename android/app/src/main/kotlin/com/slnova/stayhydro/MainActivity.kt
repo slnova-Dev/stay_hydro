@@ -57,12 +57,14 @@ class MainActivity: FlutterActivity() {
     // ایپ کے اندر موجود را (raw) فائلز بجانے کے لیے
     private fun playSound(soundKey: String) {
         try {
-            val soundResId = when (soundKey) {
-                "soft_knock" -> R.raw.soft_knock
-                "water_drop" -> R.raw.water_drop
-                "water_glass" -> R.raw.water_glass
-                else -> R.raw.water_glass
-            }
+val soundResId = when (soundKey) {
+    "digital_bell" -> R.raw.digital_bell
+    "soft_bell" -> R.raw.soft_bell
+    "soft_knock" -> R.raw.soft_knock
+    "water_drop" -> R.raw.water_drop
+    "water_glass" -> R.raw.water_glass
+    else -> R.raw.water_glass
+}
 
             mediaPlayer?.stop()
             mediaPlayer?.release()

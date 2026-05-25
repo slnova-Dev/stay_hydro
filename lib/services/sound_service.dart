@@ -14,9 +14,11 @@ class SoundService {
   // ============ SOUND OPTIONS ============
   // اردو کمنٹ: ایپ کی اپنی آوازیں
   static const Map<String, String> waterSounds = {
-    'water_glass': 'Water Flow',
+    'digital_bell': 'Digital Bell',
+    'soft_bell': 'Soft Bell',
     'soft_knock': 'Soft Knock',
     'water_drop': 'Water Drop',
+    'water_glass': 'Water Flow',
   };
 
   // ============ GETTERS & SETTERS ============
