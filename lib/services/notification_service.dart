@@ -343,7 +343,9 @@ class NotificationService {
 // ============ SCHEDULE (UPDATED TO OPTION 2) ============
 // اردو کمنٹ: fromBoot پیرامیٹر شامل کیا گیا ہے تاکہ بیک گراؤنڈ میں پرمیشن کا مسئلہ نہ ہو
   static Future<void> scheduleHourlyReminder({bool fromBoot = false}) async {
-    debugPrint("⭐⭐⭐ SCHEDULE FUNCTION TRIGGERED ⭐⭐⭐"); // یہاں شامل کریں
+    if (kDebugMode) {
+      debugPrint("SCHEDULE FUNCTION TRIGGERED");
+    } // یہاں شامل کریں
     if (kIsWeb) return;
 
     // ⭐ Fasting Mode Sync Check
@@ -450,7 +452,7 @@ class NotificationService {
       debugPrint('--- NOTIFICATION SCHEDULE REPORT ---');
       debugPrint('Active Hours: ${scheduledHours.join(", ")}');
       debugPrint('Sleep Hours (Skipped): ${skippedHours.join(", ")}');
-      print("SCHEDULE DETAILS CREATED BY SHARED ENGINE");
+      debugPrint("SCHEDULE DETAILS CREATED BY SHARED ENGINE");
       debugPrint('------------------------------------');
     }
 
@@ -937,75 +939,13 @@ class NotificationService {
   @pragma('vm:entry-point')
   static Future<void> handleBootReschedule() async {
     if (kDebugMode) {
-      debugPrint("BOOT_RECEIVER: Device reboot detected. Rescheduling...");
+      debugPrint("BOOT_RECEIVER: Device reboot detected.");
     }
 
-    await init(fromBoot: true);
-    final prefs = await SharedPreferences.getInstance();
-
-    final bool isFasting = prefs.getBool('isFastingMode') ?? false;
-    final String reminderSystem =
-        prefs.getString(_reminderSystemKey) ?? 'Smart Hourly';
-
-    // --- حصہ 1: Hydration reminders ---
-    if (!isFasting) {
-      if (reminderSystem == 'Custom Schedule') {
-        final raw = prefs.getString(_customReminderTimesKey) ?? "";
-        final List<Map<String, dynamic>> slots = [];
-
-        if (raw.trim().isNotEmpty) {
-          for (final part in raw.split(',')) {
-            final pieces = part.split(':');
-
-            if (pieces.length >= 2) {
-              final hour = int.tryParse(pieces[0]);
-              final minute = int.tryParse(pieces[1]);
-              final enabled = pieces.length >= 3 ? pieces[2] == '1' : true;
-
-              if (hour != null &&
-                  minute != null &&
-                  hour >= 0 &&
-                  hour <= 23 &&
-                  minute >= 0 &&
-                  minute <= 59) {
-                slots.add({
-                  'hour': hour,
-                  'minute': minute,
-                  'enabled': enabled,
-                });
-              }
-            }
-          }
-        }
-
-        await cancelRegularReminders();
-        await scheduleCustomReminders(slots, fromBoot: true);
-
-        if (kDebugMode) {
-          debugPrint("BOOT_RECEIVER: Custom reminders restored.");
-        }
-      } else {
-        await scheduleHourlyReminder(fromBoot: true);
-
-        if (kDebugMode) {
-          debugPrint("BOOT_RECEIVER: Smart Hourly reminders restored.");
-        }
-      }
-    } else {
-      await cancelRegularReminders();
-      await cancelCustomReminders();
-
-      if (kDebugMode) {
-        debugPrint(
-            "BOOT_RECEIVER: Hydration reminders skipped due to Fasting Mode.");
-      }
-    }
-
-    // --- حصہ 2: Special reminders always restore ---
-    await restoreSpecialReminders(fromBoot: true);
+    await restoreActiveReminderSystem(fromBoot: true);
 
     if (kDebugMode) {
-      debugPrint("BOOT_RECEIVER: Special reminders check completed.");
+      debugPrint("BOOT_RECEIVER: Active reminder system restore completed.");
     }
   }
 

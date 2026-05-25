@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen>
   // ==========================================
   int currentIntake = 0;
   int dailyGoal = 2000;
-static const String _dailyGoalKey = 'daily_goal';
+  static const String _dailyGoalKey = 'daily_goal';
   int selectedIntake = 200;
   int streakDays = 0;
   bool _reminderScheduled = false;
@@ -243,10 +243,10 @@ static const String _dailyGoalKey = 'daily_goal';
     final random = Random();
     _dailyTip = _dailyWaterTips[random.nextInt(_dailyWaterTips.length)];
     _currentMascotAsset = _selectMascotAsset();
-_loadDailyGoal();
-_loadDailyState();
-_loadSelectedIntake();
-_loadStreak();
+    _loadDailyGoal();
+    _loadDailyState();
+    _loadSelectedIntake();
+    _loadStreak();
     _loadSleepHours();
     _startupSequence();
     _startReminderRefreshTimer();
@@ -266,9 +266,9 @@ _loadStreak();
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-_loadDailyGoal();
-_loadSleepHours();
-_refreshNextReminderTime();
+      _loadDailyGoal();
+      _loadSleepHours();
+      _refreshNextReminderTime();
     }
   }
 
@@ -291,14 +291,14 @@ _refreshNextReminderTime();
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getBool('hourly_scheduled') ?? false) return;
       await prefs.setInt('interval_minutes', 60);
-      await NotificationService.scheduleHourlyReminder();
+      await NotificationService.restoreActiveReminderSystem();
       _reminderScheduled = true;
     } catch (_) {}
   }
 
   Future<void> _setupReminder() async {
     if (!widget.isFastingMode && !_reminderScheduled) {
-      await NotificationService.scheduleHourlyReminder();
+      await NotificationService.restoreActiveReminderSystem();
       _reminderScheduled = true;
       await _refreshNextReminderTime();
     }
@@ -335,7 +335,7 @@ _refreshNextReminderTime();
       } else {
         _setupReminder();
         _refreshNextReminderTime();
-            _loadDailyGoal();
+        _loadDailyGoal();
       }
     }
   }
@@ -363,7 +363,7 @@ _refreshNextReminderTime();
     if (mounted) setState(() {});
   }
 
-    // ==========================================
+  // ==========================================
   // SECTION LOCK: DAILY GOAL LOADING
   // اردو کمنٹ:
   // Settings screen سے محفوظ daily goal کو Home screen پر load کرنا
@@ -378,7 +378,6 @@ _refreshNextReminderTime();
       });
     }
   }
-
 
   Future<void> _loadSelectedIntake() async {
     final prefs = await SharedPreferences.getInstance();

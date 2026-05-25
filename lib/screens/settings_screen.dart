@@ -517,7 +517,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (endHour != null) await prefs.setInt(_sleepEndHourKey, endHour);
     if (endMin != null) await prefs.setInt(_sleepEndMinuteKey, endMin);
 
-    await NotificationService.scheduleHourlyReminder();
+    if (_reminderSystem == 'Smart Hourly') {
+      await NotificationService.scheduleHourlyReminder();
+    }
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
