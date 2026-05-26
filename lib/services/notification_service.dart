@@ -168,7 +168,7 @@ class NotificationService {
 
 // ⭐ DEBUG: init میں اصل loaded value دیکھیں
     if (kDebugMode) {
-debugPrint("INIT SOUND: $soundName");
+      debugPrint("INIT SOUND: $soundName");
     }
 
 // ⭐ ساؤنڈ اور چینل آئی ڈی سیٹ کریں
@@ -342,9 +342,7 @@ debugPrint("INIT SOUND: $soundName");
 // ============ SCHEDULE (UPDATED TO OPTION 2) ============
 // اردو کمنٹ: fromBoot پیرامیٹر شامل کیا گیا ہے تاکہ بیک گراؤنڈ میں پرمیشن کا مسئلہ نہ ہو
   static Future<void> scheduleHourlyReminder({bool fromBoot = false}) async {
-    if (kDebugMode) {
-      
-    } // یہاں شامل کریں
+    if (kDebugMode) {} // یہاں شامل کریں
     if (kIsWeb) return;
 
     // ⭐ Fasting Mode Sync Check
@@ -446,9 +444,7 @@ debugPrint("INIT SOUND: $soundName");
       }
     }
 
-    if (kDebugMode) {
-    
-    }
+    if (kDebugMode) {}
 
 //یہاں سے سپیشل ریمائنڈر دوبارہ زندہ ہونے کا فنکشن اڑا دیا پلس کے کہنے پر
   } // 👈 یہ ہے فنکشن کی اصل آخری بریکٹ
@@ -590,14 +586,14 @@ debugPrint("INIT SOUND: $soundName");
   // - صرف 201, 202, 203 IDs restore ہوں گی
   // ==========================================
   static Future<void> restoreSpecialReminders({
-  bool fromBoot = false,
-  bool skipInit = false,
-}) async {
+    bool fromBoot = false,
+    bool skipInit = false,
+  }) async {
     if (kIsWeb) return;
 
     if (!skipInit) {
-  await init(fromBoot: fromBoot);
-}
+      await init(fromBoot: fromBoot);
+    }
 
     final prefs = await SharedPreferences.getInstance();
 
@@ -923,10 +919,10 @@ debugPrint("INIT SOUND: $soundName");
 // اگر fasting ON ہو تو hydration restore skip ہوگی
 // اس صورت میں special restore خود init کرے گا
 // ==========================================
-await restoreSpecialReminders(
-  fromBoot: fromBoot,
-  skipInit: !isFasting,
-);
+    await restoreSpecialReminders(
+      fromBoot: fromBoot,
+      skipInit: !isFasting,
+    );
 
     if (kDebugMode) {
       debugPrint("ACTIVE REMINDER SYSTEM RESTORED: $reminderSystem");

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/notification_service.dart';
 import 'package:stay_hydro/services/sound_service.dart'; // یہاں اپنے پراجیکٹ کا صحیح پاتھ دیں
+import 'package:stay_hydro/core/app_strings.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool isDark;
@@ -54,7 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late int _sleepEndMinute;
 
   // آواز اور ریمائنڈر موڈ کے نئے ویریبلز
-  String _currentMode = 'Sound + Vibrate';
+  String _currentMode = AppStrings.soundVibrate;
   String _selectedSoundKey = 'water_glass';
   String _selectedSoundName = 'Water Flow';
   int _dailyGoal = 2000; // یوزر کا روزانہ کا ہدف (ڈیفالٹ: 2000ml)
@@ -151,13 +152,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _specialFallbackTitle(int index) {
     switch (index) {
       case 0:
-        return "Medicine Reminder";
+        return AppStrings.medicineReminder;
       case 1:
-        return "Wellness Reminder";
+        return AppStrings.wellnessReminder;
       case 2:
-        return "Bedtime Water";
+        return AppStrings.bedtimeWater;
       default:
-        return "Health Reminder";
+        return AppStrings.healthReminder;
     }
   }
 
@@ -179,7 +180,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _specialDisplayTitle(int index) {
     final msg = _specialMessages[index].trim();
 
-    if (msg.isEmpty || msg == "Special ${index + 1}") {
+    if (msg.isEmpty ||
+        msg == "${AppStrings.specialReminderFallback} ${index + 1}" ||
+        msg == AppStrings.specialReminder) {
       return _specialFallbackTitle(index);
     }
 
@@ -394,7 +397,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Reminder system set to $value"),
+        content: Text("${AppStrings.reminderSystemChanged} $value"),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -420,7 +423,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Select Reminder System",
+                  AppStrings.selectReminderSystem,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -448,8 +451,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     subtitle: Text(
                       system == 'Smart Hourly'
-                          ? "Automatic hourly reminders with sleep hours"
-                          : "Choose your own reminder times",
+                          ? AppStrings.smartHourlySubtitle
+                          : AppStrings.customScheduleSubtitle,
                       style: TextStyle(
                         color: _darkTheme
                             ? Colors.white54
@@ -517,7 +520,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 const SizedBox(height: 16),
                 Text(
-                  "Select Daily Goal",
+                  AppStrings.selectDailyGoal,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -585,7 +588,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sleep hours updated & Scheduled')),
+      const SnackBar(content: Text(AppStrings.sleepHoursUpdated)),
     );
   }
 
@@ -604,8 +607,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final int id = 201 + index; // IDs: 201, 202, 203
 
-    final String cleanMessage =
-        msg.trim().isEmpty ? "Special Reminder" : msg.trim();
+    final String cleanMessage = msg.trim();
 
     // موجودہ global sound + mode کو special reminder کے لیے lock کریں
     final String lockedSound = await SoundService.getSound();
@@ -701,7 +703,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          "Settings",
+          AppStrings.settings,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: isDark ? Colors.white : Colors.blue.shade900,
@@ -769,14 +771,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // [SECTION 1: APPEARANCE & PERSONALIZATION]
 // اردو کمنٹ: تھیم، زبان اور روزانہ کے ہدف کی سیٹنگز
 // ==========================================
-                _buildSectionTitle("Appearance & Personalization", isDark),
+                _buildSectionTitle(
+                    AppStrings.appearancePersonalization, isDark),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
                     // 1: تھیم (Dark Theme)
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Dark Theme",
+                      title: AppStrings.darkTheme,
                       icon: Icons.dark_mode_rounded,
                       showDivider: true,
                       trailing: Switch(
@@ -792,9 +795,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // 2: زبان (Language Selector) - فیز 10.3 کا حصہ
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "App Language",
+                      title: AppStrings.appLanguage,
                       subtitle:
-                          "$_selectedLanguage • More languages coming soon",
+                          "$_selectedLanguage • ${AppStrings.moreLanguagesComingSoon}",
                       icon: Icons.translate_rounded,
                       showDivider: true,
                       onTap: _showLanguagePicker,
@@ -803,7 +806,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // 3: ڈیلی گول (Daily Goal)
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Daily Goal",
+                      title: AppStrings.dailyGoal,
                       subtitle: "$_dailyGoal ml", // ڈیلی گول کا ویریبل
                       icon: Icons.water_drop_rounded,
                       showDivider: false,
@@ -816,15 +819,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // [SECTION 2: NOTIFICATION & SOUNDS]
 // اردو کمنٹ: ریمائنڈرز کے موڈ، آوازیں اور فاسٹنگ موڈ
 // ==========================================
-                _buildSectionTitle("Notification & Sounds", isDark),
+                _buildSectionTitle(AppStrings.notificationSounds, isDark),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
                     // 1: فاسٹنگ موڈ (Fasting Mode)
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Fasting Mode",
-                      subtitle: "Pause hydration reminders",
+                      title: AppStrings.fastingMode,
+                      subtitle: AppStrings.pauseHydrationReminders,
                       icon: Icons.timer_off_rounded,
                       showDivider: true,
                       trailing: Switch(
@@ -854,7 +857,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // اردو کمنٹ: شو موڈ پکر (showModePicker) یہاں سے کال ہوگا
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Reminder Mode",
+                      title: AppStrings.reminderMode,
                       subtitle: _currentMode,
                       icon: Icons.notifications_active_rounded,
                       showDivider: true,
@@ -865,7 +868,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // اردو کمنٹ: شو ساؤنڈ پکر (showSoundPicker) یہاں سے کال ہوگا
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Reminder Sound",
+                      title: AppStrings.reminderSound,
                       subtitle: _selectedSoundName,
                       icon: Icons.music_note_rounded,
                       showDivider: false,
@@ -880,19 +883,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // App کس reminder strategy پر چلے گی:
 // Smart Hourly / Custom Schedule / Hybrid
 // ==========================================
-                _buildSectionTitle("Reminder System", isDark),
+                _buildSectionTitle(AppStrings.reminderSystem, isDark),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Reminder System",
+                      title: AppStrings.reminderSystem,
                       subtitle: _reminderSystem,
                       icon: Icons.tune_rounded,
                       showDivider: false,
                       onInfoTap: () {
                         _showReliabilityInfo(
-                          title: "Reminder System",
+                          title: AppStrings.reminderSystem,
                           message:
                               "Smart Hourly uses automatic hourly reminders and follows your Sleep Hours.\n\n"
                               "Custom Schedule lets you choose your own hydration reminder times.\n\n"
@@ -911,7 +914,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // Smart Hourly selected ہو تو Custom Schedule card inactive/faded دکھے گا
 // مگر info button کام کرتا رہے گا
 // ==========================================
-                _buildSectionTitle("Custom Schedule", isDark),
+                _buildSectionTitle(AppStrings.customSchedule, isDark),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
@@ -920,7 +923,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           _reminderSystem == 'Custom Schedule' ? 1.0 : 0.45,
                       child: _buildSettingTile(
                         isDark: isDark,
-                        title: "Custom Reminder Times",
+                        title: AppStrings.customReminderTimes,
                         subtitle: _reminderSystem == 'Custom Schedule'
                             ? "${_customReminderSlots.length} reminder slots configured"
                             : "Only available in Custom Schedule",
@@ -928,7 +931,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         showDivider: false,
                         onInfoTap: () {
                           _showReliabilityInfo(
-                            title: "Custom Schedule",
+                            title: AppStrings.customSchedule,
                             message:
                                 "Custom Schedule lets you choose your own hydration reminder times.\n\n"
                                 "It follows your selected reminder sound and mode.\n\n"
@@ -939,9 +942,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onTap: () {
                           if (_reminderSystem != 'Custom Schedule') {
                             _showReliabilityInfo(
-                              title: "Custom Schedule Inactive",
-                              message:
-                                  "Select Custom Schedule from Reminder System to manage your custom reminder times.",
+                              title: AppStrings.customScheduleInactive,
+                              message: AppStrings.customScheduleInactiveMessage,
                             );
                             return;
                           }
@@ -962,7 +964,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildSectionTitle("Special Reminders", isDark),
+                    _buildSectionTitle(AppStrings.specialReminders, isDark),
                     IconButton(
                       icon: Icon(
                         Icons.info_outline_rounded,
@@ -971,7 +973,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       onPressed: () {
                         _showReliabilityInfo(
-                          title: "Special Reminders",
+                          title: AppStrings.specialReminders,
                           message:
                               "• Special reminders remain active even during Fasting Mode.\n\n"
                               "• Each special reminder uses the sound and mode active at the time of saving.\n\n"
@@ -991,7 +993,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: _specialDisplayTitle(0),
                       subtitle: _specialEnabled[0]
                           ? "${_formatTime(_specialHours[0], _specialMinutes[0])} • Locked sound & mode"
-                          : "Off • Tap to set health reminder",
+                          : AppStrings.offTapHealthReminder,
                       icon: _specialIcon(0, _specialEnabled[0]),
                       showDivider: true,
                       onTap: () => _showSpecialEditor(0),
@@ -1002,7 +1004,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: _specialDisplayTitle(1),
                       subtitle: _specialEnabled[1]
                           ? "${_formatTime(_specialHours[1], _specialMinutes[1])} • Locked sound & mode"
-                          : "Off • Tap to set health reminder",
+                          : AppStrings.offTapHealthReminder,
                       icon: _specialIcon(1, _specialEnabled[1]),
                       showDivider: true,
                       onTap: () => _showSpecialEditor(1),
@@ -1013,7 +1015,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: _specialDisplayTitle(2),
                       subtitle: _specialEnabled[0]
                           ? "${_formatTime(_specialHours[2], _specialMinutes[2])} • Locked sound & mode"
-                          : "Off • Tap to set health reminder",
+                          : AppStrings.offTapHealthReminder,
                       icon: _specialIcon(2, _specialEnabled[2]),
                       showDivider: false,
                       onTap: () => _showSpecialEditor(2),
@@ -1025,7 +1027,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // [SECTION 4: SCHEDULE & SYSTEM]
 // اردو کمنٹ: سونے کے اوقات اور بیٹری کی اہم سیٹنگز
 // ==========================================
-                _buildSectionTitle("Schedule & System", isDark),
+                _buildSectionTitle(AppStrings.scheduleSystem, isDark),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
@@ -1033,15 +1035,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       opacity: _reminderSystem == 'Smart Hourly' ? 1.0 : 0.45,
                       child: _buildSettingTile(
                         isDark: isDark,
-                        title: "Sleep Start Hour",
+                        title: AppStrings.sleepStartHour,
                         subtitle: _reminderSystem == 'Smart Hourly'
                             ? _formatTime(_sleepStartHour, _sleepStartMinute)
-                            : "Only applies to Smart Hourly",
+                            : AppStrings.onlyAppliesSmartHourly,
                         icon: Icons.bedtime_rounded,
                         showDivider: true,
                         onInfoTap: () {
                           _showReliabilityInfo(
-                            title: "Sleep Hours",
+                            title: AppStrings.sleepHours,
                             message:
                                 "Sleep Hours only apply to Smart Hourly reminders.\n\nCustom Schedule uses the exact times you choose, so Sleep Hours are not applied there.",
                           );
@@ -1059,15 +1061,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       opacity: _reminderSystem == 'Smart Hourly' ? 1.0 : 0.45,
                       child: _buildSettingTile(
                         isDark: isDark,
-                        title: "Sleep End Hour",
+                        title: AppStrings.sleepStartHour,
                         subtitle: _reminderSystem == 'Smart Hourly'
                             ? _formatTime(_sleepEndHour, _sleepEndMinute)
-                            : "Only applies to Smart Hourly",
+                            : AppStrings.onlyAppliesSmartHourly,
                         icon: Icons.wb_sunny_rounded,
                         showDivider: true,
                         onInfoTap: () {
                           _showReliabilityInfo(
-                            title: "Sleep Hours",
+                            title: AppStrings.sleepHours,
                             message:
                                 "Sleep Hours only apply to Smart Hourly reminders.\n\nCustom Schedule uses the exact times you choose, so Sleep Hours are not applied there.",
                           );
@@ -1083,13 +1085,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Battery Optimization",
-                      subtitle: "Required for reliable reminders",
+                      title: AppStrings.batteryOptimization,
+                      subtitle: AppStrings.batteryOptimizationSubtitle,
                       icon: Icons.battery_saver_rounded,
                       showDivider: true,
                       onInfoTap: () {
                         _showReliabilityInfo(
-                          title: "Battery Optimization",
+                          title: AppStrings.batteryOptimization,
                           message:
                               "For reliable reminders, set StayHydro to Not Optimized in battery settings. This helps Android avoid delaying or stopping reminders.",
                         );
@@ -1101,13 +1103,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Auto Start & Background",
-                      subtitle: "Enable auto start and background activity",
+                      title: AppStrings.autoStartBackground,
+                      subtitle: AppStrings.autoStartBackgroundSubtitle,
                       icon: Icons.power_settings_new_rounded,
                       showDivider: false,
                       onInfoTap: () {
                         _showReliabilityInfo(
-                          title: "Auto Start & Background Activity",
+                          title: AppStrings.autoStartBackground,
                           message:
                               "Allow Auto Start and Background Activity for StayHydro, especially on Oppo, Realme, Vivo and Xiaomi phones. This helps reminders continue after restart and while the app is closed.",
                         );
@@ -1125,7 +1127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // Reminder reliability بہتر بنانے کے لیے اہم ہدایات
 // خاص طور پر Oppo / Xiaomi / Vivo devices کے لیے
 // ==========================================
-                _buildSectionTitle("Reminder Reliability Tips", isDark),
+                _buildSectionTitle(AppStrings.reminderReliabilityTips, isDark),
 
                 _buildGroupContainer(
                   isDark: isDark,
@@ -1136,14 +1138,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.orange.shade400,
                       ),
                       title: Text(
-                        "Disable Battery Optimization",
+                        AppStrings.disableBatteryOptimization,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        "Set StayHydro to Not Optimized for reliable reminders.",
+                        AppStrings.disableBatteryOptimizationSubtitle,
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1173,14 +1175,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.green.shade400,
                       ),
                       title: Text(
-                        "Enable Auto Start",
+                        AppStrings.enableAutoStart,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        "Recommended for Oppo, Xiaomi, Vivo & Realme devices.",
+                        AppStrings.enableAutoStartSubtitle,
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1210,14 +1212,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.cyan.shade400,
                       ),
                       title: Text(
-                        "Allow Background Activity",
+                        AppStrings.allowBackgroundActivity,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        "Helps reminders continue while the app is closed.",
+                        AppStrings.allowBackgroundActivitySubtitle,
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1247,14 +1249,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.blue.shade400,
                       ),
                       title: Text(
-                        "Allow Notifications & Exact Alarms",
+                        AppStrings.allowNotificationsExactAlarms,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        "Required for accurate reminder delivery.",
+                        AppStrings.allowNotificationsExactAlarmsSubtitle,
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1284,14 +1286,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.purple.shade300,
                       ),
                       title: Text(
-                        "Restart Reliability",
+                        AppStrings.restartReliability,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        "StayHydro restores reminders automatically after reboot.",
+                        AppStrings.restartReliabilitySubtitle,
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1306,14 +1308,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // [SECTION 5: APP SUPPORT]
 // اردو کمنٹ: ٹیسٹ نوٹیفیکیشن، ہیلپ، ری لایبلٹی اور ایپ معلومات
 // ==========================================
-                _buildSectionTitle("App Support", isDark),
+                _buildSectionTitle(AppStrings.appSupport, isDark),
                 _buildGroupContainer(
                   isDark: isDark,
                   children: [
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Test Notification",
-                      subtitle: "Check if reminders are working",
+                      title: AppStrings.testNotification,
+                      subtitle: AppStrings.testNotificationSubtitle,
                       icon: Icons.notification_important_rounded,
                       trailing: Icon(
                         Icons.play_circle_fill_rounded,
@@ -1324,7 +1326,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         await NotificationService.showTestNotification();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text("Test notification sent!"),
+                            content:
+                                const Text(AppStrings.testNotificationSent),
                             backgroundColor: isDark
                                 ? Colors.blueGrey[800]
                                 : Colors.blue[600],
@@ -1335,13 +1338,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Help & Feedback",
-                      subtitle: "Report a problem or suggest a feature",
+                      title: AppStrings.helpFeedback,
+                      subtitle: AppStrings.helpFeedbackSubtitle,
                       icon: Icons.help_outline_rounded,
                       showDivider: true,
                       onTap: () {
                         _showReliabilityInfo(
-                          title: "Help & Feedback",
+                          title: AppStrings.helpFeedback,
                           message:
                               "Help & Feedback will be added before release.\n\n"
                               "For now, this section is reserved for support email, bug reports and feature suggestions.",
@@ -1350,13 +1353,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "Privacy & Terms",
-                      subtitle: "Coming before Play Store release",
+                      title: AppStrings.privacyTerms,
+                      subtitle: AppStrings.privacyTermsSubtitle,
                       icon: Icons.privacy_tip_outlined,
                       showDivider: true,
                       onTap: () {
                         _showReliabilityInfo(
-                          title: "Privacy & Terms",
+                          title: AppStrings.privacyTerms,
                           message:
                               "Privacy Policy and Terms links will be added before Play Store release.",
                         );
@@ -1364,13 +1367,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: "About StayHydro",
-                      subtitle: "Version 1.0.0 • SLNova",
+                      title: AppStrings.aboutStayHydro,
+                      subtitle: AppStrings.aboutStayHydroSubtitle,
                       icon: Icons.info_outline_rounded,
                       showDivider: false,
                       onTap: () {
                         _showReliabilityInfo(
-                          title: "About StayHydro",
+                          title: AppStrings.aboutStayHydro,
                           message:
                               "StayHydro helps you build a healthy hydration routine with smart reminders, custom schedules and special reminders.\n\n"
                               "Version: 1.0.0\n"
@@ -1435,7 +1438,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Custom Reminder Times",
+                                  AppStrings.customReminderTimes,
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -1460,76 +1463,87 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                           // RESET BUTTON
                           IconButton(
-                            tooltip: "Reset defaults",
+                            tooltip: AppStrings.resetDefaults,
                             icon: Icon(
                               Icons.restart_alt_rounded,
                               color: Colors.blue.shade400,
                             ),
                             onPressed: () async {
-  final bool? confirmed = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      backgroundColor: isDark ? const Color(0xFF1A1C1E) : Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
-      title: Row(
-        children: [
-          Icon(Icons.restart_alt_rounded, color: Colors.blue.shade400),
-          const SizedBox(width: 10),
-          Text(
-            "Reset Schedule?",
-            style: TextStyle(
-              color: isDark ? Colors.white : Colors.blue.shade900,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-      content: Text(
-        "This will replace your current custom reminder times with the default StayHydro schedule.",
-        style: TextStyle(
-          color: isDark
-              ? Colors.white70
-              : Colors.blue.shade900.withOpacity(0.75),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(
-            "Cancel",
-            style: TextStyle(
-              color: isDark ? Colors.white60 : Colors.blue.shade700,
-            ),
-          ),
-        ),
-        FilledButton(
-          onPressed: () => Navigator.pop(context, true),
-          child: const Text("Reset"),
-        ),
-      ],
-    ),
-  );
+                              final bool? confirmed = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: isDark
+                                      ? const Color(0xFF1A1C1E)
+                                      : Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  title: Row(
+                                    children: [
+                                      Icon(Icons.restart_alt_rounded,
+                                          color: Colors.blue.shade400),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        AppStrings.resetSchedule,
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? Colors.white
+                                              : Colors.blue.shade900,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  content: Text(
+                                    AppStrings.resetScheduleMessage,
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? Colors.white70
+                                          : Colors.blue.shade900
+                                              .withOpacity(0.75),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: Text(
+                                        AppStrings.cancel,
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? Colors.white60
+                                              : Colors.blue.shade700,
+                                        ),
+                                      ),
+                                    ),
+                                    FilledButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text(AppStrings.reset),
+                                    ),
+                                  ],
+                                ),
+                              );
 
-  if (confirmed != true) return;
+                              if (confirmed != true) return;
 
-  setSheetState(() {
-    _customReminderSlots = _defaultCustomReminderSlots();
-  });
+                              setSheetState(() {
+                                _customReminderSlots =
+                                    _defaultCustomReminderSlots();
+                              });
 
-  if (mounted) {
-    setState(() {});
-  }
+                              if (mounted) {
+                                setState(() {});
+                              }
 
-  await _saveCustomReminderTimes();
-  await _rescheduleActiveReminderSystem();
-},
+                              await _saveCustomReminderTimes();
+                              await _rescheduleActiveReminderSystem();
+                            },
                           ),
 
                           // ADD BUTTON
                           IconButton(
-                            tooltip: "Add reminder",
+                            tooltip: AppStrings.addReminder,
                             icon: Icon(
                               Icons.add_circle_rounded,
                               color: Colors.blue.shade400,
@@ -1537,9 +1551,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onPressed: () async {
                               if (_customReminderSlots.length >= 20) {
                                 _showReliabilityInfo(
-                                  title: "Maximum Reached",
-                                  message:
-                                      "You can create up to 20 custom reminder times.",
+                                  title: AppStrings.maximumReached,
+                                  message: AppStrings.maxCustomReminderMessage,
                                 );
                                 return;
                               }
@@ -1575,42 +1588,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 10),
                     Expanded(
                       child: _customReminderSlots.isEmpty
-                        ? Center(
-    child: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 28),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.edit_calendar_rounded,
-            size: 42,
-            color: isDark ? Colors.white30 : Colors.blue.shade200,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            "No custom reminders yet",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white70 : Colors.blue.shade900,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            "Tap the + button above to add your own hydration reminder time.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              color: isDark
-                  ? Colors.white54
-                  : Colors.blue.shade900.withOpacity(0.6),
-            ),
-          ),
-        ],
-      ),
-    ),
-  )
-
+                          ? Center(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 28),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.edit_calendar_rounded,
+                                      size: 42,
+                                      color: isDark
+                                          ? Colors.white30
+                                          : Colors.blue.shade200,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      AppStrings.noCustomRemindersYet,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark
+                                            ? Colors.white70
+                                            : Colors.blue.shade900,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      AppStrings.addCustomReminderHint,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: isDark
+                                            ? Colors.white54
+                                            : Colors.blue.shade900
+                                                .withOpacity(0.6),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
                           : ListView.builder(
                               itemCount: _customReminderSlots.length,
                               itemBuilder: (context, index) {
@@ -1644,8 +1662,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     ),
                                     subtitle: Text(
                                       enabled
-                                          ? "Custom hydration reminder"
-                                          : "Disabled",
+                                          ? AppStrings.customHydrationReminder
+                                          : AppStrings.disabled,
                                       style: TextStyle(
                                         color: isDark
                                             ? Colors.white54
@@ -1685,7 +1703,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       ),
                                                       const SizedBox(width: 10),
                                                       Text(
-                                                        "Delete Reminder?",
+                                                        AppStrings
+                                                            .deleteReminder,
                                                         style: TextStyle(
                                                           color: isDark
                                                               ? Colors.white
@@ -1698,7 +1717,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     ],
                                                   ),
                                                   content: Text(
-                                                    "This custom reminder time will be removed permanently.",
+                                                    AppStrings
+                                                        .deleteReminderMessage,
                                                     style: TextStyle(
                                                       color: isDark
                                                           ? Colors.white70
@@ -1713,7 +1733,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                           Navigator.pop(
                                                               context, false),
                                                       child: Text(
-                                                        "Cancel",
+                                                        AppStrings.cancel,
                                                         style: TextStyle(
                                                           color: isDark
                                                               ? Colors.white60
@@ -1731,8 +1751,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                         backgroundColor:
                                                             Colors.redAccent,
                                                       ),
-                                                      child:
-                                                          const Text("Delete"),
+                                                      child: const Text(
+                                                          AppStrings.delete),
                                                     ),
                                                   ],
                                                 );
@@ -1848,8 +1868,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showSpecialEditor(int index) {
     final bool isDark = _darkTheme;
     // ٹیکسٹ کنٹرولر تاکہ یوزر کا میسج ایڈٹ ہو سکے
+    final currentMsg = _specialMessages[index].trim();
+    final editorText = currentMsg.isEmpty ||
+            currentMsg ==
+                "${AppStrings.specialReminderFallback} ${index + 1}" ||
+            currentMsg == AppStrings.specialReminder
+        ? ""
+        : currentMsg;
+
     TextEditingController msgController =
-        TextEditingController(text: _specialMessages[index]);
+        TextEditingController(text: editorText);
     int tempHour = _specialHours[index];
     int tempMinute = _specialMinutes[index];
     bool tempEnabled = _specialEnabled[index];
@@ -1906,7 +1934,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     borderRadius: BorderRadius.circular(15)),
                 leading:
                     const Icon(Icons.access_time_rounded, color: Colors.blue),
-                title: const Text("Select Time"),
+                title: const Text(AppStrings.selectTime),
                 trailing: Text(_formatTime(tempHour, tempMinute),
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 16)),
@@ -1931,7 +1959,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 maxLength: 25,
                 style: TextStyle(color: isDark ? Colors.white : Colors.black),
                 decoration: InputDecoration(
-                  labelText: "Health reminder message",
+                  labelText: AppStrings.healthReminderMessage,
                   prefixIcon: const Icon(Icons.edit_note_rounded),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15)),
@@ -1959,7 +1987,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                     if (context.mounted) Navigator.pop(context);
                   },
-                  child: const Text("Save Reminder",
+                  child: const Text(AppStrings.saveReminder,
                       style: TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
@@ -2015,7 +2043,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.symmetric(vertical: 18),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
               Text(
-                "App Language",
+                AppStrings.appLanguage,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -2098,10 +2126,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // ==========================================
   void _showModePicker(BuildContext context, bool isDark) {
     final List<String> modes = [
-      'Sound + Vibrate',
-      'Sound only',
-      'Vibrate only',
-      'Silent'
+      AppStrings.soundVibrate,
+      AppStrings.soundOnly,
+      AppStrings.vibrateOnly,
+      AppStrings.silent
     ];
 
     showModalBottomSheet(
@@ -2116,7 +2144,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Select Reminder Mode",
+              Text(AppStrings.selectReminderMode,
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -2125,7 +2153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ...modes
                   .map((mode) => ListTile(
                         leading: Icon(
-                          mode == 'Silent'
+                          mode == AppStrings.silent
                               ? Icons.notifications_off_rounded
                               : Icons.notifications_active_rounded,
                           color: _currentMode == mode
@@ -2181,7 +2209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Select Notification Sound",
+              Text(AppStrings.selectNotificationSound,
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -2290,7 +2318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Got it"),
+            child: const Text(AppStrings.gotIt),
           ),
         ],
       ),
