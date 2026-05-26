@@ -309,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _startupSequence() async {
-    await NotificationService.init();
+    
     await _checkAndScheduleOnFirstRun();
     await _refreshNextReminderTime();
   }
