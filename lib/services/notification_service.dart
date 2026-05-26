@@ -604,10 +604,15 @@ class NotificationService {
   // - یہ hourly reminders کو touch نہیں کرے گا
   // - صرف 201, 202, 203 IDs restore ہوں گی
   // ==========================================
-  static Future<void> restoreSpecialReminders({bool fromBoot = false}) async {
+  static Future<void> restoreSpecialReminders({
+  bool fromBoot = false,
+  bool skipInit = false,
+}) async {
     if (kIsWeb) return;
 
-    await init(fromBoot: fromBoot);
+    if (!skipInit) {
+  await init(fromBoot: fromBoot);
+}
 
     final prefs = await SharedPreferences.getInstance();
 
@@ -927,7 +932,19 @@ class NotificationService {
       await scheduleHourlyReminder(fromBoot: fromBoot);
     }
 
-    await restoreSpecialReminders(fromBoot: fromBoot);
+// ==========================================
+// [PHASE 10.8-B: OPTIMIZED SPECIAL RESTORE]
+// اردو کمنٹ:
+// اگر fasting mode OFF ہو تو init پہلے ہی hourly/custom restore میں ہو چکی ہوگی
+// اس لیے special restore دوبارہ init نہیں کرے گا
+//
+// اگر fasting ON ہو تو hydration restore skip ہوگی
+// اس صورت میں special restore خود init کرے گا
+// ==========================================
+await restoreSpecialReminders(
+  fromBoot: fromBoot,
+  skipInit: !isFasting,
+);
 
     if (kDebugMode) {
       debugPrint("ACTIVE REMINDER SYSTEM RESTORED: $reminderSystem");
