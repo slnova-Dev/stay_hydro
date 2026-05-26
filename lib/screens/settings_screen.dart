@@ -1466,17 +1466,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               color: Colors.blue.shade400,
                             ),
                             onPressed: () async {
-                              setSheetState(() {
-                                _customReminderSlots =
-                                    _defaultCustomReminderSlots();
-                              });
+  final bool? confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: isDark ? const Color(0xFF1A1C1E) : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
+      title: Row(
+        children: [
+          Icon(Icons.restart_alt_rounded, color: Colors.blue.shade400),
+          const SizedBox(width: 10),
+          Text(
+            "Reset Schedule?",
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.blue.shade900,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+      content: Text(
+        "This will replace your current custom reminder times with the default StayHydro schedule.",
+        style: TextStyle(
+          color: isDark
+              ? Colors.white70
+              : Colors.blue.shade900.withOpacity(0.75),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: Text(
+            "Cancel",
+            style: TextStyle(
+              color: isDark ? Colors.white60 : Colors.blue.shade700,
+            ),
+          ),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text("Reset"),
+        ),
+      ],
+    ),
+  );
 
-                              if (mounted) {
-                                setState(() {});
-                              }
+  if (confirmed != true) return;
 
-                              await _saveCustomReminderTimes();
-                            },
+  setSheetState(() {
+    _customReminderSlots = _defaultCustomReminderSlots();
+  });
+
+  if (mounted) {
+    setState(() {});
+  }
+
+  await _saveCustomReminderTimes();
+  await _rescheduleActiveReminderSystem();
+},
                           ),
 
                           // ADD BUTTON
@@ -1527,15 +1575,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 10),
                     Expanded(
                       child: _customReminderSlots.isEmpty
-                          ? Center(
-                              child: Text(
-                                "No custom times yet.",
-                                style: TextStyle(
-                                  color:
-                                      isDark ? Colors.white54 : Colors.black54,
-                                ),
-                              ),
-                            )
+                        ? Center(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.edit_calendar_rounded,
+            size: 42,
+            color: isDark ? Colors.white30 : Colors.blue.shade200,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            "No custom reminders yet",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white70 : Colors.blue.shade900,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            "Tap the + button above to add your own hydration reminder time.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              color: isDark
+                  ? Colors.white54
+                  : Colors.blue.shade900.withOpacity(0.6),
+            ),
+          ),
+        ],
+      ),
+    ),
+  )
+
                           : ListView.builder(
                               itemCount: _customReminderSlots.length,
                               itemBuilder: (context, index) {
