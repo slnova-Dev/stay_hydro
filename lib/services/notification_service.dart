@@ -168,8 +168,7 @@ class NotificationService {
 
 // ⭐ DEBUG: init میں اصل loaded value دیکھیں
     if (kDebugMode) {
-      debugPrint("LOADED SOUND FROM PREFS: $soundName");
-      debugPrint("INIT SELECTED SOUND: $soundName");
+debugPrint("INIT SOUND: $soundName");
     }
 
 // ⭐ ساؤنڈ اور چینل آئی ڈی سیٹ کریں
@@ -236,9 +235,7 @@ class NotificationService {
         '${selectedSound}_${_modeSuffix(selectedMode)}_channel_V14';
 
     if (kDebugMode) {
-      debugPrint('ENGINE SOUND: $selectedSound');
-      debugPrint('ENGINE MODE: $selectedMode');
-      debugPrint('ENGINE CHANNEL ID: $channelId');
+      debugPrint('ENGINE: $selectedSound | $selectedMode');
     }
 
     final androidDetails = AndroidNotificationDetails(
@@ -346,7 +343,7 @@ class NotificationService {
 // اردو کمنٹ: fromBoot پیرامیٹر شامل کیا گیا ہے تاکہ بیک گراؤنڈ میں پرمیشن کا مسئلہ نہ ہو
   static Future<void> scheduleHourlyReminder({bool fromBoot = false}) async {
     if (kDebugMode) {
-      debugPrint("SCHEDULE FUNCTION TRIGGERED");
+      
     } // یہاں شامل کریں
     if (kIsWeb) return;
 
@@ -364,7 +361,7 @@ class NotificationService {
       return;
     }
 
-    if (kDebugMode) debugPrint("CLEANING AND RE-SCHEDULING (PLAY STORE SAFE)");
+    if (kDebugMode) debugPrint("HOURLY RESTORE STARTED");
 
     // ⭐ اہم تبدیلی: اب یہ پیرامیٹر کے مطابق انیشلائز ہوگا
     await init(fromBoot: fromBoot);
@@ -399,8 +396,7 @@ class NotificationService {
     );
 
     if (kDebugMode) {
-      debugPrint("HOURLY SELECTED SOUND: $selectedSound");
-      debugPrint("HOURLY CURRENT MODE: $currentMode");
+      debugPrint("HOURLY ENGINE READY");
     }
 
     // =========================================
@@ -451,11 +447,7 @@ class NotificationService {
     }
 
     if (kDebugMode) {
-      debugPrint('--- NOTIFICATION SCHEDULE REPORT ---');
-      debugPrint('Active Hours: ${scheduledHours.join(", ")}');
-      debugPrint('Sleep Hours (Skipped): ${skippedHours.join(", ")}');
-      debugPrint("SCHEDULE DETAILS CREATED BY SHARED ENGINE");
-      debugPrint('------------------------------------');
+    
     }
 
 //یہاں سے سپیشل ریمائنڈر دوبارہ زندہ ہونے کا فنکشن اڑا دیا پلس کے کہنے پر
@@ -580,14 +572,7 @@ class NotificationService {
     );
 
     if (kDebugMode) {
-      debugPrint("========== SPECIAL REMINDER SCHEDULED ==========");
-      debugPrint("SPECIAL ID: $id");
-      debugPrint("SPECIAL TIME: $hour:$minute");
-      debugPrint("SPECIAL MESSAGE: ${message.trim()}");
-      debugPrint("SPECIAL LOCKED SOUND: ${soundKey ?? 'global/current'}");
-      debugPrint("SPECIAL LOCKED MODE: ${mode ?? 'global/current'}");
-      debugPrint("SPECIAL ENGINE: Shared Notification Engine");
-      debugPrint("================================================");
+      debugPrint("SPECIAL REMINDER RESTORED: $id");
     }
   }
 
@@ -643,7 +628,7 @@ class NotificationService {
     }
 
     if (kDebugMode) {
-      debugPrint("SPECIAL REMINDERS RESTORE CHECK COMPLETED.");
+      debugPrint("SPECIAL RESTORE COMPLETED");
     }
   }
 
@@ -803,10 +788,7 @@ class NotificationService {
     );
 
     if (kDebugMode) {
-      debugPrint("========== TEST NOTIFICATION SENT ==========");
-      debugPrint("TEST ENGINE: Shared Notification Engine");
-      debugPrint("TEST ID: 999");
-      debugPrint("============================================");
+      debugPrint("TEST NOTIFICATION SENT");
     }
   }
 
