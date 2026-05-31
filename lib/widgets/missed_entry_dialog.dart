@@ -53,9 +53,8 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
               data: Theme.of(context).copyWith(
                 // کرسر اور ٹیکسٹ سلیکشن کا رنگ
                 textSelectionTheme: TextSelectionThemeData(
-                  cursorColor: isDarkMode
-                      ? Colors.blue.shade400
-                      : Colors.blue.shade700,
+                  cursorColor:
+                      isDarkMode ? Colors.blue.shade400 : Colors.blue.shade700,
                   selectionColor: Colors.blue.withOpacity(0.3),
                   selectionHandleColor: Colors.blue.shade400,
                 ),
@@ -88,9 +87,8 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                         ? (isDarkMode ? Colors.white : Colors.blue.shade900)
                         : (isDarkMode ? Colors.white70 : Colors.blue.shade400),
                   ),
-                  dialBackgroundColor: isDarkMode
-                      ? Colors.black26
-                      : Colors.white,
+                  dialBackgroundColor:
+                      isDarkMode ? Colors.black26 : Colors.white,
                   dialHandColor: Colors.blue.shade400,
                   dialTextColor: isDarkMode ? Colors.white : Colors.black,
                   entryModeIconColor: Colors.blue.shade400,
@@ -137,9 +135,8 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: isDarkMode
-          ? const Color(0xFF1E293B)
-          : const Color(0xFFF5F6FA),
+      backgroundColor:
+          isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF5F6FA),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -159,9 +156,8 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: isDarkMode
-                      ? Colors.blue.shade300
-                      : Colors.blue.shade700,
+                  color:
+                      isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700,
                 ),
               ),
               const SizedBox(height: 20),
@@ -229,9 +225,8 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: isDarkMode
-                      ? Colors.blue.shade300
-                      : Colors.blue.shade700,
+                  color:
+                      isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700,
                 ),
               ),
               const SizedBox(height: 15),

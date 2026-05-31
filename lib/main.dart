@@ -22,20 +22,18 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-
-
   // App start/update/reinstall کے بعد enabled special reminders restore کریں
- // ==========================================
+  // ==========================================
 // [PHASE 10.8-A: DELAYED STARTUP RESTORE]
 // اردو کمنٹ:
 // ایپ کی پہلی screen جلدی load کرنے کے لیے reminder restore کو
 // تھوڑا delay کیا گیا ہے تاکہ startup پر UI freeze / skipped frames کم ہوں
 // ==========================================
-Future.delayed(const Duration(seconds: 2), () async {
+  Future.delayed(const Duration(seconds: 2), () async {
     // ✅ نوٹیفیکیشن سروس کافی ہے (background service کی ضرورت نہیں)
-  await NotificationService.init();
-  await NotificationService.restoreActiveReminderSystem();
-});
+    await NotificationService.init();
+    await NotificationService.restoreActiveReminderSystem();
+  });
 
   runApp(const StayHydroApp());
 }

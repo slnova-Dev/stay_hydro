@@ -88,9 +88,8 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: isDarkMode
-          ? const Color(0xFF1E293B)
-          : const Color(0xFFF5F6FA),
+      backgroundColor:
+          isDarkMode ? const Color(0xFF1E293B) : const Color(0xFFF5F6FA),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
@@ -156,9 +155,8 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(
-                        color: isDarkMode
-                            ? Colors.white10
-                            : Colors.blue.shade100,
+                        color:
+                            isDarkMode ? Colors.white10 : Colors.blue.shade100,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
@@ -208,7 +206,9 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
                         height: 48,
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: isDarkMode ? Colors.blue.shade900.withOpacity(0.5) : Colors.transparent,
+                            color: isDarkMode
+                                ? Colors.blue.shade900.withOpacity(0.5)
+                                : Colors.transparent,
                             width: 1,
                           ),
                           gradient: LinearGradient(
@@ -282,7 +282,7 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
           ),
           borderRadius: BorderRadius.circular(15),
         ),
-        child: SvgPicture.asset(preset['asset'], width: 70), 
+        child: SvgPicture.asset(preset['asset'], width: 70),
       ),
     );
   }

@@ -52,27 +52,26 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     // رنگوں کی ترتیب (تھیم کے مطابق)
-    final Color backgroundColor = isDark
-        ? const Color(0xFF242F3E)
-        : Colors.blue.shade100;
+    final Color backgroundColor =
+        isDark ? const Color(0xFF242F3E) : Colors.blue.shade100;
 
     final Color waveColor = isDark
         ? const Color(0xFF0B4485) // گہرا نیلا
         : Colors.blue.shade400;
 
     // درمیانی رنگ (Center Progress)
-    final Color innerBarColor = isDark 
-        ? const Color(0xFF2A3A4F)  // متوازن نیلا گرے
+    final Color innerBarColor = isDark
+        ? const Color(0xFF2A3A4F) // متوازن نیلا گرے
         : Colors.blue.shade200;
 
     // بیرونی کناروں کا رنگ (Outer Edges)
     final Color outerBarColor = isDark
-        ? const Color(0xFF7a7c7d)  // شارپ باؤنڈری
+        ? const Color(0xFF7a7c7d) // شارپ باؤنڈری
         : Colors.blue.shade600;
 
     final Color darkShadow = Colors.blue.shade900.withOpacity(0.6);
     final Color lightShadow = Colors.white.withOpacity(0.4);
-    
+
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: targetProgress),
       duration: const Duration(milliseconds: 1200),
@@ -139,17 +138,17 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: isHalfway
-                              ? Colors.white 
+                              ? Colors.white
                               : (isDark
-                                    ? const Color(0xFFC8C9CF)
-                                    : Colors.blue.shade900),
+                                  ? const Color(0xFFC8C9CF)
+                                  : Colors.blue.shade900),
                           shadows: [
                             Shadow(
                               color: isHalfway
                                   ? darkShadow
                                   : (isDark
-                                        ? Colors.black.withOpacity(0.8)
-                                        : lightShadow),
+                                      ? Colors.black.withOpacity(0.8)
+                                      : lightShadow),
                               blurRadius: isHalfway ? 4.0 : 2.0,
                               offset: const Offset(1.0, 1.0),
                             ),
@@ -165,15 +164,15 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
                           color: isHalfway
                               ? Colors.white
                               : (isDark
-                                    ? const Color(0xFFC8C9CF)
-                                    : Colors.blue.shade900),
+                                  ? const Color(0xFFC8C9CF)
+                                  : Colors.blue.shade900),
                           shadows: [
                             Shadow(
                               color: isHalfway
                                   ? darkShadow
                                   : (isDark
-                                        ? Colors.black.withOpacity(0.8)
-                                        : lightShadow),
+                                      ? Colors.black.withOpacity(0.8)
+                                      : lightShadow),
                               blurRadius: isHalfway ? 4.0 : 2.0,
                               offset: const Offset(1.0, 1.0),
                             ),
@@ -216,8 +215,7 @@ class WavePainter extends CustomPainter {
 
     path.moveTo(0, yOffset);
     for (double x = 0; x <= size.width; x++) {
-      double y =
-          math.sin(
+      double y = math.sin(
                 (x / size.width * 2 * math.pi) + (waveAnimation * 2 * math.pi),
               ) *
               waveHeight +

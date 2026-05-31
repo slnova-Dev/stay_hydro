@@ -902,7 +902,8 @@ class NotificationService {
     if (isFasting) {
       await cancelRegularReminders();
       await cancelCustomReminders();
-    } else if (reminderSystem == 'Custom Schedule') {
+    } else if (reminderSystem == 'custom_schedule' ||
+        reminderSystem == 'Custom Schedule') {
       final slots = await _loadCustomReminderSlotsFromPrefs();
       await scheduleCustomReminders(slots, fromBoot: fromBoot);
     } else {

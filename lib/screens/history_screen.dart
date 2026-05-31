@@ -17,13 +17,13 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   Key _refreshKey = UniqueKey();
-  
+
   // 🔥 سائلنٹ لوڈنگ کے لیے نئے ویری ایبلز
   bool _isLoading = true;
   List<Map<String, dynamic>> _chartData = [];
   Map<String, dynamic> _stats = {};
   List<IntakeEntry> _todayLogs = [];
-  
+
   // 🔥 اینیمیشن کنٹرول کے لیے ویری ایبل
   double _animationValue = 0.0;
 
@@ -170,7 +170,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
             // 🔥 اب FutureBuilder کی جگہ براہِ راست UI لوڈ ہوگا
             if (_isLoading && _chartData.isEmpty)
-               const Center(child: CircularProgressIndicator())
+              const Center(child: CircularProgressIndicator())
             else
               SingleChildScrollView(
                 key: _refreshKey,
@@ -203,14 +203,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           SizedBox(
                             height: 150,
                             child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceAround,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: _chartData.map((dayData) {
                                 return _buildBar(
                                   dayData['day'],
                                   dayData['amount'],
-                                  2000, 
+                                  2000,
                                   accentColor,
                                   isDark,
                                 );
@@ -308,8 +307,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               itemBuilder: (context, index) {
                                 final log = _todayLogs[index];
                                 return ListTile(
-                                  visualDensity: const VisualDensity(
-                                      vertical: -2),
+                                  visualDensity:
+                                      const VisualDensity(vertical: -2),
                                   leading: Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
@@ -358,45 +357,46 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
     );
   }
-  
+
   // --- UI ہیلپر فنکشنز ---
 
-Widget _buildBar(String day, int amount, int goal, Color color, bool isDark) {
-  double percentage = (amount / goal).clamp(0.05, 1.0) * _animationValue;
-  
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-      AnimatedContainer(
-        duration: const Duration(milliseconds: 800), 
-        curve: Curves.easeOutCubic, 
-        width: 16, 
-        height: 120 * percentage, 
-        decoration: BoxDecoration(
-          color: isDark ? Colors.cyanAccent : Colors.blue.shade500, 
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            if (amount >= goal && _animationValue == 1.0) 
-              BoxShadow(
-                color: (isDark ? Colors.cyanAccent : Colors.blue).withOpacity(0.4),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
+  Widget _buildBar(String day, int amount, int goal, Color color, bool isDark) {
+    double percentage = (amount / goal).clamp(0.05, 1.0) * _animationValue;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeOutCubic,
+          width: 16,
+          height: 120 * percentage,
+          decoration: BoxDecoration(
+            color: isDark ? Colors.cyanAccent : Colors.blue.shade500,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              if (amount >= goal && _animationValue == 1.0)
+                BoxShadow(
+                  color: (isDark ? Colors.cyanAccent : Colors.blue)
+                      .withOpacity(0.4),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+            ],
+          ),
         ),
-      ),
-      const SizedBox(height: 8),
-      Text(
-        day,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white70 : Colors.blue.shade900,
+        const SizedBox(height: 8),
+        Text(
+          day,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: isDark ? Colors.white70 : Colors.blue.shade900,
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   Widget _buildMiniStat(
       String label, String value, IconData icon, Color color, bool isDark) {
@@ -417,9 +417,9 @@ Widget _buildBar(String day, int amount, int goal, Color color, bool isDark) {
             const SizedBox(height: 10),
             Text(label,
                 style: TextStyle(
-                  color: isDark 
-                      ? Colors.white30 
-                      : Colors.blue.shade900.withOpacity(0.8), 
+                  color: isDark
+                      ? Colors.white30
+                      : Colors.blue.shade900.withOpacity(0.8),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,

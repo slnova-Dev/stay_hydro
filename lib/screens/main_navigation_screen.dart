@@ -65,7 +65,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             ),
           ),
           // ==========================================
-          
+
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(

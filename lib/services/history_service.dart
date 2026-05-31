@@ -6,9 +6,9 @@ import 'dart:convert';
 // ہر انفرادی انٹری (گھونٹ) کا ڈھانچہ
 // ==========================================
 class IntakeEntry {
-  final String time;     // وقت (مثلاً 10:30 AM)
-  final int amount;      // مقدار (ml)
-  final String type;     // قسم (پانی، چائے وغیرہ - فی الحال صرف پانی)
+  final String time; // وقت (مثلاً 10:30 AM)
+  final int amount; // مقدار (ml)
+  final String type; // قسم (پانی، چائے وغیرہ - فی الحال صرف پانی)
 
   IntakeEntry({required this.time, required this.amount, this.type = 'Water'});
 
@@ -32,7 +32,8 @@ class IntakeEntry {
 // ڈیٹا کو محفوظ کرنے اور نکالنے کا مین انجن
 // ==========================================
 class HistoryService {
-  static const String _historyKey = 'water_history_data_v2'; // ورژن 2 تاکہ ڈیٹا مکس نہ ہو
+  static const String _historyKey =
+      'water_history_data_v2'; // ورژن 2 تاکہ ڈیٹا مکس نہ ہو
 
   // ------------------------------------------
   // 1. [ACTION: ADD TO HISTORY]
@@ -40,7 +41,8 @@ class HistoryService {
   // ------------------------------------------
   static Future<void> addToHistory(int amount, String time) async {
     final prefs = await SharedPreferences.getInstance();
-    String today = DateTime.now().toString().split(' ')[0]; // فارمیٹ: 2026-04-14
+    String today =
+        DateTime.now().toString().split(' ')[0]; // فارمیٹ: 2026-04-14
 
     // موجودہ تمام ہسٹری لوڈ کریں
     Map<String, dynamic> allHistory = await _getAllRawHistory();
@@ -52,7 +54,7 @@ class HistoryService {
 
     // آج کا ڈیٹا اپ ڈیٹ کریں
     allHistory[today]['total'] = (allHistory[today]['total'] ?? 0) + amount;
-    
+
     // تفصیلی لاگ (Logs) میں اضافہ کریں
     List logs = allHistory[today]['logs'] ?? [];
     logs.add(IntakeEntry(time: time, amount: amount).toJson());
@@ -72,7 +74,11 @@ class HistoryService {
 
     if (allHistory.containsKey(today) && allHistory[today]['logs'] != null) {
       List logs = allHistory[today]['logs'];
-      return logs.map((item) => IntakeEntry.fromJson(item)).toList().reversed.toList(); // نئی انٹری اوپر دکھانے کے لیے
+      return logs
+          .map((item) => IntakeEntry.fromJson(item))
+          .toList()
+          .reversed
+          .toList(); // نئی انٹری اوپر دکھانے کے لیے
     }
     return [];
   }
@@ -88,7 +94,7 @@ class HistoryService {
     for (int i = 6; i >= 0; i--) {
       DateTime date = DateTime.now().subtract(Duration(days: i));
       String dateStr = date.toString().split(' ')[0];
-      
+
       int amount = 0;
       if (allHistory.containsKey(dateStr)) {
         amount = allHistory[dateStr]['total'] ?? 0;
@@ -125,7 +131,7 @@ class HistoryService {
   // ------------------------------------------
   static Future<Map<String, dynamic>> getQuickStats() async {
     List<Map<String, dynamic>> last7Days = await getLast7Days();
-    
+
     int totalInWeek = 0;
     int bestDayAmount = 0;
     int daysWithData = 0;
@@ -147,7 +153,7 @@ class HistoryService {
       'average': daysWithData > 0 ? (totalInWeek / daysWithData).round() : 0,
       'bestDay': bestDayAmount,
       // ہفتے کے 7 دنوں میں سے کتنے فیصد ہدف پورا ہوا
-      'completionRate': ((goalReachedDays / 7) * 100).round(), 
+      'completionRate': ((goalReachedDays / 7) * 100).round(),
     };
   }
 }
