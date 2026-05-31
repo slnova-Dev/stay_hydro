@@ -982,7 +982,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onInfoTap: () {
                         _showReliabilityInfo(
                           title: AppStrings.t('reminderSystem'),
-                          message: AppStrings.reminderSystemInfoMessage,
+                          message: AppStrings.t('reminderSystemInfoMessage'),
                         );
                       },
                       onTap: _showReminderSystemPicker,
@@ -1014,7 +1014,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onInfoTap: () {
                           _showReliabilityInfo(
                             title: AppStrings.t('customSchedule'),
-                            message: AppStrings.customScheduleInfoMessage,
+                            message: AppStrings.t('customScheduleInfoMessage'),
                           );
                         },
                         onTap: () {
@@ -1053,7 +1053,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onPressed: () {
                         _showReliabilityInfo(
                           title: AppStrings.t('specialReminders'),
-                          message: AppStrings.specialRemindersInfoMessage,
+                          message: AppStrings.t('specialRemindersInfoMessage'),
                         );
                       },
                     ),
@@ -1110,16 +1110,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       opacity: _isSmartHourly ? 1.0 : 0.45,
                       child: _buildSettingTile(
                         isDark: isDark,
-                        title: AppStrings.sleepStartHour,
+                        title: AppStrings.t('sleepStartHour'),
                         subtitle: _isSmartHourly
                             ? _formatTime(_sleepStartHour, _sleepStartMinute)
-                            : AppStrings.onlyAppliesSmartHourly,
+                            : AppStrings.t('onlyAppliesSmartHourly'),
                         icon: Icons.bedtime_rounded,
                         showDivider: true,
                         onInfoTap: () {
                           _showReliabilityInfo(
-                            title: AppStrings.sleepHours,
-                            message: AppStrings.sleepHoursInfoMessage,
+                            title: AppStrings.t('sleepHours'),
+                            message: AppStrings.t('sleepHoursInfoMessage'),
                           );
                         },
                         onTap: _isSmartHourly
@@ -1135,16 +1135,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       opacity: _isSmartHourly ? 1.0 : 0.45,
                       child: _buildSettingTile(
                         isDark: isDark,
-                        title: AppStrings.sleepEndHour,
+                        title: AppStrings.t('sleepEndHour'),
                         subtitle: _isSmartHourly
                             ? _formatTime(_sleepEndHour, _sleepEndMinute)
-                            : AppStrings.onlyAppliesSmartHourly,
+                            : AppStrings.t('onlyAppliesSmartHourly'),
                         icon: Icons.wb_sunny_rounded,
                         showDivider: true,
                         onInfoTap: () {
                           _showReliabilityInfo(
-                            title: AppStrings.sleepHours,
-                            message: AppStrings.sleepHoursInfoMessage,
+                            title: AppStrings.t('sleepHours'),
+                            message: AppStrings.t('sleepHoursInfoMessage'),
                           );
                         },
                         onTap: _isSmartHourly
@@ -1158,14 +1158,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: AppStrings.batteryOptimization,
-                      subtitle: AppStrings.batteryOptimizationSubtitle,
+                      title: AppStrings.t('batteryOptimization'),
+                      subtitle: AppStrings.t('batteryOptimizationSubtitle'),
                       icon: Icons.battery_saver_rounded,
                       showDivider: true,
                       onInfoTap: () {
                         _showReliabilityInfo(
-                          title: AppStrings.batteryOptimization,
-                          message: AppStrings.batteryOptimizationInfoMessage,
+                          title: AppStrings.t('batteryOptimization'),
+                          message:
+                              AppStrings.t('batteryOptimizationInfoMessage'),
                         );
                       },
                       onTap: () async {
@@ -1175,14 +1176,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: AppStrings.autoStartBackground,
-                      subtitle: AppStrings.autoStartBackgroundSubtitle,
+                      title: AppStrings.t('autoStartBackground'),
+                      subtitle: AppStrings.t('autoStartBackgroundSubtitle'),
                       icon: Icons.power_settings_new_rounded,
                       showDivider: false,
                       onInfoTap: () {
                         _showReliabilityInfo(
-                          title: AppStrings.autoStartBackground,
-                          message: AppStrings.autoStartBackgroundInfoMessage,
+                          title: AppStrings.t('autoStartBackground'),
+                          message:
+                              AppStrings.t('autoStartBackgroundInfoMessage'),
                         );
                       },
                       onTap: () async {
@@ -1198,7 +1200,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // Reminder reliability بہتر بنانے کے لیے اہم ہدایات
 // خاص طور پر Oppo / Xiaomi / Vivo devices کے لیے
 // ==========================================
-                _buildSectionTitle(AppStrings.reminderReliabilityTips, isDark),
+                _buildSectionTitle(
+                    AppStrings.t('reminderReliabilityTips'), isDark),
 
                 _buildGroupContainer(
                   isDark: isDark,
@@ -1209,14 +1212,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.orange.shade400,
                       ),
                       title: Text(
-                        AppStrings.disableBatteryOptimization,
+                        AppStrings.t('disableBatteryOptimization'),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        AppStrings.disableBatteryOptimizationSubtitle,
+                        AppStrings.t('disableBatteryOptimizationSubtitle'),
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1246,14 +1249,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.green.shade400,
                       ),
                       title: Text(
-                        AppStrings.enableAutoStart,
+                        AppStrings.t('enableAutoStart'),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        AppStrings.enableAutoStartSubtitle,
+                        AppStrings.t('enableAutoStartSubtitle'),
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1283,14 +1286,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.cyan.shade400,
                       ),
                       title: Text(
-                        AppStrings.allowBackgroundActivity,
+                        AppStrings.t('allowBackgroundActivity'),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        AppStrings.allowBackgroundActivitySubtitle,
+                        AppStrings.t('allowBackgroundActivitySubtitle'),
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1320,14 +1323,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.blue.shade400,
                       ),
                       title: Text(
-                        AppStrings.allowNotificationsExactAlarms,
+                        AppStrings.t('allowNotificationsExactAlarms'),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        AppStrings.allowNotificationsExactAlarmsSubtitle,
+                        AppStrings.t('allowNotificationsExactAlarmsSubtitle'),
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1357,14 +1360,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.purple.shade300,
                       ),
                       title: Text(
-                        AppStrings.restartReliability,
+                        AppStrings.t('restartReliability'),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : Colors.blue.shade900,
                         ),
                       ),
                       subtitle: Text(
-                        AppStrings.restartReliabilitySubtitle,
+                        AppStrings.t('restartReliabilitySubtitle'),
                         style: TextStyle(
                           color: isDark
                               ? Colors.white54
@@ -1409,40 +1412,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: AppStrings.helpFeedback,
+                      title: AppStrings.t('helpFeedback'),
                       subtitle: AppStrings.helpFeedbackSubtitle,
                       icon: Icons.help_outline_rounded,
                       showDivider: true,
                       onTap: () {
                         _showReliabilityInfo(
-                          title: AppStrings.helpFeedback,
-                          message: AppStrings.helpFeedbackInfoMessage,
+                          title: AppStrings.t('helpFeedback'),
+                          message: AppStrings.t('helpFeedbackInfoMessage'),
                         );
                       },
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: AppStrings.privacyTerms,
+                      title: AppStrings.t('privacyTerms'),
                       subtitle: AppStrings.privacyTermsSubtitle,
                       icon: Icons.privacy_tip_outlined,
                       showDivider: true,
                       onTap: () {
                         _showReliabilityInfo(
-                          title: AppStrings.privacyTerms,
-                          message: AppStrings.privacyTermsInfoMessage,
+                          title: AppStrings.t('privacyTerms'),
+                          message: AppStrings.t('privacyTermsInfoMessage'),
                         );
                       },
                     ),
                     _buildSettingTile(
                       isDark: isDark,
-                      title: AppStrings.aboutStayHydro,
+                      title: AppStrings.t('aboutStayHydro'),
                       subtitle: AppStrings.aboutStayHydroSubtitle,
                       icon: Icons.info_outline_rounded,
                       showDivider: false,
                       onTap: () {
                         _showReliabilityInfo(
-                          title: AppStrings.aboutStayHydro,
-                          message: AppStrings.aboutStayHydroInfoMessage,
+                          title: AppStrings.t('aboutStayHydro'),
+                          message: AppStrings.t('aboutStayHydroInfoMessage'),
                         );
                       },
                     ),
