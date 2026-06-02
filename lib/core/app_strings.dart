@@ -31,7 +31,9 @@ class AppStrings {
   // پہلے صرف چند strings کو selected language کے مطابق بدلنے کا test
   // ==========================================
   static String t(String key) {
-    return _localized[activeLanguage]?[key] ?? _localized['English']![key]!;
+    return _localized[activeLanguage]?[key] ??
+        _localized['English']?[key] ??
+        key;
   }
 
   static const Map<String, Map<String, String>> _localized = {
@@ -152,6 +154,32 @@ class AppStrings {
           'StayHydro helps you build a healthy hydration routine with smart reminders, custom schedules and special reminders.\n\n'
               'Version: 1.0.0\n'
               'Developer: Slnova',
+      'medicineReminder': 'Medicine Reminder',
+      'wellnessReminder': 'Wellness Reminder',
+      'bedtimeWater': 'Bedtime Water',
+      'healthReminder': 'Health Reminder',
+      'lockedSoundMode': 'Locked sound & mode',
+      'offTapHealthReminder': 'Off • Tap to set health reminder',
+      'selectReminderSystem': 'Select Reminder System',
+      'smartHourlySubtitle': 'Automatic hourly reminders with sleep hours',
+      'customScheduleSubtitle': 'Choose your own reminder times',
+      'customReminderTimes': 'Custom Reminder Times',
+      'testNotification': 'Test Notification',
+      'testNotificationSubtitle': 'Check if reminders are working',
+      'testNotificationSent': 'Test notification sent!',
+      'helpFeedbackSubtitle': 'Report a problem or suggest a feature',
+      'privacyTermsSubtitle': 'Coming before Play Store release',
+      'aboutStayHydroSubtitle': 'Version 1.0.0 • Slnova',
+      'selectNotificationSound': 'Select Notification Sound',
+      'selectReminderMode': 'Select Reminder Mode',
+      'digitalBell': 'Digital Chime',
+      'softBell': 'Calm Bell',
+      'softKnock': 'Soft Knock',
+      'waterDrop': 'Water Drop',
+      'waterPour': 'Water Pour',
+      'reminderSlotsConfigured': 'reminder slots configured',
+      'reminderSystemChanged': 'Reminder system set to',
+      'sleepHoursUpdated': 'Sleep hours updated & scheduled',
     },
 
     // ===========
@@ -272,6 +300,31 @@ class AppStrings {
           'StayHydro te ayuda a crear una rutina saludable de hidratación con recordatorios inteligentes, horarios personalizados y recordatorios especiales.\n\n'
               'Versión: 1.0.0\n'
               'Desarrollador: Slnova',
+      'medicineReminder': 'Recordatorio de medicina',
+      'wellnessReminder': 'Recordatorio de bienestar',
+      'bedtimeWater': 'Agua antes de dormir',
+      'healthReminder': 'Recordatorio de salud',
+      'lockedSoundMode': 'Sonido y modo bloqueados',
+      'offTapHealthReminder': 'Desactivado • Toca para configurar',
+      'selectReminderSystem': 'Seleccionar sistema de recordatorios',
+      'smartHourlySubtitle':
+          'Recordatorios automáticos cada hora con horas de sueño',
+      'customScheduleSubtitle': 'Elige tus propios horarios',
+      'customReminderTimes': 'Horarios personalizados',
+      'testNotification': 'Notificación de prueba',
+      'testNotificationSubtitle': 'Comprueba si los recordatorios funcionan',
+      'testNotificationSent': '¡Notificación de prueba enviada!',
+      'helpFeedbackSubtitle': 'Reporta un problema o sugiere una función',
+      'privacyTermsSubtitle': 'Próximamente antes del lanzamiento',
+      'aboutStayHydroSubtitle': 'Versión 1.0.0 • Slnova',
+      'selectNotificationSound': 'Seleccionar sonido',
+      'selectReminderMode': 'Seleccionar modo de recordatorio',
+      'digitalBell': 'Campana digital',
+      'softBell': 'Campana suave',
+      'softKnock': 'Golpe suave',
+      'waterDrop': 'Gota de agua',
+      'waterPour': 'Vertido de agua',
+      'reminderSlotsConfigured': 'horarios configurados',
     },
 
     // ===========
@@ -385,6 +438,30 @@ class AppStrings {
           'يساعدك StayHydro على بناء روتين صحي لشرب الماء باستخدام تذكيرات ذكية وجداول مخصصة وتذكيرات خاصة.\n\n'
               'الإصدار: 1.0.0\n'
               'المطور: Slnova',
+      'medicineReminder': 'تذكير الدواء',
+      'wellnessReminder': 'تذكير العافية',
+      'bedtimeWater': 'ماء قبل النوم',
+      'healthReminder': 'تذكير صحي',
+      'lockedSoundMode': 'الصوت والوضع محفوظان',
+      'offTapHealthReminder': 'متوقف • اضغط للإعداد',
+      'selectReminderSystem': 'اختيار نظام التذكيرات',
+      'smartHourlySubtitle': 'تذكيرات تلقائية كل ساعة مع ساعات النوم',
+      'customScheduleSubtitle': 'اختر أوقات التذكير بنفسك',
+      'customReminderTimes': 'أوقات التذكير المخصصة',
+      'testNotification': 'إشعار تجريبي',
+      'testNotificationSubtitle': 'تحقق من عمل التذكيرات',
+      'testNotificationSent': 'تم إرسال الإشعار التجريبي!',
+      'helpFeedbackSubtitle': 'أبلغ عن مشكلة أو اقترح ميزة',
+      'privacyTermsSubtitle': 'قريبًا قبل الإصدار',
+      'aboutStayHydroSubtitle': 'الإصدار 1.0.0 • Slnova',
+      'selectNotificationSound': 'اختيار صوت الإشعار',
+      'selectReminderMode': 'اختيار وضع التذكير',
+      'digitalBell': 'جرس رقمي',
+      'softBell': 'جرس هادئ',
+      'softKnock': 'طرق خفيف',
+      'waterDrop': 'قطرة ماء',
+      'waterPour': 'صب الماء',
+      'reminderSlotsConfigured': 'أوقات تذكير مضبوطة',
     },
 
     // ===========
@@ -504,6 +581,30 @@ class AppStrings {
           'StayHydro smart reminders, custom schedules और special reminders के साथ healthy hydration routine बनाने में मदद करता है।\n\n'
               'Version: 1.0.0\n'
               'Developer: Slnova',
+      'medicineReminder': 'दवा रिमाइंडर',
+      'wellnessReminder': 'वेलनेस रिमाइंडर',
+      'bedtimeWater': 'सोने से पहले पानी',
+      'healthReminder': 'स्वास्थ्य रिमाइंडर',
+      'lockedSoundMode': 'साउंड और मोड लॉक',
+      'offTapHealthReminder': 'बंद • सेट करने के लिए टैप करें',
+      'selectReminderSystem': 'रिमाइंडर सिस्टम चुनें',
+      'smartHourlySubtitle': 'नींद के घंटों के साथ हर घंटे अपने-आप रिमाइंडर',
+      'customScheduleSubtitle': 'अपने रिमाइंडर समय खुद चुनें',
+      'customReminderTimes': 'कस्टम रिमाइंडर समय',
+      'testNotification': 'टेस्ट नोटिफिकेशन',
+      'testNotificationSubtitle': 'जाँचें कि रिमाइंडर काम कर रहे हैं',
+      'testNotificationSent': 'टेस्ट नोटिफिकेशन भेजा गया!',
+      'helpFeedbackSubtitle': 'समस्या बताएँ या फीचर सुझाएँ',
+      'privacyTermsSubtitle': 'Play Store रिलीज़ से पहले आएगा',
+      'aboutStayHydroSubtitle': 'वर्ज़न 1.0.0 • Slnova',
+      'selectNotificationSound': 'नोटिफिकेशन साउंड चुनें',
+      'selectReminderMode': 'रिमाइंडर मोड चुनें',
+      'digitalBell': 'डिजिटल घंटी',
+      'softBell': 'मुलायम घंटी',
+      'softKnock': 'हल्की दस्तक',
+      'waterDrop': 'पानी की बूंद',
+      'waterPour': 'पानी डालना',
+      'reminderSlotsConfigured': 'रिमाइंडर समय सेट',
     },
 
     // =============
@@ -622,6 +723,30 @@ class AppStrings {
           'StayHydro membantu Anda membangun rutinitas hidrasi sehat dengan pengingat pintar, jadwal khusus, dan pengingat khusus.\n\n'
               'Versi: 1.0.0\n'
               'Pengembang: Slnova',
+      'medicineReminder': 'Pengingat obat',
+      'wellnessReminder': 'Pengingat kesehatan',
+      'bedtimeWater': 'Air sebelum tidur',
+      'healthReminder': 'Pengingat sehat',
+      'lockedSoundMode': 'Suara & mode terkunci',
+      'offTapHealthReminder': 'Mati • Ketuk untuk mengatur',
+      'selectReminderSystem': 'Pilih sistem pengingat',
+      'smartHourlySubtitle': 'Pengingat otomatis tiap jam dengan jam tidur',
+      'customScheduleSubtitle': 'Pilih waktu pengingat sendiri',
+      'customReminderTimes': 'Waktu pengingat khusus',
+      'testNotification': 'Notifikasi uji coba',
+      'testNotificationSubtitle': 'Periksa apakah pengingat berfungsi',
+      'testNotificationSent': 'Notifikasi uji coba terkirim!',
+      'helpFeedbackSubtitle': 'Laporkan masalah atau sarankan fitur',
+      'privacyTermsSubtitle': 'Hadir sebelum rilis Play Store',
+      'aboutStayHydroSubtitle': 'Versi 1.0.0 • Slnova',
+      'selectNotificationSound': 'Pilih suara notifikasi',
+      'selectReminderMode': 'Pilih mode pengingat',
+      'digitalBell': 'Bel digital',
+      'softBell': 'Bel lembut',
+      'softKnock': 'Ketukan lembut',
+      'waterDrop': 'Tetes air',
+      'waterPour': 'Menuang air',
+      'reminderSlotsConfigured': 'waktu pengingat diatur',
     },
   };
 

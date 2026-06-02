@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stay_hydro/core/app_strings.dart';
 
 // ❌ REMOVE: background service imports
 // import 'package:flutter_background_service/flutter_background_service.dart';
@@ -75,6 +76,9 @@ class _StayHydroAppState extends State<StayHydroApp> {
     final prefs = await SharedPreferences.getInstance();
     _isDarkTheme = prefs.getBool('isDarkTheme') ?? false;
     _isFastingMode = prefs.getBool('isFastingMode') ?? false;
+
+    final selectedLanguage = prefs.getString('app_language') ?? 'English';
+    AppStrings.setLanguage(selectedLanguage);
 
     if (!mounted) return;
 
@@ -182,11 +186,15 @@ class _StayHydroAppState extends State<StayHydroApp> {
             ),
       ),
       themeMode: _isDarkTheme ? ThemeMode.dark : ThemeMode.light,
-      home: MainNavigationScreen(
-        isDarkTheme: _isDarkTheme,
-        isFastingMode: _isFastingMode,
-        onThemeToggle: _toggleTheme,
-        onFastingToggle: _toggleFasting,
+      home: Directionality(
+        textDirection:
+            AppStrings.isArabic ? TextDirection.rtl : TextDirection.ltr,
+        child: MainNavigationScreen(
+          isDarkTheme: _isDarkTheme,
+          isFastingMode: _isFastingMode,
+          onThemeToggle: _toggleTheme,
+          onFastingToggle: _toggleFasting,
+        ),
       ),
     );
   }

@@ -103,6 +103,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadCustomReminderTimes(); // کسٹم ریمائنڈرز کے لیے
   }
 
+// ==========================================
+// [PHASE 10.6-A14: SOUND DISPLAY HELPER]
+// اردو کمنٹ:
+// sound key کو selected language کے مطابق user-facing name میں بدلنے کے لیے
+// asset keys تبدیل نہیں ہوں گی
+// ==========================================
+  String _soundDisplayName(String soundKey) {
+    switch (soundKey) {
+      case 'digital_bell':
+        return AppStrings.t('digitalBell');
+      case 'soft_bell':
+        return AppStrings.t('softBell');
+      case 'soft_knock':
+        return AppStrings.t('softKnock');
+      case 'water_drop':
+        return AppStrings.t('waterDrop');
+      case 'water_glass':
+        return AppStrings.t('waterPour');
+      default:
+        return AppStrings.t('waterPour');
+    }
+  }
+
   // ==========================================
   // [FUNCTION: LOAD SOUND SETTINGS]
   // اردو کمنٹ: محفوظ شدہ آواز اور موڈ کو میموری سے واپس لانا
@@ -120,7 +143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (soundKey == 'custom' && customPath != null) {
         _selectedSoundName = customPath.split('/').last;
       } else {
-        _selectedSoundName = SoundService.waterSounds[soundKey] ?? 'Water Flow';
+        _selectedSoundName = _soundDisplayName(soundKey);
       }
     });
   }
@@ -152,13 +175,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _specialFallbackTitle(int index) {
     switch (index) {
       case 0:
-        return AppStrings.medicineReminder;
+        return AppStrings.t('medicineReminder');
       case 1:
-        return AppStrings.wellnessReminder;
+        return AppStrings.t('wellnessReminder');
       case 2:
-        return AppStrings.bedtimeWater;
+        return AppStrings.t('bedtimeWater');
       default:
-        return AppStrings.healthReminder;
+        return AppStrings.t('healthReminder');
     }
   }
 
@@ -400,11 +423,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await NotificationService.scheduleCustomReminders(_customReminderSlots);
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("${AppStrings.reminderSystemChanged} $value"),
-        behavior: SnackBarBehavior.floating,
-      ),
+    _showSettingsSnackBar(
+      "${AppStrings.t('reminderSystemChanged')} ${_systemDisplayName(value)}",
     );
   }
 
@@ -428,7 +448,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  AppStrings.selectReminderSystem,
+                  AppStrings.t('selectReminderSystem'),
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -456,8 +476,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     subtitle: Text(
                       system == 'smart_hourly'
-                          ? AppStrings.smartHourlySubtitle
-                          : AppStrings.customScheduleSubtitle,
+                          ? AppStrings.t('smartHourlySubtitle')
+                          : AppStrings.t('customScheduleSubtitle'),
                       style: TextStyle(
                         color: _darkTheme
                             ? Colors.white54
@@ -490,10 +510,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _dailyGoal = goal;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(
-              "${AppStrings.t('dailyGoalUpdated')} $goal ${AppStrings.t('ml')}")),
+    _showSettingsSnackBar(
+      "${AppStrings.t('dailyGoalUpdated')} $goal ${AppStrings.t('ml')}",
     );
   }
 
@@ -594,9 +612,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(AppStrings.sleepHoursUpdated)),
-    );
+    _showSettingsSnackBar(AppStrings.t('sleepHoursUpdated'));
   }
 
   // ==========================================
@@ -702,6 +718,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return '$displayHour:${minute.toString().padLeft(2, '0')} $suffix';
   }
 
+  // ==========================================
+// [PHASE 10.6-A15: SETTINGS SNACKBAR HELPER]
+// اردو کمنٹ:
+// Settings screen کے تمام snackbars کے لیے ایک جیسا style
+// تاکہ کبھی نیلی، کبھی کالی پٹی نہ آئے
+// ==========================================
+  void _showSettingsSnackBar(String message) {
+    if (!mounted) return;
+
+    final bool isDark = _darkTheme;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor:
+            isDark ? const Color(0xFF334155) : Colors.blue.shade700,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        margin: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
 // ==========================================
 // [PHASE 10.6-A10: LANGUAGE NATIVE NAME HELPER]
 // اردو کمنٹ:
@@ -784,184 +833,190 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final isDark = widget.isDark;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        title: Text(
-          AppStrings.t('settings'),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+    return Directionality(
+      textDirection:
+          AppStrings.isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          title: Text(
+            AppStrings.t('settings'),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : Colors.blue.shade900,
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: true,
+          iconTheme: IconThemeData(
             color: isDark ? Colors.white : Colors.blue.shade900,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        iconTheme: IconThemeData(
-          color: isDark ? Colors.white : Colors.blue.shade900,
-        ),
-      ),
-      body: Stack(
-        children: [
-          // ==========================================
-          // [SECTION: BACKGROUND DESIGN]
-          // گریڈینٹ اور بڑا بیک گراؤنڈ آئیکن
-          // ==========================================
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: isDark
-                    ? [const Color(0xFF0F172A), const Color(0xFF1E293B)]
-                    : [Colors.teal.shade300, Colors.cyan.shade100],
+        body: Stack(
+          children: [
+            // ==========================================
+            // [SECTION: BACKGROUND DESIGN]
+            // گریڈینٹ اور بڑا بیک گراؤنڈ آئیکن
+            // ==========================================
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: isDark
+                      ? [const Color(0xFF0F172A), const Color(0xFF1E293B)]
+                      : [Colors.teal.shade300, Colors.cyan.shade100],
+                ),
               ),
             ),
-          ),
 
-          // ہسٹری سکرین کی طرح بڑا بیک گراؤنڈ آئیکن
-          Positioned(
-            bottom: 150, // آپ اسے اوپر نیچے کرنے کے لیے تبدیل کر سکتے ہیں
-            left: 0,
-            right: 0,
-            child: Opacity(
-              opacity: 0.1, // اسے مدھم رکھا ہے تاکہ ڈیٹا واضح نظر آئے
-              child: Icon(
-                Icons.settings_rounded,
-                size: 280,
-                color: isDark ? Colors.white : Colors.blue.shade900,
-              ),
-            ), // یہاں Opacity کی بریکٹ بند ہوئی
-          ), // یہاں Positioned کی بریکٹ بند ہوئی
+            // ہسٹری سکرین کی طرح بڑا بیک گراؤنڈ آئیکن
+            Positioned(
+              bottom: 150, // آپ اسے اوپر نیچے کرنے کے لیے تبدیل کر سکتے ہیں
+              left: 0,
+              right: 0,
+              child: Opacity(
+                opacity: 0.1, // اسے مدھم رکھا ہے تاکہ ڈیٹا واضح نظر آئے
+                child: Icon(
+                  Icons.settings_rounded,
+                  size: 280,
+                  color: isDark ? Colors.white : Colors.blue.shade900,
+                ),
+              ), // یہاں Opacity کی بریکٹ بند ہوئی
+            ), // یہاں Positioned کی بریکٹ بند ہوئی
 
 // اصلی کانٹینٹ
 // ==========================================
 // [SECTION: MAIN CONTENT SCROLL] (Updated)
 // اردو کمنٹ: سکرول پوزیشن کو محفوظ رکھنے کے لیے PageStorageKey کا استعمال
 // ==========================================
-          SingleChildScrollView(
-            key: const PageStorageKey<String>(
-                'settings_scroll_position'), // اب سکرول اوپر نہیں بھاگے گا
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(
-                top: 120, bottom: 100, left: 20, right: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ... آپ کا باقی تمام کوڈ یہاں آئے گا
+            SingleChildScrollView(
+              key: const PageStorageKey<String>(
+                  'settings_scroll_position'), // اب سکرول اوپر نہیں بھاگے گا
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(
+                  top: 120, bottom: 100, left: 20, right: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ... آپ کا باقی تمام کوڈ یہاں آئے گا
 
 // ==========================================
 // [SECTION 1: APPEARANCE & PERSONALIZATION]
 // اردو کمنٹ: تھیم، زبان اور روزانہ کے ہدف کی سیٹنگز
 // ==========================================
-                _buildSectionTitle(
-                    AppStrings.t('appearancePersonalization'), isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    // 1: تھیم (Dark Theme)
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('darkTheme'),
-                      icon: Icons.dark_mode_rounded,
-                      showDivider: true,
-                      trailing: Switch(
-                        activeColor: Colors.blue.shade400,
-                        value: _darkTheme,
-                        onChanged: (value) {
-                          setState(() => _darkTheme = value);
-                          widget.onThemeToggle(value);
-                        },
+                  _buildSectionTitle(
+                      AppStrings.t('appearancePersonalization'), isDark),
+                  _buildGroupContainer(
+                    isDark: isDark,
+                    children: [
+                      // 1: تھیم (Dark Theme)
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('darkTheme'),
+                        icon: Icons.dark_mode_rounded,
+                        showDivider: true,
+                        trailing: Switch(
+                          activeColor: Colors.blue.shade400,
+                          value: _darkTheme,
+                          onChanged: (value) {
+                            setState(() => _darkTheme = value);
+                            widget.onThemeToggle(value);
+                          },
+                        ),
                       ),
-                    ),
 
-                    // 2: زبان (Language Selector) - فیز 10.3 کا حصہ
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('appLanguage'),
-                      subtitle:
-                          "Language • ${_languageNativeName(_selectedLanguage)}",
-                      icon: Icons.translate_rounded,
-                      showDivider: true,
-                      onTap: _showLanguagePicker,
-                    ),
+                      // 2: زبان (Language Selector) - فیز 10.3 کا حصہ
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('appLanguage'),
+                        subtitle:
+                            "Language • ${_languageNativeName(_selectedLanguage)}",
+                        icon: Icons.translate_rounded,
+                        showDivider: true,
+                        onTap: _showLanguagePicker,
+                      ),
 
-                    // 3: ڈیلی گول (Daily Goal)
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('dailyGoal'),
-                      subtitle:
-                          "$_dailyGoal ${AppStrings.t('ml')}", // ڈیلی گول کا ویریبل
-                      icon: Icons.water_drop_rounded,
-                      showDivider: false,
-                      onTap: _showDailyGoalPicker, // گول سیٹ کرنے کا ڈائیلاگ
-                    ),
-                  ],
-                ),
+                      // 3: ڈیلی گول (Daily Goal)
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('dailyGoal'),
+                        subtitle:
+                            "$_dailyGoal ${AppStrings.t('ml')}", // ڈیلی گول کا ویریبل
+                        icon: Icons.water_drop_rounded,
+                        showDivider: false,
+                        onTap: _showDailyGoalPicker, // گول سیٹ کرنے کا ڈائیلاگ
+                      ),
+                    ],
+                  ),
 
 // ==========================================
 // [SECTION 2: NOTIFICATION & SOUNDS]
 // اردو کمنٹ: ریمائنڈرز کے موڈ، آوازیں اور فاسٹنگ موڈ
 // ==========================================
-                _buildSectionTitle(AppStrings.t('notificationSounds'), isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    // 1: فاسٹنگ موڈ (Fasting Mode)
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('fastingMode'),
-                      subtitle: AppStrings.t('pauseHydrationReminders'),
-                      icon: Icons.timer_off_rounded,
-                      showDivider: true,
-                      trailing: Switch(
-                        activeColor: Colors.blue.shade400,
-                        value: _fasting,
-                        onChanged: (value) async {
-                          setState(() => _fasting = value);
-                          widget.onFastingToggle(value);
+                  _buildSectionTitle(
+                      AppStrings.t('notificationSounds'), isDark),
+                  _buildGroupContainer(
+                    isDark: isDark,
+                    children: [
+                      // 1: فاسٹنگ موڈ (Fasting Mode)
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('fastingMode'),
+                        subtitle: AppStrings.t('pauseHydrationReminders'),
+                        icon: Icons.timer_off_rounded,
+                        showDivider: true,
+                        trailing: Switch(
+                          activeColor: Colors.blue.shade400,
+                          value: _fasting,
+                          onChanged: (value) async {
+                            setState(() => _fasting = value);
+                            widget.onFastingToggle(value);
 
-                          if (value) {
-                            await NotificationService.cancelRegularReminders();
-                            await NotificationService.cancelCustomReminders();
-                          } else {
-                            if (_isCustomSchedule) {
-                              await NotificationService.scheduleCustomReminders(
-                                  _customReminderSlots);
-                            } else {
+                            if (value) {
                               await NotificationService
-                                  .scheduleHourlyReminder();
+                                  .cancelRegularReminders();
+                              await NotificationService.cancelCustomReminders();
+                            } else {
+                              if (_isCustomSchedule) {
+                                await NotificationService
+                                    .scheduleCustomReminders(
+                                        _customReminderSlots);
+                              } else {
+                                await NotificationService
+                                    .scheduleHourlyReminder();
+                              }
                             }
-                          }
-                        },
+                          },
+                        ),
                       ),
-                    ),
 
-                    // 2: ریمائنڈر موڈ (Sound/Vibrate/Silent)
-                    // اردو کمنٹ: شو موڈ پکر (showModePicker) یہاں سے کال ہوگا
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('reminderMode'),
-                      subtitle: _modeDisplayName(_currentMode),
-                      icon: Icons.notifications_active_rounded,
-                      showDivider: true,
-                      onTap: () => _showModePicker(context, isDark),
-                    ),
+                      // 2: ریمائنڈر موڈ (Sound/Vibrate/Silent)
+                      // اردو کمنٹ: شو موڈ پکر (showModePicker) یہاں سے کال ہوگا
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('reminderMode'),
+                        subtitle: _modeDisplayName(_currentMode),
+                        icon: Icons.notifications_active_rounded,
+                        showDivider: true,
+                        onTap: () => _showModePicker(context, isDark),
+                      ),
 
-                    // 3: ریمائنڈر ساؤنڈ (Sound Selector)
-                    // اردو کمنٹ: شو ساؤنڈ پکر (showSoundPicker) یہاں سے کال ہوگا
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('reminderSound'),
-                      subtitle: _selectedSoundName,
-                      icon: Icons.music_note_rounded,
-                      showDivider: false,
-                      onTap: () => _showSoundPicker(context, isDark),
-                    ),
-                  ],
-                ),
+                      // 3: ریمائنڈر ساؤنڈ (Sound Selector)
+                      // اردو کمنٹ: شو ساؤنڈ پکر (showSoundPicker) یہاں سے کال ہوگا
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('reminderSound'),
+                        subtitle: _soundDisplayName(_selectedSoundKey),
+                        icon: Icons.music_note_rounded,
+                        showDivider: false,
+                        onTap: () => _showSoundPicker(context, isDark),
+                      ),
+                    ],
+                  ),
 
 // ==========================================
 // [SECTION: REMINDER SYSTEM]
@@ -969,26 +1024,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // App کس reminder strategy پر چلے گی:
 // Smart Hourly / Custom Schedule / Hybrid
 // ==========================================
-                _buildSectionTitle(AppStrings.t('reminderSystem'), isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('reminderSystem'),
-                      subtitle: _systemDisplayName(_reminderSystem),
-                      icon: Icons.tune_rounded,
-                      showDivider: false,
-                      onInfoTap: () {
-                        _showReliabilityInfo(
-                          title: AppStrings.t('reminderSystem'),
-                          message: AppStrings.t('reminderSystemInfoMessage'),
-                        );
-                      },
-                      onTap: _showReminderSystemPicker,
-                    ),
-                  ],
-                ),
+                  _buildSectionTitle(AppStrings.t('reminderSystem'), isDark),
+                  _buildGroupContainer(
+                    isDark: isDark,
+                    children: [
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('reminderSystem'),
+                        subtitle: _systemDisplayName(_reminderSystem),
+                        icon: Icons.tune_rounded,
+                        showDivider: false,
+                        onInfoTap: () {
+                          _showReliabilityInfo(
+                            title: AppStrings.t('reminderSystem'),
+                            message: AppStrings.t('reminderSystemInfoMessage'),
+                          );
+                        },
+                        onTap: _showReminderSystemPicker,
+                      ),
+                    ],
+                  ),
 
 // ==========================================
 // [SECTION: CUSTOM SCHEDULE]
@@ -997,41 +1052,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // Smart Hourly selected ہو تو Custom Schedule card inactive/faded دکھے گا
 // مگر info button کام کرتا رہے گا
 // ==========================================
-                _buildSectionTitle(AppStrings.t('customSchedule'), isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    Opacity(
-                      opacity: _isCustomSchedule ? 1.0 : 0.45,
-                      child: _buildSettingTile(
-                        isDark: isDark,
-                        title: AppStrings.customReminderTimes,
-                        subtitle: _isCustomSchedule
-                            ? "${_customReminderSlots.length} ${AppStrings.reminderSlotsConfigured}"
-                            : AppStrings.onlyAvailableInCustomSchedule,
-                        icon: Icons.edit_calendar_rounded,
-                        showDivider: false,
-                        onInfoTap: () {
-                          _showReliabilityInfo(
-                            title: AppStrings.t('customSchedule'),
-                            message: AppStrings.t('customScheduleInfoMessage'),
-                          );
-                        },
-                        onTap: () {
-                          if (!_isCustomSchedule) {
+                  _buildSectionTitle(AppStrings.t('customSchedule'), isDark),
+                  _buildGroupContainer(
+                    isDark: isDark,
+                    children: [
+                      Opacity(
+                        opacity: _isCustomSchedule ? 1.0 : 0.45,
+                        child: _buildSettingTile(
+                          isDark: isDark,
+                          title: AppStrings.t('customReminderTimes'),
+                          subtitle: _isCustomSchedule
+                              ? "${_customReminderSlots.length} ${AppStrings.t('reminderSlotsConfigured')}"
+                              : AppStrings.onlyAvailableInCustomSchedule,
+                          icon: Icons.edit_calendar_rounded,
+                          showDivider: false,
+                          onInfoTap: () {
                             _showReliabilityInfo(
-                              title: AppStrings.customScheduleInactive,
-                              message: AppStrings.customScheduleInactiveMessage,
+                              title: AppStrings.t('customSchedule'),
+                              message:
+                                  AppStrings.t('customScheduleInfoMessage'),
                             );
-                            return;
-                          }
+                          },
+                          onTap: () {
+                            if (!_isCustomSchedule) {
+                              _showReliabilityInfo(
+                                title: AppStrings.customScheduleInactive,
+                                message:
+                                    AppStrings.customScheduleInactiveMessage,
+                              );
+                              return;
+                            }
 
-                          _showCustomSchedulePreview();
-                        },
+                            _showCustomSchedulePreview();
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
 
 // ==========================================
 // [SECTION 3: SPECIAL REMINDERS]
@@ -1039,160 +1096,161 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // یہ reminders fasting mode میں بھی active رہتے ہیں
 // اور save-time locked sound/mode استعمال کرتے ہیں
 // ==========================================
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildSectionTitle(
-                        AppStrings.t('specialReminders'), isDark),
-                    IconButton(
-                      icon: Icon(
-                        Icons.info_outline_rounded,
-                        size: 18,
-                        color: isDark ? Colors.white30 : Colors.blue.shade700,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildSectionTitle(
+                          AppStrings.t('specialReminders'), isDark),
+                      IconButton(
+                        icon: Icon(
+                          Icons.info_outline_rounded,
+                          size: 18,
+                          color: isDark ? Colors.white30 : Colors.blue.shade700,
+                        ),
+                        onPressed: () {
+                          _showReliabilityInfo(
+                            title: AppStrings.t('specialReminders'),
+                            message:
+                                AppStrings.t('specialRemindersInfoMessage'),
+                          );
+                        },
                       ),
-                      onPressed: () {
-                        _showReliabilityInfo(
-                          title: AppStrings.t('specialReminders'),
-                          message: AppStrings.t('specialRemindersInfoMessage'),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    // CARD: SPECIAL 1
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: _specialDisplayTitle(0),
-                      subtitle: _specialEnabled[0]
-                          ? "${_formatTime(_specialHours[0], _specialMinutes[0])} • Locked sound & mode"
-                          : AppStrings.offTapHealthReminder,
-                      icon: _specialIcon(0, _specialEnabled[0]),
-                      showDivider: true,
-                      onTap: () => _showSpecialEditor(0),
-                    ),
-                    // CARD: SPECIAL 2
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: _specialDisplayTitle(1),
-                      subtitle: _specialEnabled[1]
-                          ? "${_formatTime(_specialHours[1], _specialMinutes[1])} • Locked sound & mode"
-                          : AppStrings.offTapHealthReminder,
-                      icon: _specialIcon(1, _specialEnabled[1]),
-                      showDivider: true,
-                      onTap: () => _showSpecialEditor(1),
-                    ),
-                    // CARD: SPECIAL 3
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: _specialDisplayTitle(2),
-                      subtitle: _specialEnabled[2]
-                          ? "${_formatTime(_specialHours[2], _specialMinutes[2])} • Locked sound & mode"
-                          : AppStrings.offTapHealthReminder,
-                      icon: _specialIcon(2, _specialEnabled[2]),
-                      showDivider: false,
-                      onTap: () => _showSpecialEditor(2),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                  _buildGroupContainer(
+                    isDark: isDark,
+                    children: [
+                      // CARD: SPECIAL 1
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: _specialDisplayTitle(0),
+                        subtitle: _specialEnabled[0]
+                            ? "${_formatTime(_specialHours[0], _specialMinutes[0])} • ${AppStrings.t('lockedSoundMode')}"
+                            : AppStrings.t('offTapHealthReminder'),
+                        icon: _specialIcon(0, _specialEnabled[0]),
+                        showDivider: true,
+                        onTap: () => _showSpecialEditor(0),
+                      ),
+                      // CARD: SPECIAL 2
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: _specialDisplayTitle(1),
+                        subtitle: _specialEnabled[1]
+                            ? "${_formatTime(_specialHours[1], _specialMinutes[1])} • ${AppStrings.t('lockedSoundMode')}"
+                            : AppStrings.t('offTapHealthReminder'),
+                        icon: _specialIcon(1, _specialEnabled[1]),
+                        showDivider: true,
+                        onTap: () => _showSpecialEditor(1),
+                      ),
+                      // CARD: SPECIAL 3
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: _specialDisplayTitle(2),
+                        subtitle: _specialEnabled[2]
+                            ? "${_formatTime(_specialHours[2], _specialMinutes[2])} • ${AppStrings.t('lockedSoundMode')}"
+                            : AppStrings.t('offTapHealthReminder'),
+                        icon: _specialIcon(2, _specialEnabled[2]),
+                        showDivider: false,
+                        onTap: () => _showSpecialEditor(2),
+                      ),
+                    ],
+                  ),
 
 // ==========================================
 // [SECTION 4: SCHEDULE & SYSTEM]
 // اردو کمنٹ: سونے کے اوقات اور بیٹری کی اہم سیٹنگز
 // ==========================================
-                _buildSectionTitle(AppStrings.t('scheduleSystem'), isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    Opacity(
-                      opacity: _isSmartHourly ? 1.0 : 0.45,
-                      child: _buildSettingTile(
+                  _buildSectionTitle(AppStrings.t('scheduleSystem'), isDark),
+                  _buildGroupContainer(
+                    isDark: isDark,
+                    children: [
+                      Opacity(
+                        opacity: _isSmartHourly ? 1.0 : 0.45,
+                        child: _buildSettingTile(
+                          isDark: isDark,
+                          title: AppStrings.t('sleepStartHour'),
+                          subtitle: _isSmartHourly
+                              ? _formatTime(_sleepStartHour, _sleepStartMinute)
+                              : AppStrings.t('onlyAppliesSmartHourly'),
+                          icon: Icons.bedtime_rounded,
+                          showDivider: true,
+                          onInfoTap: () {
+                            _showReliabilityInfo(
+                              title: AppStrings.t('sleepHours'),
+                              message: AppStrings.t('sleepHoursInfoMessage'),
+                            );
+                          },
+                          onTap: _isSmartHourly
+                              ? () => _selectSleepHour(
+                                    isStartHour: true,
+                                    initialHour: _sleepStartHour,
+                                    initialMinute: _sleepStartMinute,
+                                  )
+                              : null,
+                        ),
+                      ),
+                      Opacity(
+                        opacity: _isSmartHourly ? 1.0 : 0.45,
+                        child: _buildSettingTile(
+                          isDark: isDark,
+                          title: AppStrings.t('sleepEndHour'),
+                          subtitle: _isSmartHourly
+                              ? _formatTime(_sleepEndHour, _sleepEndMinute)
+                              : AppStrings.t('onlyAppliesSmartHourly'),
+                          icon: Icons.wb_sunny_rounded,
+                          showDivider: true,
+                          onInfoTap: () {
+                            _showReliabilityInfo(
+                              title: AppStrings.t('sleepHours'),
+                              message: AppStrings.t('sleepHoursInfoMessage'),
+                            );
+                          },
+                          onTap: _isSmartHourly
+                              ? () => _selectSleepHour(
+                                    isStartHour: false,
+                                    initialHour: _sleepEndHour,
+                                    initialMinute: _sleepEndMinute,
+                                  )
+                              : null,
+                        ),
+                      ),
+                      _buildSettingTile(
                         isDark: isDark,
-                        title: AppStrings.t('sleepStartHour'),
-                        subtitle: _isSmartHourly
-                            ? _formatTime(_sleepStartHour, _sleepStartMinute)
-                            : AppStrings.t('onlyAppliesSmartHourly'),
-                        icon: Icons.bedtime_rounded,
+                        title: AppStrings.t('batteryOptimization'),
+                        subtitle: AppStrings.t('batteryOptimizationSubtitle'),
+                        icon: Icons.battery_saver_rounded,
                         showDivider: true,
                         onInfoTap: () {
                           _showReliabilityInfo(
-                            title: AppStrings.t('sleepHours'),
-                            message: AppStrings.t('sleepHoursInfoMessage'),
+                            title: AppStrings.t('batteryOptimization'),
+                            message:
+                                AppStrings.t('batteryOptimizationInfoMessage'),
                           );
                         },
-                        onTap: _isSmartHourly
-                            ? () => _selectSleepHour(
-                                  isStartHour: true,
-                                  initialHour: _sleepStartHour,
-                                  initialMinute: _sleepStartMinute,
-                                )
-                            : null,
+                        onTap: () async {
+                          await NotificationService
+                              .openBatteryOptimizationSettings();
+                        },
                       ),
-                    ),
-                    Opacity(
-                      opacity: _isSmartHourly ? 1.0 : 0.45,
-                      child: _buildSettingTile(
+                      _buildSettingTile(
                         isDark: isDark,
-                        title: AppStrings.t('sleepEndHour'),
-                        subtitle: _isSmartHourly
-                            ? _formatTime(_sleepEndHour, _sleepEndMinute)
-                            : AppStrings.t('onlyAppliesSmartHourly'),
-                        icon: Icons.wb_sunny_rounded,
-                        showDivider: true,
+                        title: AppStrings.t('autoStartBackground'),
+                        subtitle: AppStrings.t('autoStartBackgroundSubtitle'),
+                        icon: Icons.power_settings_new_rounded,
+                        showDivider: false,
                         onInfoTap: () {
                           _showReliabilityInfo(
-                            title: AppStrings.t('sleepHours'),
-                            message: AppStrings.t('sleepHoursInfoMessage'),
+                            title: AppStrings.t('autoStartBackground'),
+                            message:
+                                AppStrings.t('autoStartBackgroundInfoMessage'),
                           );
                         },
-                        onTap: _isSmartHourly
-                            ? () => _selectSleepHour(
-                                  isStartHour: false,
-                                  initialHour: _sleepEndHour,
-                                  initialMinute: _sleepEndMinute,
-                                )
-                            : null,
+                        onTap: () async {
+                          await NotificationService.openAutoStartSettings();
+                        },
                       ),
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('batteryOptimization'),
-                      subtitle: AppStrings.t('batteryOptimizationSubtitle'),
-                      icon: Icons.battery_saver_rounded,
-                      showDivider: true,
-                      onInfoTap: () {
-                        _showReliabilityInfo(
-                          title: AppStrings.t('batteryOptimization'),
-                          message:
-                              AppStrings.t('batteryOptimizationInfoMessage'),
-                        );
-                      },
-                      onTap: () async {
-                        await NotificationService
-                            .openBatteryOptimizationSettings();
-                      },
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('autoStartBackground'),
-                      subtitle: AppStrings.t('autoStartBackgroundSubtitle'),
-                      icon: Icons.power_settings_new_rounded,
-                      showDivider: false,
-                      onInfoTap: () {
-                        _showReliabilityInfo(
-                          title: AppStrings.t('autoStartBackground'),
-                          message:
-                              AppStrings.t('autoStartBackgroundInfoMessage'),
-                        );
-                      },
-                      onTap: () async {
-                        await NotificationService.openAutoStartSettings();
-                      },
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
 
 // ==========================================
 // [SECTION: REMINDER RELIABILITY TIPS]
@@ -1200,263 +1258,256 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // Reminder reliability بہتر بنانے کے لیے اہم ہدایات
 // خاص طور پر Oppo / Xiaomi / Vivo devices کے لیے
 // ==========================================
-                _buildSectionTitle(
-                    AppStrings.t('reminderReliabilityTips'), isDark),
+                  _buildSectionTitle(
+                      AppStrings.t('reminderReliabilityTips'), isDark),
 
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        Icons.battery_saver_rounded,
-                        color: Colors.orange.shade400,
-                      ),
-                      title: Text(
-                        AppStrings.t('disableBatteryOptimization'),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.blue.shade900,
+                  _buildGroupContainer(
+                    isDark: isDark,
+                    children: [
+                      ListTile(
+                        leading: Icon(
+                          Icons.battery_saver_rounded,
+                          color: Colors.orange.shade400,
                         ),
-                      ),
-                      subtitle: Text(
-                        AppStrings.t('disableBatteryOptimizationSubtitle'),
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.white54
-                              : Colors.blue.shade900.withOpacity(0.6),
+                        title: Text(
+                          AppStrings.t('disableBatteryOptimization'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.blue.shade900,
+                          ),
                         ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 56),
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              isDark
-                                  ? Colors.white10
-                                  : Colors.blue.shade100.withOpacity(0.3),
-                              Colors.transparent,
-                            ],
+                        subtitle: Text(
+                          AppStrings.t('disableBatteryOptimizationSubtitle'),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white54
+                                : Colors.blue.shade900.withOpacity(0.6),
                           ),
                         ),
                       ),
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.power_settings_new_rounded,
-                        color: Colors.green.shade400,
-                      ),
-                      title: Text(
-                        AppStrings.t('enableAutoStart'),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.blue.shade900,
-                        ),
-                      ),
-                      subtitle: Text(
-                        AppStrings.t('enableAutoStartSubtitle'),
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.white54
-                              : Colors.blue.shade900.withOpacity(0.6),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 56),
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              isDark
-                                  ? Colors.white10
-                                  : Colors.blue.shade100.withOpacity(0.3),
-                              Colors.transparent,
-                            ],
+                      Padding(
+                        padding: const EdgeInsets.only(left: 56),
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                isDark
+                                    ? Colors.white10
+                                    : Colors.blue.shade100.withOpacity(0.3),
+                                Colors.transparent,
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.sync_rounded,
-                        color: Colors.cyan.shade400,
-                      ),
-                      title: Text(
-                        AppStrings.t('allowBackgroundActivity'),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.blue.shade900,
+                      ListTile(
+                        leading: Icon(
+                          Icons.power_settings_new_rounded,
+                          color: Colors.green.shade400,
                         ),
-                      ),
-                      subtitle: Text(
-                        AppStrings.t('allowBackgroundActivitySubtitle'),
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.white54
-                              : Colors.blue.shade900.withOpacity(0.6),
+                        title: Text(
+                          AppStrings.t('enableAutoStart'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.blue.shade900,
+                          ),
                         ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 56),
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              isDark
-                                  ? Colors.white10
-                                  : Colors.blue.shade100.withOpacity(0.3),
-                              Colors.transparent,
-                            ],
+                        subtitle: Text(
+                          AppStrings.t('enableAutoStartSubtitle'),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white54
+                                : Colors.blue.shade900.withOpacity(0.6),
                           ),
                         ),
                       ),
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.notifications_active_rounded,
-                        color: Colors.blue.shade400,
-                      ),
-                      title: Text(
-                        AppStrings.t('allowNotificationsExactAlarms'),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.blue.shade900,
-                        ),
-                      ),
-                      subtitle: Text(
-                        AppStrings.t('allowNotificationsExactAlarmsSubtitle'),
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.white54
-                              : Colors.blue.shade900.withOpacity(0.6),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 56),
-                      child: Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              isDark
-                                  ? Colors.white10
-                                  : Colors.blue.shade100.withOpacity(0.3),
-                              Colors.transparent,
-                            ],
+                      Padding(
+                        padding: const EdgeInsets.only(left: 56),
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                isDark
+                                    ? Colors.white10
+                                    : Colors.blue.shade100.withOpacity(0.3),
+                                Colors.transparent,
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.restart_alt_rounded,
-                        color: Colors.purple.shade300,
-                      ),
-                      title: Text(
-                        AppStrings.t('restartReliability'),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : Colors.blue.shade900,
+                      ListTile(
+                        leading: Icon(
+                          Icons.sync_rounded,
+                          color: Colors.cyan.shade400,
+                        ),
+                        title: Text(
+                          AppStrings.t('allowBackgroundActivity'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.blue.shade900,
+                          ),
+                        ),
+                        subtitle: Text(
+                          AppStrings.t('allowBackgroundActivitySubtitle'),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white54
+                                : Colors.blue.shade900.withOpacity(0.6),
+                          ),
                         ),
                       ),
-                      subtitle: Text(
-                        AppStrings.t('restartReliabilitySubtitle'),
-                        style: TextStyle(
-                          color: isDark
-                              ? Colors.white54
-                              : Colors.blue.shade900.withOpacity(0.6),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 56),
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                isDark
+                                    ? Colors.white10
+                                    : Colors.blue.shade100.withOpacity(0.3),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.notifications_active_rounded,
+                          color: Colors.blue.shade400,
+                        ),
+                        title: Text(
+                          AppStrings.t('allowNotificationsExactAlarms'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.blue.shade900,
+                          ),
+                        ),
+                        subtitle: Text(
+                          AppStrings.t('allowNotificationsExactAlarmsSubtitle'),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white54
+                                : Colors.blue.shade900.withOpacity(0.6),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 56),
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                isDark
+                                    ? Colors.white10
+                                    : Colors.blue.shade100.withOpacity(0.3),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.restart_alt_rounded,
+                          color: Colors.purple.shade300,
+                        ),
+                        title: Text(
+                          AppStrings.t('restartReliability'),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.blue.shade900,
+                          ),
+                        ),
+                        subtitle: Text(
+                          AppStrings.t('restartReliabilitySubtitle'),
+                          style: TextStyle(
+                            color: isDark
+                                ? Colors.white54
+                                : Colors.blue.shade900.withOpacity(0.6),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
 
 // ==========================================
 // [SECTION 5: APP SUPPORT]
 // اردو کمنٹ: ٹیسٹ نوٹیفیکیشن، ہیلپ، ری لایبلٹی اور ایپ معلومات
 // ==========================================
-                _buildSectionTitle(AppStrings.t('appSupport'), isDark),
-                _buildGroupContainer(
-                  isDark: isDark,
-                  children: [
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.testNotification,
-                      subtitle: AppStrings.testNotificationSubtitle,
-                      icon: Icons.notification_important_rounded,
-                      trailing: Icon(
-                        Icons.play_circle_fill_rounded,
-                        color: Colors.blue.withOpacity(0.7),
+                  _buildSectionTitle(AppStrings.t('appSupport'), isDark),
+                  _buildGroupContainer(
+                    isDark: isDark,
+                    children: [
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('testNotification'),
+                        subtitle: AppStrings.t('testNotificationSubtitle'),
+                        icon: Icons.notification_important_rounded,
+                        trailing: Icon(
+                          Icons.play_circle_fill_rounded,
+                          color: Colors.blue.withOpacity(0.7),
+                        ),
+                        showDivider: true,
+                        onTap: () async {
+                          await NotificationService.showTestNotification();
+                          _showSettingsSnackBar(
+                              AppStrings.t('testNotificationSent'));
+                        },
                       ),
-                      showDivider: true,
-                      onTap: () async {
-                        await NotificationService.showTestNotification();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content:
-                                const Text(AppStrings.testNotificationSent),
-                            backgroundColor: isDark
-                                ? Colors.blueGrey[800]
-                                : Colors.blue[600],
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('helpFeedback'),
-                      subtitle: AppStrings.helpFeedbackSubtitle,
-                      icon: Icons.help_outline_rounded,
-                      showDivider: true,
-                      onTap: () {
-                        _showReliabilityInfo(
-                          title: AppStrings.t('helpFeedback'),
-                          message: AppStrings.t('helpFeedbackInfoMessage'),
-                        );
-                      },
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('privacyTerms'),
-                      subtitle: AppStrings.privacyTermsSubtitle,
-                      icon: Icons.privacy_tip_outlined,
-                      showDivider: true,
-                      onTap: () {
-                        _showReliabilityInfo(
-                          title: AppStrings.t('privacyTerms'),
-                          message: AppStrings.t('privacyTermsInfoMessage'),
-                        );
-                      },
-                    ),
-                    _buildSettingTile(
-                      isDark: isDark,
-                      title: AppStrings.t('aboutStayHydro'),
-                      subtitle: AppStrings.aboutStayHydroSubtitle,
-                      icon: Icons.info_outline_rounded,
-                      showDivider: false,
-                      onTap: () {
-                        _showReliabilityInfo(
-                          title: AppStrings.t('aboutStayHydro'),
-                          message: AppStrings.t('aboutStayHydroInfoMessage'),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('helpFeedback'),
+                        subtitle: AppStrings.t('helpFeedbackSubtitle'),
+                        icon: Icons.help_outline_rounded,
+                        showDivider: true,
+                        onTap: () {
+                          _showReliabilityInfo(
+                            title: AppStrings.t('helpFeedback'),
+                            message: AppStrings.t('helpFeedbackInfoMessage'),
+                          );
+                        },
+                      ),
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('privacyTerms'),
+                        subtitle: AppStrings.t('privacyTermsSubtitle'),
+                        icon: Icons.privacy_tip_outlined,
+                        showDivider: true,
+                        onTap: () {
+                          _showReliabilityInfo(
+                            title: AppStrings.t('privacyTerms'),
+                            message: AppStrings.t('privacyTermsInfoMessage'),
+                          );
+                        },
+                      ),
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t('aboutStayHydro'),
+                        subtitle: AppStrings.t('aboutStayHydroSubtitle'),
+                        icon: Icons.info_outline_rounded,
+                        showDivider: false,
+                        onTap: () {
+                          _showReliabilityInfo(
+                            title: AppStrings.t('aboutStayHydro'),
+                            message: AppStrings.t('aboutStayHydroInfoMessage'),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
 
-                const SizedBox(height: 30),
-              ],
+                  const SizedBox(height: 30),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1506,7 +1557,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  AppStrings.customReminderTimes,
+                                  AppStrings.t('customReminderTimes'),
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -2206,7 +2257,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(AppStrings.selectReminderMode,
+              Text(AppStrings.t('selectReminderMode'),
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -2271,7 +2322,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(AppStrings.selectNotificationSound,
+              Text(AppStrings.t('selectNotificationSound'),
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -2284,13 +2335,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: _selectedSoundKey == entry.key
                                 ? Colors.blue.shade400
                                 : Colors.grey),
-                        title: Text(entry.value,
+                        title: Text(_soundDisplayName(entry.key),
                             style: TextStyle(
                                 color: isDark ? Colors.white : Colors.black87)),
                         onTap: () async {
                           setState(() {
                             _selectedSoundKey = entry.key;
-                            _selectedSoundName = entry.value;
+                            _selectedSoundName = _soundDisplayName(entry.key);
                           });
 
                           // ⭐ منتخب ساؤنڈ save کریں
@@ -2363,26 +2414,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   // ==========================================
-  // [FUNCTION: SHOW RELIABILITY INFO DIALOG]
-  // اردو کمنٹ:
-  // Battery / Auto Start / Background Activity کی وضاحت الگ dialog میں دکھانے کے لیے
-  // تاکہ settings screen فوراً کھلنے سے message ضائع نہ ہو
-  // ==========================================
+// [FUNCTION: SHOW RELIABILITY INFO DIALOG]
+// اردو کمنٹ:
+// Settings info dialogs کے لیے RTL/LTR alignment support
+// Arabic میں title/message/buttons دائیں سے درست align ہوں گے
+// ==========================================
   void _showReliabilityInfo({
     required String title,
     required String message,
   }) {
+    final bool isRtl = AppStrings.isArabic;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppStrings.t('gotIt')),
+      builder: (context) => Directionality(
+        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+        child: AlertDialog(
+          title: Text(
+            title,
+            textAlign: isRtl ? TextAlign.right : TextAlign.left,
           ),
-        ],
+          content: Text(
+            message,
+            textAlign: isRtl ? TextAlign.right : TextAlign.left,
+            textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+          ),
+          actionsAlignment:
+              isRtl ? MainAxisAlignment.start : MainAxisAlignment.end,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(AppStrings.t('gotIt')),
+            ),
+          ],
+        ),
       ),
     );
   }
