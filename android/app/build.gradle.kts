@@ -49,10 +49,20 @@ android {
     }
 
     buildTypes {
-        release {
-            signingConfig = signingConfigs.getByName("release")
-        }
+    release {
+        signingConfig = signingConfigs.getByName("release")
+
+        // ==========================================
+        // [PROGUARD / R8 RULES]
+        // اردو کمنٹ:
+        // Gson TypeToken / flutter_local_notifications boot receiver crash fix
+        // ==========================================
+        proguardFiles(
+            getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
     }
+}
 }
 
 dependencies {
