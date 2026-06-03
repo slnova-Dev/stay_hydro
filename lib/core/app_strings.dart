@@ -180,6 +180,33 @@ class AppStrings {
       'reminderSlotsConfigured': 'reminder slots configured',
       'reminderSystemChanged': 'Reminder system set to',
       'sleepHoursUpdated': 'Sleep hours updated & scheduled',
+      'firstLaunchWelcomeTitle': 'Welcome to StayHydro',
+      'firstLaunchReliabilityMessage': 'For reliable reminders:\n\n'
+          '✓ Allow notifications\n'
+          '✓ Disable battery optimization\n'
+          '✓ Enable auto start/background activity',
+      'getStarted': 'Get Started',
+      'dailyHydrationTip': 'Daily Hydration Tip',
+      'nextHydrationGoal': 'Next Hydration Goal',
+      'paused': 'Paused',
+      'add': 'Add',
+      'switchIntake': 'Switch Intake',
+      'missedEntry': 'Missed Entry',
+      'days': 'days',
+      'goalCompleted': 'Goal completed! Streak:',
+      'goalCompletedMissedEntry': 'Goal completed with missed entry! Streak:',
+      'addMissedEntry': 'Add Missed Entry',
+      'intakeTime': 'Intake Time',
+      'selectAmount': 'Select Amount',
+      'addEntry': 'Add Entry',
+      'dailyIntakeLimitReached': 'Daily intake limit reached for today.',
+      'waterIntake': 'Water Intake',
+      'selectIntakeAmount': 'Select Intake Amount',
+      'customAmountHint': 'Custom (50–1000 ml)',
+      'enterNumber': 'Enter a number',
+      'intakeRangeError': 'Between 50 and 1000 (steps of 50)',
+      'home': 'Home',
+      'history': 'History',
     },
 
     // ===========
@@ -325,6 +352,37 @@ class AppStrings {
       'waterDrop': 'Gota de agua',
       'waterPour': 'Vertido de agua',
       'reminderSlotsConfigured': 'horarios configurados',
+      'firstLaunchWelcomeTitle': 'Bienvenido a StayHydro',
+      'firstLaunchReliabilityMessage': 'Para recordatorios fiables:\n\n'
+          '✓ Permite las notificaciones\n'
+          '✓ Desactiva la optimización de batería\n'
+          '✓ Activa el inicio automático/actividad en segundo plano',
+      'getStarted': 'Comenzar',
+      'dailyHydrationTip': 'Consejo diario de hidratación',
+      'nextHydrationGoal': 'Próximo objetivo de hidratación',
+      'paused': 'Pausado',
+      'add': 'Añadir',
+      'switchIntake': 'Cambiar cantidad',
+      'missedEntry': 'Entrada omitida',
+      'days': 'días',
+      'goalCompleted': '¡Objetivo completado! Racha:',
+      'goalCompletedMissedEntry':
+          '¡Objetivo completado con entrada omitida! Racha:',
+      'addMissedEntry': 'Añadir entrada omitida',
+      'intakeTime': 'Hora de consumo',
+      'selectAmount': 'Seleccionar cantidad',
+      'addEntry': 'Añadir entrada',
+      'dailyIntakeLimitReached':
+          'Has alcanzado el límite diario de agua por hoy.',
+      'reminderSystemChanged': 'Sistema de recordatorios cambiado a',
+      'customScheduleMode': 'Horario personalizado',
+      'waterIntake': 'Consumo de agua',
+      'selectIntakeAmount': 'Seleccionar cantidad',
+      'customAmountHint': 'Personalizado (50–1000 ml)',
+      'enterNumber': 'Introduce un número',
+      'intakeRangeError': 'Entre 50 y 1000 (pasos de 50)',
+      'home': 'Inicio',
+      'history': 'Historial',
     },
 
     // ===========
@@ -462,6 +520,35 @@ class AppStrings {
       'waterDrop': 'قطرة ماء',
       'waterPour': 'صب الماء',
       'reminderSlotsConfigured': 'أوقات تذكير مضبوطة',
+      'firstLaunchWelcomeTitle': 'مرحبًا بك في StayHydro',
+      'firstLaunchReliabilityMessage': 'للحصول على تذكيرات موثوقة:\n\n'
+          '✓ اسمح بالإشعارات\n'
+          '✓ عطّل تحسين البطارية\n'
+          '✓ فعّل التشغيل التلقائي/النشاط في الخلفية',
+      'getStarted': 'ابدأ',
+      'dailyHydrationTip': 'نصيحة الترطيب اليومية',
+      'nextHydrationGoal': 'موعد الترطيب التالي',
+      'paused': 'متوقف',
+      'add': 'أضف',
+      'switchIntake': 'تغيير الكمية',
+      'missedEntry': 'إدخال فائت',
+      'days': 'أيام',
+      'goalCompleted': 'تم إكمال الهدف! السلسلة:',
+      'goalCompletedMissedEntry': 'تم إكمال الهدف مع إدخال فائت! السلسلة:',
+      'addMissedEntry': 'إضافة إدخال فائت',
+      'intakeTime': 'وقت الشرب',
+      'selectAmount': 'اختر الكمية',
+      'addEntry': 'إضافة',
+      'dailyIntakeLimitReached': 'تم الوصول إلى حد شرب الماء لهذا اليوم.',
+      'reminderSystemChanged': 'تم تغيير نظام التذكيرات إلى',
+      'customScheduleMode': 'جدول مخصص',
+      'waterIntake': 'كمية الماء',
+      'selectIntakeAmount': 'اختر كمية الشرب',
+      'customAmountHint': 'مخصص (50–1000 ml)',
+      'enterNumber': 'أدخل رقمًا',
+      'intakeRangeError': 'بين 50 و1000 (بفواصل 50)',
+      'home': 'الرئيسية',
+      'history': 'السجل',
     },
 
     // ===========
@@ -605,6 +692,36 @@ class AppStrings {
       'waterDrop': 'पानी की बूंद',
       'waterPour': 'पानी डालना',
       'reminderSlotsConfigured': 'रिमाइंडर समय सेट',
+      'firstLaunchWelcomeTitle': 'StayHydro में आपका स्वागत है',
+      'firstLaunchReliabilityMessage': 'भरोसेमंद रिमाइंडर के लिए:\n\n'
+          '✓ नोटिफिकेशन की अनुमति दें\n'
+          '✓ बैटरी ऑप्टिमाइज़ेशन बंद करें\n'
+          '✓ ऑटो स्टार्ट/बैकग्राउंड एक्टिविटी चालू करें',
+      'getStarted': 'शुरू करें',
+      'dailyHydrationTip': 'दैनिक हाइड्रेशन टिप',
+      'nextHydrationGoal': 'अगला हाइड्रेशन लक्ष्य',
+      'paused': 'रुका हुआ',
+      'add': 'जोड़ें',
+      'switchIntake': 'मात्रा बदलें',
+      'missedEntry': 'छूटी हुई एंट्री',
+      'days': 'दिन',
+      'goalCompleted': 'लक्ष्य पूरा हुआ! स्ट्रीक:',
+      'goalCompletedMissedEntry':
+          'छूटी हुई एंट्री से लक्ष्य पूरा हुआ! स्ट्रीक:',
+      'addMissedEntry': 'छूटी हुई एंट्री जोड़ें',
+      'intakeTime': 'पीने का समय',
+      'selectAmount': 'मात्रा चुनें',
+      'addEntry': 'एंट्री जोड़ें',
+      'dailyIntakeLimitReached': 'आज की दैनिक पानी सीमा पूरी हो गई है.',
+      'reminderSystemChanged': 'रिमाइंडर सिस्टम बदलकर किया गया',
+      'customScheduleMode': 'कस्टम शेड्यूल',
+      'waterIntake': 'पानी की मात्रा',
+      'selectIntakeAmount': 'पानी की मात्रा चुनें',
+      'customAmountHint': 'कस्टम (50–1000 ml)',
+      'enterNumber': 'कोई संख्या दर्ज करें',
+      'intakeRangeError': '50 से 1000 के बीच (50 के अंतर से)',
+      'home': 'होम',
+      'history': 'इतिहास',
     },
 
     // =============
@@ -747,6 +864,37 @@ class AppStrings {
       'waterDrop': 'Tetes air',
       'waterPour': 'Menuang air',
       'reminderSlotsConfigured': 'waktu pengingat diatur',
+      'firstLaunchWelcomeTitle': 'Selamat datang di StayHydro',
+      'firstLaunchReliabilityMessage': 'Agar pengingat berjalan andal:\n\n'
+          '✓ Izinkan notifikasi\n'
+          '✓ Nonaktifkan optimasi baterai\n'
+          '✓ Aktifkan mulai otomatis/aktivitas latar belakang',
+      'getStarted': 'Mulai',
+      'dailyHydrationTip': 'Tips hidrasi harian',
+      'nextHydrationGoal': 'Target hidrasi berikutnya',
+      'paused': 'Dijeda',
+      'add': 'Tambah',
+      'switchIntake': 'Ganti jumlah',
+      'missedEntry': 'Entri terlewat',
+      'days': 'hari',
+      'goalCompleted': 'Target tercapai! Rangkaian:',
+      'goalCompletedMissedEntry':
+          'Target tercapai dengan entri terlewat! Rangkaian:',
+      'addMissedEntry': 'Tambah entri terlewat',
+      'intakeTime': 'Waktu minum',
+      'selectAmount': 'Pilih jumlah',
+      'addEntry': 'Tambah entri',
+      'dailyIntakeLimitReached':
+          'Batas asupan air harian untuk hari ini tercapai.',
+      'reminderSystemChanged': 'Sistem pengingat diubah ke',
+      'customScheduleMode': 'Jadwal Kustom',
+      'waterIntake': 'Asupan air',
+      'selectIntakeAmount': 'Pilih jumlah minum',
+      'customAmountHint': 'Khusus (50–1000 ml)',
+      'enterNumber': 'Masukkan angka',
+      'intakeRangeError': 'Antara 50 dan 1000 (kelipatan 50)',
+      'home': 'Beranda',
+      'history': 'Riwayat',
     },
   };
 
@@ -755,13 +903,42 @@ class AppStrings {
   // ==========================================
   static const String appName = 'StayHydro';
   static const String settings = 'Settings';
-  static const String cancel = 'Cancel';
+  static const String cancel = 'cancel';
   static const String save = 'Save';
   static const String reset = 'Reset';
   static const String delete = 'Delete';
   static const String gotIt = 'Got it';
   static const String later = 'Later';
   static const String comingSoon = 'Coming soon';
+  static const String waterIntake = 'waterIntake';
+  static const String home = 'home';
+  static const String history = 'history';
+
+  // Intake Selector Dialog file keys
+  static const String selectIntakeAmount = 'selectIntakeAmount';
+  static const String customAmountHint = 'customAmountHint';
+  static const String enterNumber = 'enterNumber';
+  static const String intakeRangeError = 'intakeRangeError';
+
+  // Home Screen کی کیز
+
+  static const String dailyHydrationTip = 'dailyHydrationTip';
+  static const String nextHydrationGoal = 'nextHydrationGoal';
+  static const String paused = 'paused';
+  static const String add = 'add';
+  static const String switchIntake = 'switchIntake';
+  static const String missedEntry = 'missedEntry';
+  static const String days = 'days';
+  static const String goalCompleted = 'goalCompleted';
+  static const String goalCompletedMissedEntry = 'goalCompletedMissedEntry';
+  static const String dailyIntakeLimitReached = 'dailyIntakeLimitReached';
+
+  // Missed Entry
+
+  static const String addMissedEntry = 'addMissedEntry';
+  static const String intakeTime = 'intakeTime';
+  static const String selectAmount = 'selectAmount';
+  static const String addEntry = 'addEntry';
 
   // ==========================================
   // [SETTINGS: SECTIONS]
@@ -806,8 +983,8 @@ class AppStrings {
   // ==========================================
   // [REMINDER SYSTEM]
   // ==========================================
-  static const String smartHourly = 'Smart Hourly';
-  static const String customScheduleMode = 'Custom Schedule';
+  static const String smartHourly = 'smartHourly';
+  static const String customScheduleMode = 'customScheduleMode';
   static const String selectReminderSystem = 'Select Reminder System';
   static const String smartHourlySubtitle =
       'Automatic hourly reminders with sleep hours';
@@ -904,12 +1081,12 @@ class AppStrings {
   static const String aboutStayHydroSubtitle = 'Version 1.0.0 • Slnova';
 
   // ==========================================
-  // [FIRST LAUNCH GUIDE]
-  // ==========================================
-  static const String keepRemindersReliable = 'Keep Reminders Reliable';
+// [FIRST LAUNCH GUIDE]
+// ==========================================
+  static const String firstLaunchWelcomeTitle = 'firstLaunchWelcomeTitle';
   static const String firstLaunchReliabilityMessage =
-      'For best results, allow notifications and enable Battery Optimization / Auto Start settings for StayHydro.\n\n'
-      'On Oppo, Realme, Vivo and Xiaomi phones, also allow background activity so reminders keep working after restart.';
+      'firstLaunchReliabilityMessage';
+  static const String getStarted = 'getStarted';
 
   // ==========================================
 // [INFO / SNACKBARS / DIALOGS]
@@ -918,7 +1095,7 @@ class AppStrings {
   static const String languageComingSoonMessage =
       'Language options will be added in a future update.';
 
-  static const String reminderSystemChanged = 'Reminder system set to';
+  static const String reminderSystemChanged = 'reminderSystemChanged';
 
   static const String sleepHoursUpdated = 'Sleep hours updated & scheduled';
 
@@ -984,4 +1161,273 @@ class AppStrings {
 
   static const String languageTranslationComingSoon =
       'translation will be added before release.\n\nFor now, English remains active.';
+
+// Home Screen Daily Tips Method
+
+  static List<String> dailyTips() {
+    return _dailyTips[activeLanguage] ?? _dailyTips['English']!;
+  }
+
+  static const Map<String, List<String>> _dailyTips = {
+    'English': [
+      'Drink water right after you wake up.',
+      'Sip water slowly instead of chugging.',
+      'Keep a bottle within arm’s reach.',
+      'Drink a glass before each meal.',
+      'Add lemon slices for fresh flavor.',
+      'Set simple water checkpoints through the day.',
+      'Take a few sips every hour.',
+      'Drink water after every bathroom break.',
+      'Pair water with your coffee or tea.',
+      'Drink before you feel thirsty.',
+      'Refill your bottle whenever it’s half empty.',
+      'Have water with every snack.',
+      'Keep a glass of water on your desk.',
+      'Choose water first when you eat out.',
+      'Drink a small glass before workouts.',
+      'Rehydrate after exercise right away.',
+      'Add cucumber for a crisp taste.',
+      'Take a water break between tasks.',
+      'Keep chilled and room-temp options ready.',
+      'Start meetings with a quick sip.',
+      'Drink water after salty foods.',
+      'Track your intake to stay motivated.',
+      'Take a sip whenever you check your phone.',
+      'Drink water before sugary drinks.',
+      'Bring water in the car for short trips.',
+      'Refill your bottle before leaving home.',
+      'Take water breaks during screen time.',
+      'Add mint leaves for variety.',
+      'Drink a glass while waiting for meals.',
+      'Celebrate each time you hit a mini goal.',
+      'Keep water by your bedside at night.',
+      'Make hydration part of your morning routine.',
+      'Proper hydration improves brain focus.',
+      'Feeling tired? Try a glass of water first.',
+      'Water helps your kidneys clear toxins from your blood.',
+      'Drinking water can help prevent headaches caused by dehydration.',
+      'Hydration is key for maintaining healthy, glowing skin.',
+      'Drinking water boosts your physical performance during exercise.',
+      'Water helps maintain normal bowel function and prevents constipation.',
+      'Being well-hydrated helps regulate your body temperature.',
+      'Drinking water before meals can aid in healthy weight management.',
+      'Hydration keeps your joints lubricated and cushioned.',
+      'Water is essential for the production of saliva and digestive juices.',
+      'Even mild dehydration can drain your energy and make you tired.',
+      'Drinking enough water helps your heart pump blood more easily.',
+      'Hydration supports the health of your mucus membranes and lungs.',
+      'Water carries nutrients and oxygen to all cells in your body.',
+      'A glass of water can help curb late-night snack cravings.',
+      'Optimal hydration helps your brain stay alert and focused.',
+      'Drinking water helps flush out waste products through sweat and urine.',
+    ],
+    'Spanish': [
+      'Bebe agua justo después de despertarte.',
+      'Toma agua poco a poco en lugar de beberla de golpe.',
+      'Mantén una botella al alcance de la mano.',
+      'Bebe un vaso antes de cada comida.',
+      'Añade rodajas de limón para un sabor fresco.',
+      'Marca pequeños puntos de hidratación durante el día.',
+      'Toma unos sorbos cada hora.',
+      'Bebe agua después de cada visita al baño.',
+      'Acompaña tu café o té con agua.',
+      'Bebe antes de sentir sed.',
+      'Rellena tu botella cuando esté medio vacía.',
+      'Toma agua con cada snack.',
+      'Mantén un vaso de agua en tu escritorio.',
+      'Elige agua primero cuando comas fuera.',
+      'Bebe un vaso pequeño antes de entrenar.',
+      'Rehidrátate justo después del ejercicio.',
+      'Añade pepino para un sabor refrescante.',
+      'Haz una pausa para tomar agua entre tareas.',
+      'Ten opciones frías y a temperatura ambiente.',
+      'Empieza las reuniones con un sorbo rápido.',
+      'Bebe agua después de comidas saladas.',
+      'Registra tu consumo para mantener la motivación.',
+      'Toma un sorbo cada vez que revises el teléfono.',
+      'Bebe agua antes de bebidas azucaradas.',
+      'Lleva agua en el coche para trayectos cortos.',
+      'Rellena tu botella antes de salir de casa.',
+      'Haz pausas de agua durante el tiempo frente a pantallas.',
+      'Añade hojas de menta para variar.',
+      'Bebe un vaso mientras esperas la comida.',
+      'Celebra cada mini objetivo alcanzado.',
+      'Mantén agua junto a la cama por la noche.',
+      'Haz de la hidratación parte de tu rutina matutina.',
+      'Una buena hidratación mejora la concentración.',
+      '¿Te sientes cansado? Prueba primero con un vaso de agua.',
+      'El agua ayuda a tus riñones a limpiar toxinas de la sangre.',
+      'Beber agua puede ayudar a prevenir dolores de cabeza por deshidratación.',
+      'La hidratación es clave para una piel sana y luminosa.',
+      'Beber agua mejora tu rendimiento físico durante el ejercicio.',
+      'El agua ayuda a mantener una función intestinal normal.',
+      'Estar bien hidratado ayuda a regular la temperatura corporal.',
+      'Beber agua antes de comer puede apoyar el control saludable del peso.',
+      'La hidratación mantiene tus articulaciones lubricadas y protegidas.',
+      'El agua es esencial para producir saliva y jugos digestivos.',
+      'Incluso una deshidratación leve puede quitarte energía.',
+      'Beber suficiente agua ayuda al corazón a bombear sangre con más facilidad.',
+      'La hidratación apoya la salud de las mucosas y los pulmones.',
+      'El agua transporta nutrientes y oxígeno a las células.',
+      'Un vaso de agua puede ayudar a reducir antojos nocturnos.',
+      'Una hidratación óptima ayuda a tu cerebro a mantenerse alerta.',
+      'Beber agua ayuda a eliminar desechos mediante sudor y orina.',
+    ],
+    'Arabic': [
+      'اشرب الماء بعد الاستيقاظ مباشرة.',
+      'اشرب الماء ببطء بدلًا من شربه دفعة واحدة.',
+      'احتفظ بزجاجة ماء قريبة منك.',
+      'اشرب كوبًا قبل كل وجبة.',
+      'أضف شرائح الليمون لنكهة منعشة.',
+      'ضع نقاط تذكير بسيطة للماء خلال اليوم.',
+      'خذ بضع رشفات كل ساعة.',
+      'اشرب الماء بعد كل دخول للحمام.',
+      'اشرب الماء مع القهوة أو الشاي.',
+      'اشرب قبل أن تشعر بالعطش.',
+      'املأ زجاجتك عندما تصبح نصف فارغة.',
+      'اشرب الماء مع كل وجبة خفيفة.',
+      'احتفظ بكوب ماء على مكتبك.',
+      'اختر الماء أولًا عند تناول الطعام خارج المنزل.',
+      'اشرب كوبًا صغيرًا قبل التمرين.',
+      'عوّض السوائل بعد التمرين مباشرة.',
+      'أضف الخيار لطعم منعش.',
+      'خذ استراحة ماء بين المهام.',
+      'جهّز ماءً باردًا وآخر بدرجة حرارة الغرفة.',
+      'ابدأ الاجتماعات برشفة سريعة.',
+      'اشرب الماء بعد الأطعمة المالحة.',
+      'تابع كمية الماء لتحافظ على حماسك.',
+      'خذ رشفة كلما تفقدت هاتفك.',
+      'اشرب الماء قبل المشروبات السكرية.',
+      'خذ ماءً معك في السيارة للرحلات القصيرة.',
+      'املأ زجاجتك قبل مغادرة المنزل.',
+      'خذ فواصل ماء أثناء استخدام الشاشة.',
+      'أضف أوراق النعناع للتغيير.',
+      'اشرب كوبًا أثناء انتظار الطعام.',
+      'احتفل عند تحقيق كل هدف صغير.',
+      'احتفظ بالماء قرب سريرك ليلًا.',
+      'اجعل الترطيب جزءًا من روتينك الصباحي.',
+      'الترطيب الجيد يساعد على تحسين التركيز.',
+      'تشعر بالتعب؟ جرّب كوب ماء أولًا.',
+      'يساعد الماء الكليتين على تنقية السموم من الدم.',
+      'شرب الماء قد يساعد في منع الصداع الناتج عن الجفاف.',
+      'الترطيب مهم لبشرة صحية ومشرقة.',
+      'شرب الماء يعزز الأداء البدني أثناء التمرين.',
+      'يساعد الماء على الحفاظ على وظيفة الأمعاء الطبيعية.',
+      'الترطيب الجيد يساعد على تنظيم حرارة الجسم.',
+      'شرب الماء قبل الوجبات قد يدعم التحكم الصحي في الوزن.',
+      'الترطيب يحافظ على تليين المفاصل وحمايتها.',
+      'الماء ضروري لإنتاج اللعاب والعصارات الهضمية.',
+      'حتى الجفاف الخفيف قد يقلل طاقتك ويجعلك متعبًا.',
+      'شرب كمية كافية من الماء يساعد القلب على ضخ الدم بسهولة.',
+      'الترطيب يدعم صحة الأغشية المخاطية والرئتين.',
+      'ينقل الماء المغذيات والأكسجين إلى خلايا الجسم.',
+      'كوب ماء قد يساعد على تقليل الرغبة في وجبات الليل.',
+      'الترطيب المثالي يساعد دماغك على البقاء يقظًا ومركزًا.',
+      'شرب الماء يساعد على التخلص من الفضلات عبر العرق والبول.',
+    ],
+    'Hindi': [
+      'जागने के तुरंत बाद पानी पिएँ।',
+      'एक साथ बहुत पानी पीने के बजाय धीरे-धीरे घूँट लें।',
+      'पानी की बोतल हमेशा पास रखें।',
+      'हर भोजन से पहले एक गिलास पानी पिएँ।',
+      'ताज़े स्वाद के लिए नींबू के स्लाइस डालें।',
+      'दिन भर के लिए छोटे पानी पीने के लक्ष्य रखें।',
+      'हर घंटे कुछ घूँट पानी पिएँ।',
+      'हर बार बाथरूम जाने के बाद पानी पिएँ।',
+      'कॉफी या चाय के साथ पानी भी पिएँ।',
+      'प्यास लगने से पहले पानी पिएँ।',
+      'बोतल आधी खाली हो तो फिर से भर लें।',
+      'हर स्नैक के साथ पानी लें।',
+      'अपनी डेस्क पर पानी का गिलास रखें।',
+      'बाहर खाना खाते समय पहले पानी चुनें।',
+      'वर्कआउट से पहले छोटा गिलास पानी पिएँ।',
+      'व्यायाम के बाद तुरंत पानी की कमी पूरी करें।',
+      'ताज़गी के लिए खीरा डालें।',
+      'कामों के बीच पानी का छोटा ब्रेक लें।',
+      'ठंडा और सामान्य तापमान वाला पानी तैयार रखें।',
+      'मीटिंग शुरू करने से पहले एक घूँट पानी लें।',
+      'नमकीन खाने के बाद पानी पिएँ।',
+      'प्रेरित रहने के लिए अपना पानी रिकॉर्ड करें।',
+      'फोन चेक करते समय एक घूँट पानी लें।',
+      'मीठे पेय से पहले पानी पिएँ।',
+      'छोटी यात्राओं के लिए कार में पानी रखें।',
+      'घर से निकलने से पहले बोतल भर लें।',
+      'स्क्रीन टाइम के दौरान पानी के ब्रेक लें।',
+      'स्वाद बदलने के लिए पुदीने की पत्तियाँ डालें।',
+      'खाने का इंतज़ार करते समय एक गिलास पानी पिएँ।',
+      'हर छोटा लक्ष्य पूरा होने पर खुशी मनाएँ।',
+      'रात में अपने बिस्तर के पास पानी रखें।',
+      'पानी पीना अपनी सुबह की दिनचर्या का हिस्सा बनाएँ।',
+      'अच्छी हाइड्रेशन दिमागी ध्यान बेहतर करती है।',
+      'थकान महसूस हो रही है? पहले एक गिलास पानी पिएँ।',
+      'पानी किडनी को खून से विषैले पदार्थ निकालने में मदद करता है।',
+      'पानी पीना डिहाइड्रेशन से होने वाले सिरदर्द को रोकने में मदद कर सकता है।',
+      'हाइड्रेशन स्वस्थ और चमकदार त्वचा के लिए ज़रूरी है।',
+      'पानी पीना व्यायाम के दौरान शारीरिक प्रदर्शन बढ़ाता है।',
+      'पानी सामान्य पाचन और कब्ज से बचाव में मदद करता है।',
+      'अच्छी हाइड्रेशन शरीर का तापमान नियंत्रित रखने में मदद करती है।',
+      'भोजन से पहले पानी पीना स्वस्थ वजन प्रबंधन में मदद कर सकता है।',
+      'हाइड्रेशन जोड़ों को चिकना और सुरक्षित रखती है।',
+      'लार और पाचक रस बनाने के लिए पानी ज़रूरी है।',
+      'हल्की डिहाइड्रेशन भी ऊर्जा कम कर सकती है।',
+      'पर्याप्त पानी दिल को खून आसानी से पंप करने में मदद करता है।',
+      'हाइड्रेशन म्यूकस मेम्ब्रेन और फेफड़ों की सेहत को सहारा देती है।',
+      'पानी पोषक तत्व और ऑक्सीजन शरीर की कोशिकाओं तक पहुँचाता है।',
+      'एक गिलास पानी देर रात की भूख कम करने में मदद कर सकता है।',
+      'बेहतर हाइड्रेशन दिमाग को सतर्क और केंद्रित रखती है।',
+      'पानी पसीने और पेशाब के जरिए अपशिष्ट पदार्थ निकालने में मदद करता है।',
+    ],
+    'Indonesian': [
+      'Minum air segera setelah bangun tidur.',
+      'Minum perlahan, jangan langsung banyak sekaligus.',
+      'Simpan botol air dalam jangkauan tangan.',
+      'Minum segelas air sebelum setiap makan.',
+      'Tambahkan irisan lemon untuk rasa segar.',
+      'Buat titik pengingat minum air sepanjang hari.',
+      'Minum beberapa teguk setiap jam.',
+      'Minum air setelah setiap kali ke kamar mandi.',
+      'Dampingi kopi atau teh dengan air putih.',
+      'Minum sebelum merasa haus.',
+      'Isi ulang botol saat sudah setengah kosong.',
+      'Minum air bersama setiap camilan.',
+      'Simpan segelas air di meja kerja.',
+      'Pilih air putih dulu saat makan di luar.',
+      'Minum segelas kecil sebelum berolahraga.',
+      'Segera rehidrasi setelah olahraga.',
+      'Tambahkan mentimun untuk rasa segar.',
+      'Ambil jeda minum air di antara tugas.',
+      'Siapkan pilihan air dingin dan suhu ruang.',
+      'Mulai rapat dengan satu teguk cepat.',
+      'Minum air setelah makanan asin.',
+      'Catat asupan air agar tetap termotivasi.',
+      'Minum satu teguk setiap kali mengecek ponsel.',
+      'Minum air sebelum minuman manis.',
+      'Bawa air di mobil untuk perjalanan singkat.',
+      'Isi ulang botol sebelum keluar rumah.',
+      'Ambil jeda minum saat menatap layar.',
+      'Tambahkan daun mint untuk variasi.',
+      'Minum segelas air sambil menunggu makanan.',
+      'Rayakan setiap kali mencapai target kecil.',
+      'Simpan air di samping tempat tidur pada malam hari.',
+      'Jadikan hidrasi bagian dari rutinitas pagi.',
+      'Hidrasi yang baik membantu fokus otak.',
+      'Merasa lelah? Coba minum segelas air dulu.',
+      'Air membantu ginjal membersihkan racun dari darah.',
+      'Minum air dapat membantu mencegah sakit kepala akibat dehidrasi.',
+      'Hidrasi penting untuk kulit yang sehat dan bercahaya.',
+      'Minum air meningkatkan performa fisik saat olahraga.',
+      'Air membantu menjaga fungsi usus normal dan mencegah sembelit.',
+      'Hidrasi yang baik membantu mengatur suhu tubuh.',
+      'Minum air sebelum makan dapat membantu pengelolaan berat badan sehat.',
+      'Hidrasi menjaga sendi tetap terlumasi dan terlindungi.',
+      'Air penting untuk produksi air liur dan cairan pencernaan.',
+      'Dehidrasi ringan saja dapat menguras energi.',
+      'Minum cukup air membantu jantung memompa darah lebih mudah.',
+      'Hidrasi mendukung kesehatan selaput lendir dan paru-paru.',
+      'Air membawa nutrisi dan oksigen ke sel-sel tubuh.',
+      'Segelas air dapat membantu mengurangi keinginan ngemil malam.',
+      'Hidrasi optimal membantu otak tetap waspada dan fokus.',
+      'Minum air membantu membuang sisa metabolisme lewat keringat dan urine.',
+    ],
+  };
 }

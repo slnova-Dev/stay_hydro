@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:stay_hydro/core/app_strings.dart';
 
 // ==========================================
 // سیکشن 1: ان ٹیک سلیکٹر ڈائیلاگ کلاس
@@ -58,7 +59,7 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
     final parsed = int.tryParse(value);
     if (parsed == null) {
       setState(() {
-        _errorText = "نمبر درج کریں";
+        _errorText = AppStrings.t(AppStrings.enterNumber);
         _tempSelected = widget.currentValue;
       });
       return;
@@ -66,7 +67,7 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
 
     if (!_isInRange(parsed) || !_isStepValid(parsed)) {
       setState(() {
-        _errorText = "50 سے 1000 کے درمیان (50 کا فرق)";
+        _errorText = AppStrings.t(AppStrings.intakeRangeError);
         _tempSelected = 0;
       });
     } else {
@@ -113,7 +114,7 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
               children: [
                 // ہیڈر ٹائٹل
                 Text(
-                  "Select Intake Amount",
+                  AppStrings.t(AppStrings.selectIntakeAmount),
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -143,7 +144,7 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
                     color: isDarkMode ? Colors.white : Colors.black87,
                   ),
                   decoration: InputDecoration(
-                    hintText: "Custom (50–1000 ml)",
+                    hintText: AppStrings.t(AppStrings.customAmountHint),
                     hintStyle: TextStyle(
                       fontSize: 14,
                       color: isDarkMode ? Colors.white54 : Colors.grey,
@@ -190,7 +191,7 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
                         ),
                         onPressed: () => Navigator.pop(context),
                         child: Text(
-                          "Cancel",
+                          AppStrings.t(AppStrings.cancel),
                           style: TextStyle(
                             color: isDarkMode
                                 ? Colors.blue.shade200
@@ -241,8 +242,8 @@ class _IntakeSelectorDialogState extends State<IntakeSelectorDialog> {
                           onPressed: (_tempSelected > 0)
                               ? () => Navigator.pop(context, _tempSelected)
                               : null,
-                          child: const Text(
-                            "Save",
+                          child: Text(
+                            AppStrings.t(AppStrings.save),
                             style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),

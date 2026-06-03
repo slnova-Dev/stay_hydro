@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:stay_hydro/core/app_strings.dart';
 
 // ==========================================
 // سیکشن 1: واٹر گول ویجیٹ (مین کلاس)
@@ -157,7 +158,7 @@ class _WaterGoalWidgetState extends State<WaterGoalWidget>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Water Intake',
+                        AppStrings.t(AppStrings.waterIntake),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,

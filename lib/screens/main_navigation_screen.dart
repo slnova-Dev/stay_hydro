@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
+import 'package:stay_hydro/core/app_strings.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   final bool isDarkTheme;
   final Function(bool) onThemeToggle;
   final bool isFastingMode;
   final Function(bool) onFastingToggle;
+  final Function(String) onLanguageChanged;
 
   const MainNavigationScreen({
     super.key,
@@ -15,6 +17,7 @@ class MainNavigationScreen extends StatefulWidget {
     required this.onThemeToggle,
     required this.isFastingMode,
     required this.onFastingToggle,
+    required this.onLanguageChanged,
   });
 
   @override
@@ -28,9 +31,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final ValueNotifier<int> _historyRefreshNotifier = ValueNotifier<int>(0);
 
   final List<Map<String, dynamic>> _navItems = [
-    {'icon': Icons.water_drop_rounded, 'label': 'Home'},
-    {'icon': Icons.insert_chart_rounded, 'label': 'History'},
-    {'icon': Icons.tune_rounded, 'label': 'Settings'},
+    {'icon': Icons.water_drop_rounded, 'label': AppStrings.home},
+    {'icon': Icons.insert_chart_rounded, 'label': AppStrings.history},
+    {'icon': Icons.tune_rounded, 'label': AppStrings.settings},
   ];
 
   @override
@@ -168,7 +171,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                               if (isSelected) ...[
                                 const SizedBox(width: 8),
                                 Text(
-                                  _navItems[index]['label'],
+                                  AppStrings.t(_navItems[index]['label']),
                                   style: TextStyle(
                                     color: activeColor,
                                     fontWeight: FontWeight.bold,
@@ -209,6 +212,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           onThemeToggle: widget.onThemeToggle,
           isFastingMode: widget.isFastingMode,
           onFastingToggle: widget.onFastingToggle,
+          onLanguageChanged: widget.onLanguageChanged,
         );
       default:
         return const SizedBox.shrink();

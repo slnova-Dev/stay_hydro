@@ -11,6 +11,7 @@ import '../services/notification_service.dart';
 import '../services/sound_service.dart';
 import '../services/streak_service.dart';
 import 'package:stay_hydro/services/history_service.dart';
+import 'package:stay_hydro/core/app_strings.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isDarkTheme;
@@ -46,11 +47,13 @@ class _HomeScreenState extends State<HomeScreen>
   DateTime? _nextReminderTime;
   Timer? _reminderRefreshTimer;
   bool _justDrank = false;
+  bool _isAddingWater = false;
 
   int _sleepStartHour = 23;
   int _sleepStartMinute = 0;
   int _sleepEndHour = 7;
   int _sleepEndMinute = 0;
+  static const int _maxDailyIntake = 5000;
   // ==========================================
 
   late AnimationController _buttonController;
@@ -63,58 +66,7 @@ class _HomeScreenState extends State<HomeScreen>
   // ==========================================
   // SECTION LOCK: DAILY TIPS CONTENT
   // ==========================================
-  static const List<String> _dailyWaterTips = [
-    'Drink water right after you wake up.',
-    'Sip water slowly instead of chugging.',
-    'Keep a bottle within arm’s reach.',
-    'Drink a glass before each meal.',
-    'Add lemon slices for fresh flavor.',
-    'Set simple water checkpoints through the day.',
-    'Take a few sips every hour.',
-    'Drink water after every bathroom break.',
-    'Pair water with your coffee or tea.',
-    'Drink before you feel thirsty.',
-    'Refill your bottle whenever it’s half empty.',
-    'Have water with every snack.',
-    'Keep a glass of water on your desk.',
-    'Choose water first when you eat out.',
-    'Drink a small glass before workouts.',
-    'Rehydrate after exercise right away.',
-    'Add cucumber for a crisp taste.',
-    'Take a water break between tasks.',
-    'Keep chilled and room-temp options ready.',
-    'Start meetings with a quick sip.',
-    'Drink water after salty foods.',
-    'Track your intake to stay motivated.',
-    'Take a sip whenever you check your phone.',
-    'Drink water before sugary drinks.',
-    'Bring water in the car for short trips.',
-    'Refill your bottle before leaving home.',
-    'Take water breaks during screen time.',
-    'Add mint leaves for variety.',
-    'Drink a glass while waiting for meals.',
-    'Celebrate each time you hit a mini goal.',
-    'Keep water by your bedside at night.',
-    'Make hydration part of your morning routine.',
-    'Proper hydration improves brain focus.',
-    'Feeling tired? Try a glass of water first.',
-    'Water helps your kidneys clear toxins from your blood.',
-    'Drinking water can help prevent headaches caused by dehydration.',
-    'Hydration is key for maintaining healthy, glowing skin.',
-    'Drinking water boosts your physical performance during exercise.',
-    'Water helps maintain normal bowel function and prevents constipation.',
-    'Being well-hydrated helps regulate your body temperature.',
-    'Drinking water before meals can aid in healthy weight management.',
-    'Hydration keeps your joints lubricated and cushioned.',
-    'Water is essential for the production of saliva and digestive juices.',
-    'Even mild dehydration can drain your energy and make you tired.',
-    'Drinking enough water helps your heart pump blood more easily.',
-    'Hydration supports the health of your mucus membranes and lungs.',
-    'Water carries nutrients and oxygen to all cells in your body.',
-    'A glass of water can help curb late-night snack cravings.',
-    'Optimal hydration helps your brain stay alert and focused.',
-    'Drinking water helps flush out waste products through sweat and urine.',
-  ];
+  // یہ ٹپس app_strings.dart میں dailyTips method کو استعمال کرکے load ہوں گے
 
   // ==========================================
   // SECTION LOCK: MASCOT ASSETS
@@ -147,7 +99,8 @@ class _HomeScreenState extends State<HomeScreen>
     'assets/mascots/fasting3.svg',
   ];
 
-  late final String _dailyTip;
+  String _dailyTip = '';
+  String _lastTipLanguage = '';
   String? _currentMascotAsset;
 
   // ==========================================
@@ -212,6 +165,17 @@ class _HomeScreenState extends State<HomeScreen>
         : _mascotAssets[0];
   }
 
+// ==========================================
+// SECTION LOCK: DAILY TIPS Language Change Check Helper
+// ==========================================
+  void _setRandomDailyTip() {
+    final tips = AppStrings.dailyTips();
+    final random = Random();
+
+    _dailyTip = tips[random.nextInt(tips.length)];
+    _lastTipLanguage = AppStrings.activeLanguage;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -242,8 +206,7 @@ class _HomeScreenState extends State<HomeScreen>
       value: 1.0,
     );
 
-    final random = Random();
-    _dailyTip = _dailyWaterTips[random.nextInt(_dailyWaterTips.length)];
+    _setRandomDailyTip();
     _currentMascotAsset = _selectMascotAsset();
     _loadDailyGoal();
     _loadDailyState();
@@ -438,12 +401,16 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   // ==========================================
-  // SECTION LOCK: UI EFFECTS
-  // ==========================================
-  void _triggerRisingEffect() {
+// SECTION LOCK: UI EFFECTS
+// اردو کمنٹ:
+// Add Water animation میں اصل add ہونے والی مقدار دکھانا
+// تاکہ max daily limit پر partial amount بھی درست نظر آئے
+// ==========================================
+  void _triggerRisingEffect(int amount) {
     setState(() {
-      _risingAnimations.add(_buildRisingText());
+      _risingAnimations.add(_buildRisingText(amount));
     });
+
     Timer(const Duration(seconds: 2), () {
       if (mounted && _risingAnimations.isNotEmpty) {
         setState(() {
@@ -453,7 +420,7 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
-  Widget _buildRisingText() {
+  Widget _buildRisingText(int amount) {
     return TweenAnimationBuilder<double>(
       duration: const Duration(seconds: 2),
       tween: Tween(begin: 0.0, end: 1.0),
@@ -463,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen>
           child: Opacity(
             opacity: (1.0 - value).clamp(0.0, 1.0),
             child: Text(
-              "+$selectedIntake ml",
+              "+$amount ml",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
@@ -493,45 +460,65 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   // ==========================================
-  // SECTION LOCK: CORE ACTIONS
-  // مرکزی افعال: پانی کا اضافہ اور مسڈ انٹری
-  // ==========================================
+// SECTION LOCK: CORE ACTIONS
+// مرکزی افعال: پانی کا اضافہ اور مسڈ انٹری
+// اردو کمنٹ:
+// Add Water پر daily intake کو 5000 ml پر cap کیا گیا ہے
+// تاکہ accidental rapid taps یا غیر حقیقی daily values سے بچا جا سکے
+// ==========================================
   Future<void> addWater() async {
-    final int prev = currentIntake;
-    _triggerRisingEffect();
+    if (_isAddingWater) return;
+    _isAddingWater = true;
 
-    // موجودہ وقت کو "10:30 AM" کی شکل میں حاصل کرنا
-    String currentTime = DateFormat('hh:mm a').format(DateTime.now());
-
-    // اب ہم مقدار کے ساتھ وقت بھی ہسٹری میں بھیج رہے ہیں
-    await HistoryService.addToHistory(selectedIntake, currentTime);
-
-    setState(() {
-      currentIntake += selectedIntake;
-      _justDrank = true;
-      _currentMascotAsset = _selectMascotAsset();
-    });
-
-    Timer(const Duration(minutes: 10), () {
-      if (mounted) {
-        setState(() {
-          _justDrank = false;
-          _currentMascotAsset = _selectMascotAsset();
-        });
+    try {
+      if (currentIntake >= _maxDailyIntake) {
+        if (!mounted) return;
+        _showHomeSnackBar(
+          AppStrings.t(AppStrings.dailyIntakeLimitReached),
+        );
+        return;
       }
-    });
 
-    await SoundService.playButtonFeedbackSound();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('currentIntake', currentIntake);
+      final int amountToAdd = (currentIntake + selectedIntake > _maxDailyIntake)
+          ? _maxDailyIntake - currentIntake
+          : selectedIntake;
 
-    if (prev < dailyGoal && currentIntake >= dailyGoal) {
-      await StreakService.markGoalCompleted();
-      await _loadStreak();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("🎉 Goal completed! Streak: $streakDays days")),
-      );
+      final int prev = currentIntake;
+      _triggerRisingEffect(amountToAdd);
+
+      final String currentTime = DateFormat('hh:mm a').format(DateTime.now());
+
+      await HistoryService.addToHistory(amountToAdd, currentTime);
+
+      setState(() {
+        currentIntake += amountToAdd;
+        _justDrank = true;
+        _currentMascotAsset = _selectMascotAsset();
+      });
+
+      Timer(const Duration(minutes: 10), () {
+        if (mounted) {
+          setState(() {
+            _justDrank = false;
+            _currentMascotAsset = _selectMascotAsset();
+          });
+        }
+      });
+
+      await SoundService.playButtonFeedbackSound();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('currentIntake', currentIntake);
+
+      if (prev < dailyGoal && currentIntake >= dailyGoal) {
+        await StreakService.markGoalCompleted();
+        await _loadStreak();
+        if (!mounted) return;
+        _showHomeSnackBar(
+          "🎉 ${AppStrings.t(AppStrings.goalCompleted)} $streakDays ${AppStrings.t(AppStrings.days)}",
+        );
+      }
+    } finally {
+      _isAddingWater = false;
     }
   }
 
@@ -559,19 +546,31 @@ class _HomeScreenState extends State<HomeScreen>
     if (result != null) {
       final int amount = result['amount'];
 
-      // ⭐ تبدیلی: یہاں ہم یقینی بنا رہے ہیں کہ وقت سٹرنگ میں تبدیل ہو کر جائے
+      if (currentIntake >= _maxDailyIntake) {
+        _showHomeSnackBar(
+          AppStrings.t(AppStrings.dailyIntakeLimitReached),
+        );
+        return;
+      }
+
+      final int amountToAdd = (currentIntake + amount > _maxDailyIntake)
+          ? _maxDailyIntake - currentIntake
+          : amount;
+
       final dynamic rawTime = result['time'];
       final String time = (rawTime is TimeOfDay)
-          ? "${rawTime.hour}:${rawTime.minute.toString().padLeft(2, '0')}"
-          : rawTime?.toString() ?? DateFormat('hh:mm a').format(DateTime.now());
+          ? DateFormat('hh:mm a', 'en_US').format(
+              DateTime(2026, 1, 1, rawTime.hour, rawTime.minute),
+            )
+          : rawTime?.toString() ??
+              DateFormat('hh:mm a', 'en_US').format(DateTime.now());
 
       final int prev = currentIntake;
 
-      // مسڈ انٹری کو ہسٹری میں شامل کرنا
-      await HistoryService.addToHistory(amount, time);
+      await HistoryService.addToHistory(amountToAdd, time);
 
       setState(() {
-        currentIntake += amount;
+        currentIntake += amountToAdd;
       });
 
       await SoundService.playButtonFeedbackSound();
@@ -582,12 +581,8 @@ class _HomeScreenState extends State<HomeScreen>
         await StreakService.markGoalCompleted();
         await _loadStreak();
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "🎉 Goal completed with missed entry! Streak: $streakDays days",
-            ),
-          ),
+        _showHomeSnackBar(
+          "🎉 ${AppStrings.t(AppStrings.goalCompletedMissedEntry)} $streakDays ${AppStrings.t(AppStrings.days)}",
         );
       }
     }
@@ -662,17 +657,65 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+// Hero button text size helper function
+// for Spanish and Indonesian languages
+
+  double _heroButtonFontSize() {
+    switch (AppStrings.activeLanguage) {
+      case 'Spanish':
+        return 14.8;
+      case 'Indonesian':
+        return 14.0;
+      default:
+        return 17.5;
+    }
+  }
+
+// ==========================================
+// [HOME SCREEN SNACKBAR HELPER]
+// اردو کمنٹ:
+// Home screen کے تمام snackbars کے لیے
+// Settings screen جیسا unified style
+// ==========================================
+  void _showHomeSnackBar(String message) {
+    if (!mounted) return;
+
+    final bool isDark = widget.isDarkTheme;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor:
+            isDark ? const Color(0xFF334155) : Colors.blue.shade700,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+        margin: const EdgeInsets.fromLTRB(18, 0, 18, 18),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   // ==========================================
   // SECTION LOCK: MAIN BUILD METHOD
   // ==========================================
   @override
   Widget build(BuildContext context) {
     final bool isDark = widget.isDarkTheme;
+    if (_lastTipLanguage != AppStrings.activeLanguage) {
+      _setRandomDailyTip();
+    }
     final bool hasReminder = _nextReminderTime != null;
     final String timeStr = hasReminder
-        ? MaterialLocalizations.of(
-            context,
-          ).formatTimeOfDay(TimeOfDay.fromDateTime(_nextReminderTime!))
+        ? DateFormat('h:mm a', 'en_US').format(_nextReminderTime!)
         : "--:--";
 
     return Scaffold(
@@ -723,13 +766,22 @@ class _HomeScreenState extends State<HomeScreen>
                           children: [
                             AnimatedSwitcher(
                               duration: const Duration(milliseconds: 500),
-                              child: SvgPicture.asset(
-                                _currentMascotAsset ??
-                                    'assets/mascots/welcome1.svg',
-                                key: ValueKey(_currentMascotAsset),
-                                width: 55,
-                                height: 65,
-                                fit: BoxFit.contain,
+                              child: Transform(
+                                alignment: Alignment.center,
+                                transform: Matrix4.identity()
+                                  ..scale(
+                                      Directionality.of(context).name == 'rtl'
+                                          ? -1.0
+                                          : 1.0,
+                                      1.0),
+                                child: SvgPicture.asset(
+                                  _currentMascotAsset ??
+                                      'assets/mascots/welcome1.svg',
+                                  key: ValueKey(_currentMascotAsset),
+                                  width: 55,
+                                  height: 65,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -738,7 +790,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    "Daily Hydration Tip",
+                                    AppStrings.t(AppStrings.dailyHydrationTip),
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: isDark
@@ -786,7 +838,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
-                                    "Next Hydration Goal",
+                                    AppStrings.t(AppStrings.nextHydrationGoal),
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -799,7 +851,9 @@ class _HomeScreenState extends State<HomeScreen>
                                 Text(
                                   // فاسٹنگ موڈ آن ہونے پر ٹائم کی جگہ مناسب ٹیکسٹ دکھانے کی لاجک
                                   // _fastingMode کو بدل کر widget.isFastingMode کر دیں
-                                  widget.isFastingMode ? "Paused" : timeStr,
+                                  widget.isFastingMode
+                                      ? AppStrings.t(AppStrings.paused)
+                                      : timeStr,
                                   style: TextStyle(
                                     // اگر ٹیکسٹ بڑا ہو تو سائز خودکار طور پر تھوڑا چھوٹا ہو جائے گا
                                     fontSize: widget.isFastingMode ? 18 : 22,
@@ -872,7 +926,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    "$streakDays days",
+                                    "$streakDays ${AppStrings.t(AppStrings.days)}",
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 13,
@@ -918,10 +972,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   bottom: 15,
                                 ),
                                 child: Text(
-                                  "Add $selectedIntake ml",
-                                  style: const TextStyle(
+                                  "${AppStrings.t(AppStrings.add)} $selectedIntake ml",
+                                  style: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 17.5,
+                                    fontSize: _heroButtonFontSize(),
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.5,
                                   ),
@@ -941,7 +995,7 @@ class _HomeScreenState extends State<HomeScreen>
                           children: [
                             Expanded(
                               child: _buildCapsuleButton(
-                                label: "Switch Intake",
+                                label: AppStrings.t(AppStrings.switchIntake),
                                 icon: Icons.local_drink_rounded,
                                 controller: _switchBtnController,
                                 onTap: _openIntakeDialog,
@@ -951,7 +1005,7 @@ class _HomeScreenState extends State<HomeScreen>
                             const SizedBox(width: 15),
                             Expanded(
                               child: _buildCapsuleButton(
-                                label: "Missed Entry",
+                                label: AppStrings.t(AppStrings.missedEntry),
                                 icon: Icons.add_task_rounded,
                                 controller: _missedBtnController,
                                 onTap: _addMissedEntry,

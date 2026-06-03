@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
+import 'package:stay_hydro/core/app_strings.dart';
 
 // ==========================================
 // سیکشن 1: مسڈ انٹری ڈائیلاگ کلاس
@@ -152,7 +154,7 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
             children: [
               // ہیڈر ٹائٹل
               Text(
-                "Add Missed Entry",
+                AppStrings.t(AppStrings.addMissedEntry),
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -189,14 +191,17 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Intake Time",
+                            AppStrings.t(AppStrings.intakeTime),
                             style: TextStyle(
                               fontSize: 12,
                               color: isDarkMode ? Colors.white54 : Colors.grey,
                             ),
                           ),
                           Text(
-                            _selectedTime.format(context),
+                            DateFormat('h:mm a', 'en_US').format(
+                              DateTime(2026, 1, 1, _selectedTime.hour,
+                                  _selectedTime.minute),
+                            ),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -221,7 +226,7 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
 
               // مقدار کے انتخاب کا ٹائٹل
               Text(
-                "Select Amount",
+                AppStrings.t(AppStrings.selectAmount),
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -259,7 +264,7 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                       ),
                       onPressed: () => Navigator.pop(context),
                       child: Text(
-                        "Cancel",
+                        AppStrings.t(AppStrings.cancel),
                         style: TextStyle(
                           color: isDarkMode
                               ? Colors.blue.shade200
@@ -311,9 +316,9 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                           'amount': _selectedAmount,
                           'time': _selectedTime,
                         }),
-                        child: const FittedBox(
+                        child: FittedBox(
                           child: Text(
-                            "Add Entry",
+                            AppStrings.t(AppStrings.addEntry),
                             style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),

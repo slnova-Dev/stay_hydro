@@ -9,6 +9,7 @@ class SettingsScreen extends StatefulWidget {
   final Function(bool) onThemeToggle;
   final bool isFastingMode;
   final Function(bool) onFastingToggle;
+  final Function(String) onLanguageChanged;
 
   const SettingsScreen({
     super.key,
@@ -16,6 +17,7 @@ class SettingsScreen extends StatefulWidget {
     required this.onThemeToggle,
     required this.isFastingMode,
     required this.onFastingToggle,
+    required this.onLanguageChanged,
   });
 
   @override
@@ -390,6 +392,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+// Reminder system change helper function
+  String _localizedSystemDisplayName(String value) {
+    if (value == 'smart_hourly' || value == 'Smart Hourly') {
+      return AppStrings.t(AppStrings.smartHourly);
+    }
+
+    if (value == 'custom_schedule' || value == 'Custom Schedule') {
+      return AppStrings.t(AppStrings.customScheduleMode);
+    }
+
+    return AppStrings.t(AppStrings.smartHourly);
+  }
+
   // ==========================================
   // [BLOCK: REMINDER SYSTEM MODE LOGIC]
   // اردو کمنٹ:
@@ -424,7 +439,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     _showSettingsSnackBar(
-      "${AppStrings.t('reminderSystemChanged')} ${_systemDisplayName(value)}",
+      "${AppStrings.t(AppStrings.reminderSystemChanged)} ${_localizedSystemDisplayName(value)}",
     );
   }
 
@@ -2217,6 +2232,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               _selectedLanguage = language;
                               AppStrings.setLanguage(language);
                             });
+
+                            widget.onLanguageChanged(language);
 
                             if (context.mounted) Navigator.pop(context);
                           },

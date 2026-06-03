@@ -12,6 +12,7 @@ import 'package:stay_hydro/core/app_strings.dart';
 import 'package:stay_hydro/services/sound_service.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/notification_service.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 // ==========================================
 // سیکشن 1: مین فنکشن اور ایپ کا آغاز
@@ -115,6 +116,23 @@ class _StayHydroAppState extends State<StayHydroApp> {
     }
   }
 
+// ==========================================
+// [PHASE 10.6-A16: UPDATE APP LANGUAGE]
+// اردو کمنٹ:
+// language change پر پوری app / MaterialApp کو rebuild کرنے کے لیے
+// تاکہ Time Picker, RTL/LTR اور Bottom Navigation فوراً update ہوں
+// ==========================================
+  Future<void> _updateLanguage(String language) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('app_language', language);
+
+    if (!mounted) return;
+
+    setState(() {
+      AppStrings.setLanguage(language);
+    });
+  }
+
   Future<void> _showFirstLaunchGuideIfNeeded() async {
     final prefs = await SharedPreferences.getInstance();
     final seen = prefs.getBool(_firstLaunchGuideKey) ?? false;
@@ -128,19 +146,12 @@ class _StayHydroAppState extends State<StayHydroApp> {
       await showDialog(
         context: dialogContext,
         builder: (context) => AlertDialog(
-          title: const Text("Keep Reminders Reliable"),
-          content: const Text(
-            "For best results, allow notifications and enable Battery Optimization / Auto Start settings for StayHydro.\n\n"
-            "On Oppo, Realme, Vivo and Xiaomi phones, also allow background activity so reminders keep working after restart.",
-          ),
+          title: Text(AppStrings.t(AppStrings.firstLaunchWelcomeTitle)),
+          content: Text(AppStrings.t(AppStrings.firstLaunchReliabilityMessage)),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Later"),
-            ),
             FilledButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Got it"),
+              child: Text(AppStrings.t(AppStrings.getStarted)),
             ),
           ],
         ),
@@ -148,6 +159,27 @@ class _StayHydroAppState extends State<StayHydroApp> {
 
       await prefs.setBool(_firstLaunchGuideKey, true);
     });
+  }
+
+// ==========================================
+// [PHASE 10.6-A16: APP LOCALE HELPER]
+// اردو کمنٹ:
+// selected language کے مطابق Flutter/Material widgets کی language set کرنے کے لیے
+// Time Picker وغیرہ اسی سے translate ہوں گے
+// ==========================================
+  Locale _appLocale() {
+    switch (AppStrings.activeLanguage) {
+      case 'Spanish':
+        return const Locale('es');
+      case 'Arabic':
+        return const Locale('ar');
+      case 'Hindi':
+        return const Locale('hi');
+      case 'Indonesian':
+        return const Locale('id');
+      default:
+        return const Locale('en');
+    }
   }
 
   // ==========================================
@@ -166,6 +198,19 @@ class _StayHydroAppState extends State<StayHydroApp> {
       title: 'StayHydro',
       debugShowCheckedModeBanner: false,
       navigatorKey: _navigatorKey,
+      locale: _appLocale(),
+      supportedLocales: const [
+        Locale('en'),
+        Locale('es'),
+        Locale('ar'),
+        Locale('hi'),
+        Locale('id'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         useMaterial3: true,
         brightness: Brightness.light,
@@ -194,6 +239,7 @@ class _StayHydroAppState extends State<StayHydroApp> {
           isFastingMode: _isFastingMode,
           onThemeToggle: _toggleTheme,
           onFastingToggle: _toggleFasting,
+          onLanguageChanged: _updateLanguage,
         ),
       ),
     );
