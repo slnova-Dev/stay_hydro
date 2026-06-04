@@ -1659,14 +1659,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       _buildSettingTile(
                         isDark: isDark,
-                        title: AppStrings.t('privacyTerms'),
-                        subtitle: AppStrings.t('privacyTermsSubtitle'),
+                        title: AppStrings.t(AppStrings.privacyPolicy),
+                        subtitle:
+                            AppStrings.t(AppStrings.privacyPolicySubtitle),
                         icon: Icons.privacy_tip_outlined,
                         showDivider: true,
                         onTap: () {
                           _showReliabilityInfo(
-                            title: AppStrings.t('privacyTerms'),
-                            message: AppStrings.t('privacyTermsInfoMessage'),
+                            title: AppStrings.t(AppStrings.privacyPolicy),
+                            message: AppStrings.t(
+                                AppStrings.privacyPolicyInfoMessage),
+                          );
+                        },
+                      ),
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t(AppStrings.termsConditions),
+                        subtitle:
+                            AppStrings.t(AppStrings.termsConditionsSubtitle),
+                        icon: Icons.article_outlined,
+                        showDivider: true,
+                        onTap: () {
+                          _showReliabilityInfo(
+                            title: AppStrings.t(AppStrings.termsConditions),
+                            message: AppStrings.t(
+                                AppStrings.termsConditionsInfoMessage),
                           );
                         },
                       ),

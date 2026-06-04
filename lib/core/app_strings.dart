@@ -123,7 +123,6 @@ class AppStrings {
       'restartReliabilitySubtitle':
           'StayHydro restores reminders automatically after reboot.',
       'helpFeedback': 'Help & Feedback',
-      'privacyTerms': 'Privacy & Terms',
       'aboutStayHydro': 'About StayHydro',
       'reminderSystemInfoMessage':
           'Smart Hourly uses automatic hourly reminders and follows your Sleep Hours.\n\n'
@@ -152,8 +151,6 @@ class AppStrings {
           'Slnova Support\n'
           'hello.slnova@gmail.com\n\n'
           'We welcome bug reports, feature suggestions and general feedback.',
-      'privacyTermsInfoMessage':
-          'Privacy Policy and Terms links will be added before Play Store release.',
       'aboutStayHydroInfoMessage':
           'StayHydro helps you build a healthy hydration routine with smart reminders, custom schedules and special reminders.\n\n'
               'Version: 1.0.0\n'
@@ -172,7 +169,6 @@ class AppStrings {
       'testNotificationSubtitle': 'Check if reminders are working',
       'testNotificationSent': 'Test notification sent!',
       'helpFeedbackSubtitle': 'Report a problem or suggest a feature',
-      'privacyTermsSubtitle': 'Coming before Play Store release',
       'aboutStayHydroSubtitle': 'Version 1.0.0 • Slnova',
       'selectNotificationSound': 'Select Notification Sound',
       'selectReminderMode': 'Select Reminder Mode',
@@ -234,6 +230,29 @@ class AppStrings {
       'copySlnovaEmail': 'Copy Slnova email',
       'emailCopied': 'Email copied to clipboard',
       'onlyAvailableInCustomSchedule': 'Only available in Custom Schedule',
+      'privacyPolicy': 'Privacy Policy',
+      'privacyPolicySubtitle': 'How StayHydro handles your data',
+      'privacyPolicyInfoMessage': 'Privacy Policy\n\n'
+          'StayHydro respects your privacy.\n\n'
+          '• Your hydration logs, reminder settings and preferences are stored locally on your device.\n\n'
+          '• StayHydro does not require an account and does not collect your name, phone number or email address.\n\n'
+          '• Notifications are used only to deliver hydration reminders and special reminders that you configure.\n\n'
+          '• StayHydro may use Google Firebase services for analytics, crash reporting and app reliability improvements.\n\n'
+          '• We do not sell your personal information.\n\n'
+          '• Future updates may introduce additional features such as advertising. If this happens, this policy will be updated before release.\n\n'
+          'For support:\n'
+          'hello.stayhydro@gmail.com\n'
+          'hello.slnova@gmail.com',
+      'termsConditions': 'Terms & Conditions',
+      'termsConditionsSubtitle': 'Important usage information',
+      'termsConditionsInfoMessage': 'Terms & Conditions\n\n'
+          'By using StayHydro, you agree to use the app at your own discretion.\n\n'
+          '• StayHydro provides hydration reminders for convenience and habit building.\n\n'
+          '• The app does not provide medical advice, diagnosis or treatment.\n\n'
+          '• Users are responsible for deciding how much water is appropriate for their individual health needs.\n\n'
+          '• StayHydro is provided "as is" without warranties of any kind.\n\n'
+          '• The developers are not responsible for any loss, damage or health issues resulting from the use of the app.\n\n'
+          '• Features may change or improve in future updates.',
     },
 
     // ===========
@@ -322,7 +341,6 @@ class AppStrings {
       'restartReliabilitySubtitle':
           'StayHydro restaura automáticamente los recordatorios después de reiniciar.',
       'helpFeedback': 'Ayuda y comentarios',
-      'privacyTerms': 'Privacidad y términos',
       'aboutStayHydro': 'Acerca de StayHydro',
       'reminderSystemInfoMessage':
           'Smart Hourly usa recordatorios automáticos cada hora y sigue tus horas de sueño.\n\n'
@@ -355,8 +373,6 @@ class AppStrings {
               'Soporte de Slnova\n'
               'hello.slnova@gmail.com\n\n'
               'Agradecemos reportes de errores, sugerencias y comentarios generales.',
-      'privacyTermsInfoMessage':
-          'Los enlaces de Política de privacidad y Términos se añadirán antes del lanzamiento en Play Store.',
       'aboutStayHydroInfoMessage':
           'StayHydro te ayuda a crear una rutina saludable de hidratación con recordatorios inteligentes, horarios personalizados y recordatorios especiales.\n\n'
               'Versión: 1.0.0\n'
@@ -376,7 +392,6 @@ class AppStrings {
       'testNotificationSubtitle': 'Comprueba si los recordatorios funcionan',
       'testNotificationSent': '¡Notificación de prueba enviada!',
       'helpFeedbackSubtitle': 'Reporta un problema o sugiere una función',
-      'privacyTermsSubtitle': 'Próximamente antes del lanzamiento',
       'aboutStayHydroSubtitle': 'Versión 1.0.0 • Slnova',
       'selectNotificationSound': 'Seleccionar sonido',
       'selectReminderMode': 'Seleccionar modo de recordatorio',
@@ -440,6 +455,10 @@ class AppStrings {
       'usesCurrentSoundMode': 'Usa el sonido y modo actuales al guardar.',
       'onlyAvailableInCustomSchedule':
           'Disponible solo en Horario personalizado',
+      'privacyPolicy': 'Política de privacidad',
+      'privacyPolicySubtitle': 'Cómo StayHydro maneja tus datos',
+      'termsConditions': 'Términos y condiciones',
+      'termsConditionsSubtitle': 'Información importante de uso',
     },
 
     // ===========
@@ -523,7 +542,6 @@ class AppStrings {
       'restartReliabilitySubtitle':
           'يقوم StayHydro باستعادة التذكيرات تلقائيًا بعد إعادة التشغيل.',
       'helpFeedback': 'المساعدة والملاحظات',
-      'privacyTerms': 'الخصوصية والشروط',
       'aboutStayHydro': 'حول StayHydro',
       'reminderSystemInfoMessage':
           'يستخدم Smart Hourly تذكيرات تلقائية كل ساعة ويتبع ساعات النوم الخاصة بك.\n\n'
@@ -555,8 +573,6 @@ class AppStrings {
               'دعم Slnova\n'
               'hello.slnova@gmail.com\n\n'
               'نرحب بتقارير الأخطاء والاقتراحات والملاحظات العامة.',
-      'privacyTermsInfoMessage':
-          'سيتم إضافة روابط سياسة الخصوصية والشروط قبل الإصدار على Play Store.',
       'aboutStayHydroInfoMessage':
           'يساعدك StayHydro على بناء روتين صحي لشرب الماء باستخدام تذكيرات ذكية وجداول مخصصة وتذكيرات خاصة.\n\n'
               'الإصدار: 1.0.0\n'
@@ -575,7 +591,6 @@ class AppStrings {
       'testNotificationSubtitle': 'تحقق من عمل التذكيرات',
       'testNotificationSent': 'تم إرسال الإشعار التجريبي!',
       'helpFeedbackSubtitle': 'أبلغ عن مشكلة أو اقترح ميزة',
-      'privacyTermsSubtitle': 'قريبًا قبل الإصدار',
       'aboutStayHydroSubtitle': 'الإصدار 1.0.0 • Slnova',
       'selectNotificationSound': 'اختيار صوت الإشعار',
       'selectReminderMode': 'اختيار وضع التذكير',
@@ -634,6 +649,10 @@ class AppStrings {
       'reminderMessage': 'رسالة التذكير',
       'usesCurrentSoundMode': 'يستخدم الصوت والوضع الحاليين عند الحفظ.',
       'onlyAvailableInCustomSchedule': 'متاح فقط في الجدول المخصص',
+      'privacyPolicy': 'سياسة الخصوصية',
+      'privacyPolicySubtitle': 'كيف يتعامل StayHydro مع بياناتك',
+      'termsConditions': 'الشروط والأحكام',
+      'termsConditionsSubtitle': 'معلومات مهمة حول الاستخدام',
     },
 
     // ===========
@@ -722,7 +741,6 @@ class AppStrings {
       'restartReliabilitySubtitle':
           'रीबूट के बाद StayHydro रिमाइंडर स्वतः पुनर्स्थापित करता है।',
       'helpFeedback': 'सहायता और प्रतिक्रिया',
-      'privacyTerms': 'गोपनीयता और शर्तें',
       'aboutStayHydro': 'StayHydro के बारे में',
       'reminderSystemInfoMessage':
           'Smart Hourly अपने-आप हर घंटे रिमाइंडर देता है और आपके Sleep Hours का पालन करता है।\n\n'
@@ -754,8 +772,6 @@ class AppStrings {
           'Slnova Support\n'
           'hello.slnova@gmail.com\n\n'
           'हम bug reports, feature suggestions और general feedback का स्वागत करते हैं.',
-      'privacyTermsInfoMessage':
-          'Privacy Policy और Terms links Play Store release से पहले जोड़े जाएँगे।',
       'aboutStayHydroInfoMessage':
           'StayHydro smart reminders, custom schedules और special reminders के साथ healthy hydration routine बनाने में मदद करता है।\n\n'
               'Version: 1.0.0\n'
@@ -774,7 +790,6 @@ class AppStrings {
       'testNotificationSubtitle': 'जाँचें कि रिमाइंडर काम कर रहे हैं',
       'testNotificationSent': 'टेस्ट नोटिफिकेशन भेजा गया!',
       'helpFeedbackSubtitle': 'समस्या बताएँ या फीचर सुझाएँ',
-      'privacyTermsSubtitle': 'Play Store रिलीज़ से पहले आएगा',
       'aboutStayHydroSubtitle': 'वर्ज़न 1.0.0 • Slnova',
       'selectNotificationSound': 'नोटिफिकेशन साउंड चुनें',
       'selectReminderMode': 'रिमाइंडर मोड चुनें',
@@ -835,6 +850,10 @@ class AppStrings {
       'reminderMessage': 'रिमाइंडर संदेश',
       'usesCurrentSoundMode': 'सेव करते समय मौजूदा ध्वनि और मोड इस्तेमाल होगा.',
       'onlyAvailableInCustomSchedule': 'केवल कस्टम शेड्यूल में उपलब्ध',
+      'privacyPolicy': 'गोपनीयता नीति',
+      'privacyPolicySubtitle': 'StayHydro आपका डेटा कैसे संभालता है',
+      'termsConditions': 'नियम और शर्तें',
+      'termsConditionsSubtitle': 'उपयोग से जुड़ी महत्वपूर्ण जानकारी',
     },
 
     // =============
@@ -922,7 +941,6 @@ class AppStrings {
       'restartReliabilitySubtitle':
           'StayHydro memulihkan pengingat secara otomatis setelah perangkat dinyalakan ulang.',
       'helpFeedback': 'Bantuan & masukan',
-      'privacyTerms': 'Privasi & ketentuan',
       'aboutStayHydro': 'Tentang StayHydro',
       'reminderSystemInfoMessage':
           'Smart Hourly menggunakan pengingat otomatis setiap jam dan mengikuti Jam Tidur Anda.\n\n'
@@ -953,8 +971,6 @@ class AppStrings {
           'Dukungan Slnova\n'
           'hello.slnova@gmail.com\n\n'
           'Kami menerima laporan bug, saran fitur, dan masukan umum.',
-      'privacyTermsInfoMessage':
-          'Tautan Kebijakan Privasi dan Ketentuan akan ditambahkan sebelum rilis Play Store.',
       'aboutStayHydroInfoMessage':
           'StayHydro membantu Anda membangun rutinitas hidrasi sehat dengan pengingat pintar, jadwal khusus, dan pengingat khusus.\n\n'
               'Versi: 1.0.0\n'
@@ -973,7 +989,6 @@ class AppStrings {
       'testNotificationSubtitle': 'Periksa apakah pengingat berfungsi',
       'testNotificationSent': 'Notifikasi uji coba terkirim!',
       'helpFeedbackSubtitle': 'Laporkan masalah atau sarankan fitur',
-      'privacyTermsSubtitle': 'Hadir sebelum rilis Play Store',
       'aboutStayHydroSubtitle': 'Versi 1.0.0 • Slnova',
       'selectNotificationSound': 'Pilih suara notifikasi',
       'selectReminderMode': 'Pilih mode pengingat',
@@ -1038,6 +1053,10 @@ class AppStrings {
       'usesCurrentSoundMode':
           'Menggunakan suara dan mode saat ini saat disimpan.',
       'onlyAvailableInCustomSchedule': 'Hanya tersedia dalam Jadwal Kustom',
+      'privacyPolicy': 'Kebijakan Privasi',
+      'privacyPolicySubtitle': 'Cara StayHydro menangani data Anda',
+      'termsConditions': 'Syarat & Ketentuan',
+      'termsConditionsSubtitle': 'Informasi penggunaan penting',
     },
   };
 
@@ -1236,8 +1255,14 @@ class AppStrings {
   static const String testNotificationSent = 'testNotificationSent';
   static const String helpFeedback = 'helpFeedback';
   static const String helpFeedbackSubtitle = 'helpFeedbackSubtitle';
-  static const String privacyTerms = 'privacyTerms';
-  static const String privacyTermsSubtitle = 'privacyTermsSubtitle';
+  static const String privacyPolicy = 'privacyPolicy';
+  static const String privacyPolicySubtitle = 'privacyPolicySubtitle';
+  static const String privacyPolicyInfoMessage = 'privacyPolicyInfoMessage';
+
+  static const String termsConditions = 'termsConditions';
+  static const String termsConditionsSubtitle = 'termsConditionsSubtitle';
+  static const String termsConditionsInfoMessage = 'termsConditionsInfoMessage';
+
   static const String aboutStayHydro = 'aboutStayHydro';
   static const String aboutStayHydroSubtitle = 'Version 1.0.0 • Slnova';
   static const String copyStayHydroEmail = 'copyStayHydroEmail';
@@ -1313,9 +1338,6 @@ class AppStrings {
       'Slnova Support\n'
       'hello.slnova@gmail.com\n\n'
       'We welcome bug reports, feature suggestions and general feedback.';
-
-  static const String privacyTermsInfoMessage =
-      'Privacy Policy and Terms & Conditions will be available before the official Play Store release.';
 
   static const String aboutStayHydroInfoMessage =
       'StayHydro helps you build a healthy hydration routine with smart reminders, custom schedules and special reminders.\n\n'
