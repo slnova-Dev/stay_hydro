@@ -146,8 +146,12 @@ class AppStrings {
           'For reliable reminders, set StayHydro to Not Optimized in battery settings. This helps Android avoid delaying or stopping reminders.',
       'autoStartBackgroundInfoMessage':
           'Allow Auto Start and Background Activity for StayHydro, especially on Oppo, Realme, Vivo and Xiaomi phones. This helps reminders continue after restart and while the app is closed.',
-      'helpFeedbackInfoMessage': 'Help & Feedback will be added before release.\n\n'
-          'For now, this section is reserved for support email, bug reports and feature suggestions.',
+      'helpFeedbackInfoMessage': 'Need help or want to share feedback?\n\n'
+          'StayHydro Support\n'
+          'hello.stayhydro@gmail.com\n\n'
+          'Slnova Support\n'
+          'hello.slnova@gmail.com\n\n'
+          'We welcome bug reports, feature suggestions and general feedback.',
       'privacyTermsInfoMessage':
           'Privacy Policy and Terms links will be added before Play Store release.',
       'aboutStayHydroInfoMessage':
@@ -207,6 +211,29 @@ class AppStrings {
       'intakeRangeError': 'Between 50 and 1000 (steps of 50)',
       'home': 'Home',
       'history': 'History',
+      'weeklyProgress': 'Weekly Progress',
+      'average': 'Average',
+      'done': 'Done',
+      'best': 'Best',
+      'todaysLogs': "TODAY'S LOGS",
+      'noEntriesToday': 'No entries for today yet',
+      'mon': 'Mon',
+      'tue': 'Tue',
+      'wed': 'Wed',
+      'thu': 'Thu',
+      'fri': 'Fri',
+      'sat': 'Sat',
+      'sun': 'Sun',
+      'water': 'Water',
+      'medicineReminderSubtitle': 'Off • Tap to set medicine reminder',
+      'wellnessReminderSubtitle': 'Off • Tap to set wellness reminder',
+      'bedtimeReminderSubtitle': 'Off • Tap to set bedtime water reminder',
+      'reminderMessage': 'Reminder message',
+      'usesCurrentSoundMode': 'Uses the current sound and mode when saved.',
+      'copyStayHydroEmail': 'Copy StayHydro email',
+      'copySlnovaEmail': 'Copy Slnova email',
+      'emailCopied': 'Email copied to clipboard',
+      'onlyAvailableInCustomSchedule': 'Only available in Custom Schedule',
     },
 
     // ===========
@@ -318,9 +345,16 @@ class AppStrings {
           'Para recordatorios fiables, configura StayHydro como No optimizado en los ajustes de batería. Esto ayuda a Android a no retrasar ni detener los recordatorios.',
       'autoStartBackgroundInfoMessage':
           'Permite el inicio automático y la actividad en segundo plano para StayHydro, especialmente en teléfonos Oppo, Realme, Vivo y Xiaomi. Esto ayuda a que los recordatorios continúen después de reiniciar y mientras la app está cerrada.',
+      'copyStayHydroEmail': 'Copiar email de StayHydro',
+      'copySlnovaEmail': 'Copiar email de Slnova',
+      'emailCopied': 'Email copiado al portapapeles',
       'helpFeedbackInfoMessage':
-          'Ayuda y comentarios se añadirá antes del lanzamiento.\n\n'
-              'Por ahora, esta sección está reservada para correo de soporte, reportes de errores y sugerencias de funciones.',
+          '¿Necesitas ayuda o quieres compartir comentarios?\n\n'
+              'Soporte de StayHydro\n'
+              'hello.stayhydro@gmail.com\n\n'
+              'Soporte de Slnova\n'
+              'hello.slnova@gmail.com\n\n'
+              'Agradecemos reportes de errores, sugerencias y comentarios generales.',
       'privacyTermsInfoMessage':
           'Los enlaces de Política de privacidad y Términos se añadirán antes del lanzamiento en Play Store.',
       'aboutStayHydroInfoMessage':
@@ -383,6 +417,29 @@ class AppStrings {
       'intakeRangeError': 'Entre 50 y 1000 (pasos de 50)',
       'home': 'Inicio',
       'history': 'Historial',
+      'weeklyProgress': 'Progreso semanal',
+      'average': 'Promedio',
+      'done': 'Completado',
+      'best': 'Mejor',
+      'todaysLogs': 'REGISTROS DE HOY',
+      'noEntriesToday': 'Aún no hay entradas hoy',
+      'mon': 'Lun',
+      'tue': 'Mar',
+      'wed': 'Mié',
+      'thu': 'Jue',
+      'fri': 'Vie',
+      'sat': 'Sáb',
+      'sun': 'Dom',
+      'water': 'Agua',
+      'medicineReminderSubtitle': 'Desactivado • Toca para configurar medicina',
+      'wellnessReminderSubtitle':
+          'Desactivado • Toca para configurar bienestar',
+      'bedtimeReminderSubtitle':
+          'Desactivado • Toca para configurar agua antes de dormir',
+      'reminderMessage': 'Mensaje del recordatorio',
+      'usesCurrentSoundMode': 'Usa el sonido y modo actuales al guardar.',
+      'onlyAvailableInCustomSchedule':
+          'Disponible solo en Horario personalizado',
     },
 
     // ===========
@@ -488,8 +545,16 @@ class AppStrings {
           'للحصول على تذكيرات موثوقة، اجعل StayHydro غير محسّن في إعدادات البطارية. يساعد ذلك Android على عدم تأخير التذكيرات أو إيقافها.',
       'autoStartBackgroundInfoMessage':
           'اسمح بالتشغيل التلقائي والنشاط في الخلفية لتطبيق StayHydro، خاصة على هواتف Oppo و Realme و Vivo و Xiaomi. يساعد ذلك التذكيرات على الاستمرار بعد إعادة التشغيل وأثناء إغلاق التطبيق.',
-      'helpFeedbackInfoMessage': 'سيتم إضافة المساعدة والملاحظات قبل الإصدار.\n\n'
-          'حاليًا، هذا القسم مخصص لبريد الدعم، وتقارير الأخطاء، واقتراحات الميزات.',
+      'copyStayHydroEmail': 'نسخ بريد StayHydro',
+      'copySlnovaEmail': 'نسخ بريد Slnova',
+      'emailCopied': 'تم نسخ البريد الإلكتروني',
+      'helpFeedbackInfoMessage':
+          'هل تحتاج إلى مساعدة أو تريد إرسال ملاحظات؟\n\n'
+              'دعم StayHydro\n'
+              'hello.stayhydro@gmail.com\n\n'
+              'دعم Slnova\n'
+              'hello.slnova@gmail.com\n\n'
+              'نرحب بتقارير الأخطاء والاقتراحات والملاحظات العامة.',
       'privacyTermsInfoMessage':
           'سيتم إضافة روابط سياسة الخصوصية والشروط قبل الإصدار على Play Store.',
       'aboutStayHydroInfoMessage':
@@ -549,6 +614,26 @@ class AppStrings {
       'intakeRangeError': 'بين 50 و1000 (بفواصل 50)',
       'home': 'الرئيسية',
       'history': 'السجل',
+      'weeklyProgress': 'التقدم الأسبوعي',
+      'average': 'المتوسط',
+      'done': 'مكتمل',
+      'best': 'الأفضل',
+      'todaysLogs': 'سجلات اليوم',
+      'noEntriesToday': 'لا توجد إدخالات اليوم بعد',
+      'mon': 'الإث',
+      'tue': 'الث',
+      'wed': 'الأر',
+      'thu': 'الخ',
+      'fri': 'الج',
+      'sat': 'الس',
+      'sun': 'الأح',
+      'water': 'ماء',
+      'medicineReminderSubtitle': 'متوقف • اضغط لضبط تذكير الدواء',
+      'wellnessReminderSubtitle': 'متوقف • اضغط لضبط تذكير العافية',
+      'bedtimeReminderSubtitle': 'متوقف • اضغط لضبط تذكير ماء قبل النوم',
+      'reminderMessage': 'رسالة التذكير',
+      'usesCurrentSoundMode': 'يستخدم الصوت والوضع الحاليين عند الحفظ.',
+      'onlyAvailableInCustomSchedule': 'متاح فقط في الجدول المخصص',
     },
 
     // ===========
@@ -660,8 +745,15 @@ class AppStrings {
           'विश्वसनीय reminders के लिए StayHydro को battery settings में Not Optimized पर सेट करें। इससे Android reminders को delay या stop करने से बचता है।',
       'autoStartBackgroundInfoMessage':
           'StayHydro के लिए Auto Start और Background Activity allow करें, खासकर Oppo, Realme, Vivo और Xiaomi phones पर। इससे restart के बाद और app बंद रहने पर भी reminders चलते रहते हैं।',
-      'helpFeedbackInfoMessage': 'Help & Feedback release से पहले जोड़ा जाएगा।\n\n'
-          'अभी यह section support email, bug reports और feature suggestions के लिए reserved है।',
+      'copyStayHydroEmail': 'StayHydro ईमेल कॉपी करें',
+      'copySlnovaEmail': 'Slnova ईमेल कॉपी करें',
+      'emailCopied': 'ईमेल क्लिपबोर्ड पर कॉपी हो गया',
+      'helpFeedbackInfoMessage': 'मदद चाहिए या feedback देना चाहते हैं?\n\n'
+          'StayHydro Support\n'
+          'hello.stayhydro@gmail.com\n\n'
+          'Slnova Support\n'
+          'hello.slnova@gmail.com\n\n'
+          'हम bug reports, feature suggestions और general feedback का स्वागत करते हैं.',
       'privacyTermsInfoMessage':
           'Privacy Policy और Terms links Play Store release से पहले जोड़े जाएँगे।',
       'aboutStayHydroInfoMessage':
@@ -722,6 +814,27 @@ class AppStrings {
       'intakeRangeError': '50 से 1000 के बीच (50 के अंतर से)',
       'home': 'होम',
       'history': 'इतिहास',
+      'weeklyProgress': 'साप्ताहिक प्रगति',
+      'average': 'औसत',
+      'done': 'पूरा',
+      'best': 'सर्वश्रेष्ठ',
+      'todaysLogs': 'आज के लॉग',
+      'noEntriesToday': 'आज अभी तक कोई एंट्री नहीं है',
+      'mon': 'सोम',
+      'tue': 'मंगल',
+      'wed': 'बुध',
+      'thu': 'गुरु',
+      'fri': 'शुक्र',
+      'sat': 'शनि',
+      'sun': 'रवि',
+      'water': 'पानी',
+      'medicineReminderSubtitle': 'बंद • दवा रिमाइंडर सेट करने के लिए टैप करें',
+      'wellnessReminderSubtitle':
+          'बंद • वेलनेस रिमाइंडर सेट करने के लिए टैप करें',
+      'bedtimeReminderSubtitle': 'बंद • सोने से पहले पानी रिमाइंडर सेट करें',
+      'reminderMessage': 'रिमाइंडर संदेश',
+      'usesCurrentSoundMode': 'सेव करते समय मौजूदा ध्वनि और मोड इस्तेमाल होगा.',
+      'onlyAvailableInCustomSchedule': 'केवल कस्टम शेड्यूल में उपलब्ध',
     },
 
     // =============
@@ -831,9 +944,15 @@ class AppStrings {
           'Untuk pengingat yang andal, atur StayHydro menjadi Tidak Dioptimalkan di pengaturan baterai. Ini membantu Android agar tidak menunda atau menghentikan pengingat.',
       'autoStartBackgroundInfoMessage':
           'Izinkan Auto Start dan Aktivitas Latar Belakang untuk StayHydro, terutama pada ponsel Oppo, Realme, Vivo, dan Xiaomi. Ini membantu pengingat tetap berjalan setelah restart dan saat aplikasi ditutup.',
-      'helpFeedbackInfoMessage':
-          'Bantuan & masukan akan ditambahkan sebelum rilis.\n\n'
-              'Untuk saat ini, bagian ini disiapkan untuk email dukungan, laporan bug, dan saran fitur.',
+      'copyStayHydroEmail': 'Salin email StayHydro',
+      'copySlnovaEmail': 'Salin email Slnova',
+      'emailCopied': 'Email disalin ke clipboard',
+      'helpFeedbackInfoMessage': 'Butuh bantuan atau ingin memberi masukan?\n\n'
+          'Dukungan StayHydro\n'
+          'hello.stayhydro@gmail.com\n\n'
+          'Dukungan Slnova\n'
+          'hello.slnova@gmail.com\n\n'
+          'Kami menerima laporan bug, saran fitur, dan masukan umum.',
       'privacyTermsInfoMessage':
           'Tautan Kebijakan Privasi dan Ketentuan akan ditambahkan sebelum rilis Play Store.',
       'aboutStayHydroInfoMessage':
@@ -895,6 +1014,30 @@ class AppStrings {
       'intakeRangeError': 'Antara 50 dan 1000 (kelipatan 50)',
       'home': 'Beranda',
       'history': 'Riwayat',
+      'weeklyProgress': 'Progres mingguan',
+      'average': 'Rata-rata',
+      'done': 'Selesai',
+      'best': 'Terbaik',
+      'todaysLogs': 'LOG HARI INI',
+      'noEntriesToday': 'Belum ada entri hari ini',
+      'mon': 'Sen',
+      'tue': 'Sel',
+      'wed': 'Rab',
+      'thu': 'Kam',
+      'fri': 'Jum',
+      'sat': 'Sab',
+      'sun': 'Min',
+      'water': 'Air',
+      'medicineReminderSubtitle':
+          'Nonaktif • Ketuk untuk mengatur pengingat obat',
+      'wellnessReminderSubtitle':
+          'Nonaktif • Ketuk untuk mengatur pengingat kesehatan',
+      'bedtimeReminderSubtitle':
+          'Nonaktif • Ketuk untuk mengatur pengingat air sebelum tidur',
+      'reminderMessage': 'Pesan pengingat',
+      'usesCurrentSoundMode':
+          'Menggunakan suara dan mode saat ini saat disimpan.',
+      'onlyAvailableInCustomSchedule': 'Hanya tersedia dalam Jadwal Kustom',
     },
   };
 
@@ -902,14 +1045,14 @@ class AppStrings {
   // [GENERAL]
   // ==========================================
   static const String appName = 'StayHydro';
-  static const String settings = 'Settings';
+  static const String settings = 'settings';
   static const String cancel = 'cancel';
-  static const String save = 'Save';
-  static const String reset = 'Reset';
-  static const String delete = 'Delete';
-  static const String gotIt = 'Got it';
-  static const String later = 'Later';
-  static const String comingSoon = 'Coming soon';
+  static const String save = 'save';
+  static const String reset = 'reset';
+  static const String delete = 'delete';
+  static const String gotIt = 'gotIt';
+  static const String later = 'later';
+  static const String comingSoon = 'comingSoon';
   static const String waterIntake = 'waterIntake';
   static const String home = 'home';
   static const String history = 'history';
@@ -939,6 +1082,23 @@ class AppStrings {
   static const String intakeTime = 'intakeTime';
   static const String selectAmount = 'selectAmount';
   static const String addEntry = 'addEntry';
+
+  // History Screen
+
+  static const String weeklyProgress = 'weeklyProgress';
+  static const String average = 'average';
+  static const String done = 'done';
+  static const String best = 'best';
+  static const String todaysLogs = 'todaysLogs';
+  static const String noEntriesToday = 'noEntriesToday';
+  static const String mon = 'mon';
+  static const String tue = 'tue';
+  static const String wed = 'wed';
+  static const String thu = 'thu';
+  static const String fri = 'fri';
+  static const String sat = 'sat';
+  static const String sun = 'sun';
+  static const String water = 'water';
 
   // ==========================================
   // [SETTINGS: SECTIONS]
@@ -993,11 +1153,9 @@ class AppStrings {
   // ==========================================
   // [CUSTOM SCHEDULE]
   // ==========================================
-  static const String customReminderTimes = 'Custom Reminder Times';
+  static const String customReminderTimes = 'customReminderTimes';
   static const String customReminderTimesHelp =
       'Enable, disable or edit each hydration reminder time.';
-  static const String onlyAvailableCustomSchedule =
-      'Only available in Custom Schedule';
   static const String resetDefaults = 'Reset defaults';
   static const String addReminder = 'Add reminder';
   static const String noCustomRemindersYet = 'No custom reminders yet';
@@ -1029,6 +1187,11 @@ class AppStrings {
   static const String saveReminder = 'Save Reminder';
   static const String specialReminder = 'Special Reminder';
   static const String specialReminderFallback = 'Special';
+  static const String medicineReminderSubtitle = 'medicineReminderSubtitle';
+  static const String wellnessReminderSubtitle = 'wellnessReminderSubtitle';
+  static const String bedtimeReminderSubtitle = 'bedtimeReminderSubtitle';
+  static const String reminderMessage = 'reminderMessage';
+  static const String usesCurrentSoundMode = 'usesCurrentSoundMode';
 
   // ==========================================
   // [SLEEP / SYSTEM]
@@ -1068,17 +1231,18 @@ class AppStrings {
   // ==========================================
   // [APP SUPPORT]
   // ==========================================
-  static const String testNotification = 'Test Notification';
-  static const String testNotificationSubtitle =
-      'Check if reminders are working';
-  static const String testNotificationSent = 'Test notification sent!';
-  static const String helpFeedback = 'Help & Feedback';
-  static const String helpFeedbackSubtitle =
-      'Report a problem or suggest a feature';
-  static const String privacyTerms = 'Privacy & Terms';
-  static const String privacyTermsSubtitle = 'Coming before Play Store release';
-  static const String aboutStayHydro = 'About StayHydro';
+  static const String testNotification = 'testNotification';
+  static const String testNotificationSubtitle = 'testNotificationSubtitle';
+  static const String testNotificationSent = 'testNotificationSent';
+  static const String helpFeedback = 'helpFeedback';
+  static const String helpFeedbackSubtitle = 'helpFeedbackSubtitle';
+  static const String privacyTerms = 'privacyTerms';
+  static const String privacyTermsSubtitle = 'privacyTermsSubtitle';
+  static const String aboutStayHydro = 'aboutStayHydro';
   static const String aboutStayHydroSubtitle = 'Version 1.0.0 • Slnova';
+  static const String copyStayHydroEmail = 'copyStayHydroEmail';
+  static const String copySlnovaEmail = 'copySlnovaEmail';
+  static const String emailCopied = 'emailCopied';
 
   // ==========================================
 // [FIRST LAUNCH GUIDE]
@@ -1113,7 +1277,7 @@ class AppStrings {
   static const String reminderSlotsConfigured = 'reminder slots configured';
 
   static const String onlyAvailableInCustomSchedule =
-      'Only available in Custom Schedule';
+      'onlyAvailableInCustomSchedule';
 
   static const String reminderSystemInfoMessage =
       'Smart Hourly uses automatic hourly reminders and follows your Sleep Hours.\n\n'
@@ -1143,16 +1307,24 @@ class AppStrings {
       'Allow Auto Start and Background Activity for StayHydro, especially on Oppo, Realme, Vivo and Xiaomi phones. This helps reminders continue after restart and while the app is closed.';
 
   static const String helpFeedbackInfoMessage =
-      'Help & Feedback will be added before release.\n\n'
-      'For now, this section is reserved for support email, bug reports and feature suggestions.';
+      'Need help or want to share feedback?\n\n'
+      'StayHydro Support\n'
+      'hello.stayhydro@gmail.com\n\n'
+      'Slnova Support\n'
+      'hello.slnova@gmail.com\n\n'
+      'We welcome bug reports, feature suggestions and general feedback.';
 
   static const String privacyTermsInfoMessage =
-      'Privacy Policy and Terms links will be added before Play Store release.';
+      'Privacy Policy and Terms & Conditions will be available before the official Play Store release.';
 
   static const String aboutStayHydroInfoMessage =
       'StayHydro helps you build a healthy hydration routine with smart reminders, custom schedules and special reminders.\n\n'
+      'More than a reminder. A hydration companion.\n\n'
       'Version: 1.0.0\n'
-      'Developer: Slnova';
+      'Developer: Slnova\n\n'
+      'Stay consistent.\n'
+      'Stay healthy.\n'
+      'Stay hydrated.';
 
   static const String fullTranslationsBeforeRelease =
       'Full translations will be added before release.';

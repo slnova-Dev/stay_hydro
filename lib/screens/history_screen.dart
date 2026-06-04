@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stay_hydro/services/history_service.dart'; // مکمل پاتھ
+import 'package:stay_hydro/core/app_strings.dart';
 
 // ==========================================
 // SECTION LOCK: DATA REFRESH LOGIC (DO NOT MODIFY)
@@ -120,7 +121,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(
-          'History',
+          AppStrings.t(AppStrings.history),
           style: TextStyle(
             color: isDark ? Colors.white : Colors.blue.shade900,
             fontWeight: FontWeight.bold,
@@ -191,7 +192,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Weekly Progress",
+                            AppStrings.t(AppStrings.weeklyProgress),
                             style: TextStyle(
                               color: isDark
                                   ? Colors.white70
@@ -207,7 +208,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: _chartData.map((dayData) {
                                 return _buildBar(
-                                  dayData['day'],
+                                  _localizedDay(dayData['day']),
                                   dayData['amount'],
                                   2000,
                                   accentColor,
@@ -226,7 +227,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     Row(
                       children: [
                         _buildMiniStat(
-                          "Average",
+                          AppStrings.t(AppStrings.average),
                           "${_stats['average'] ?? 0}ml",
                           Icons.waves_rounded,
                           cardColor,
@@ -234,7 +235,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                         const SizedBox(width: 10),
                         _buildMiniStat(
-                          "Done",
+                          AppStrings.t(AppStrings.done),
                           "${_stats['completionRate'] ?? 0}%",
                           Icons.check_circle_outline_rounded,
                           cardColor,
@@ -242,7 +243,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                         const SizedBox(width: 10),
                         _buildMiniStat(
-                          "Best",
+                          AppStrings.t(AppStrings.best),
                           "${_stats['bestDay'] ?? 0}ml",
                           Icons.star_rounded,
                           cardColor,
@@ -259,7 +260,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8, bottom: 12),
                         child: Text(
-                          "TODAY'S LOGS",
+                          AppStrings.t(AppStrings.todaysLogs),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -284,7 +285,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               padding: const EdgeInsets.all(30),
                               child: Center(
                                 child: Text(
-                                  "No entries for today yet",
+                                  AppStrings.t(AppStrings.noEntriesToday),
                                   style: TextStyle(
                                       color: isDark
                                           ? Colors.white30
@@ -328,7 +329,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     ),
                                   ),
                                   subtitle: Text(
-                                    log.type,
+                                    _localizedLogType(log.type),
                                     style: TextStyle(
                                         color: isDark
                                             ? Colors.white54
@@ -356,6 +357,37 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
       ),
     );
+  }
+
+// Days of week translate helper
+// ہفتے کے دنوں کو ٹرانسلیٹ کرنے کا ہیلپر
+
+  String _localizedDay(String day) {
+    switch (day) {
+      case 'Mon':
+        return AppStrings.t(AppStrings.mon);
+      case 'Tue':
+        return AppStrings.t(AppStrings.tue);
+      case 'Wed':
+        return AppStrings.t(AppStrings.wed);
+      case 'Thu':
+        return AppStrings.t(AppStrings.thu);
+      case 'Fri':
+        return AppStrings.t(AppStrings.fri);
+      case 'Sat':
+        return AppStrings.t(AppStrings.sat);
+      case 'Sun':
+        return AppStrings.t(AppStrings.sun);
+      default:
+        return day;
+    }
+  }
+
+  String _localizedLogType(String type) {
+    if (type == 'Water') {
+      return AppStrings.t(AppStrings.water);
+    }
+    return type;
   }
 
   // --- UI ہیلپر فنکشنز ---

@@ -27,6 +27,7 @@ class NotificationService {
   static const String _sleepEndMinuteKey = 'sleep_end_minute';
   static const String _reminderSystemKey = 'reminder_system_mode';
   static const String _customReminderTimesKey = 'custom_reminder_times';
+  static const String _languageKey = 'app_language';
 
   // اسے 'water_hourly' سے بدل کر 'water_reminder_v3' کر دیں
 
@@ -91,6 +92,159 @@ class NotificationService {
     'Be kind to your body—give it water.',
   ];
   static final Random _random = Random();
+
+// Random messages & Random bodies Multilangual Helper
+
+  static Future<String> _getActiveLanguage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_languageKey) ?? 'English';
+  }
+
+  static List<String> _titlesFor(String language) {
+    switch (language) {
+      case 'Spanish':
+        return [
+          'Bebe agua 💧',
+          'Hora de hidratarte 💧',
+          'Pausa para agua 💧',
+          'Mantente hidratado 💧',
+          'Un sorbo rápido 💧',
+          'Tu cuerpo necesita agua 💧',
+          'Momento de refrescarte 💧',
+          'Sigue tu rutina 💧',
+        ];
+      case 'Arabic':
+        return [
+          'اشرب الماء 💧',
+          'وقت الترطيب 💧',
+          'استراحة ماء 💧',
+          'حافظ على الترطيب 💧',
+          'رشفة سريعة 💧',
+          'جسمك يحتاج إلى الماء 💧',
+          'انتعش بالماء 💧',
+          'واصل روتينك الصحي 💧',
+        ];
+      case 'Hindi':
+        return [
+          'पानी पिएँ 💧',
+          'हाइड्रेशन का समय 💧',
+          'पानी का ब्रेक 💧',
+          'हाइड्रेटेड रहें 💧',
+          'एक छोटा घूँट लें 💧',
+          'आपके शरीर को पानी चाहिए 💧',
+          'पानी से ताज़गी लें 💧',
+          'अपनी रूटीन जारी रखें 💧',
+        ];
+      case 'Indonesian':
+        return [
+          'Minum air 💧',
+          'Waktunya hidrasi 💧',
+          'Jeda minum air 💧',
+          'Tetap terhidrasi 💧',
+          'Minum seteguk dulu 💧',
+          'Tubuhmu butuh air 💧',
+          'Segarkan diri dengan air 💧',
+          'Jaga rutinitas sehatmu 💧',
+        ];
+      case 'English':
+      default:
+        return _randomMessages;
+    }
+  }
+
+  static List<String> _bodiesFor(String language) {
+    switch (language) {
+      case 'Spanish':
+        return [
+          'Un sorbo rápido puede ayudarte a sentirte mejor.',
+          'Acércate un vaso más a tu objetivo diario.',
+          'Mantén tu energía: bebe agua.',
+          'No esperes a tener sed. Hidrátate ahora.',
+          'Tu cuerpo agradecerá esta pausa.',
+          'Un pequeño hábito puede marcar una gran diferencia.',
+          'Tómate un momento para beber y seguir adelante.',
+          'Mantente fresco, enfocado y saludable.',
+        ];
+      case 'Arabic':
+        return [
+          'رشفة سريعة قد تساعدك على الشعور بتحسن.',
+          'اقترب أكثر من هدفك اليومي.',
+          'حافظ على طاقتك واشرب الماء.',
+          'لا تنتظر حتى تشعر بالعطش. اشرب الآن.',
+          'سيشكرك جسمك على هذه الاستراحة.',
+          'عادة صغيرة تصنع فرقًا كبيرًا.',
+          'خذ لحظة للشرب ثم واصل يومك.',
+          'ابقَ منتعشًا ومركزًا وصحيًا.',
+        ];
+      case 'Hindi':
+        return [
+          'एक छोटा घूँट आपको बेहतर महसूस करा सकता है.',
+          'अपने दैनिक लक्ष्य के एक कदम और करीब जाएँ.',
+          'ऊर्जा बनाए रखें — पानी पिएँ.',
+          'प्यास लगने का इंतज़ार न करें. अभी पानी पिएँ.',
+          'आपका शरीर इस छोटे ब्रेक के लिए धन्यवाद देगा.',
+          'छोटी आदत बड़ा फर्क ला सकती है.',
+          'एक पल लें, पानी पिएँ और आगे बढ़ें.',
+          'ताज़ा, focused और healthy रहें.',
+        ];
+      case 'Indonesian':
+        return [
+          'Seteguk air bisa membuatmu merasa lebih baik.',
+          'Satu langkah lebih dekat ke target harianmu.',
+          'Jaga energimu dengan minum air.',
+          'Jangan tunggu haus. Minum sekarang.',
+          'Tubuhmu akan berterima kasih untuk jeda ini.',
+          'Kebiasaan kecil bisa membawa manfaat besar.',
+          'Luangkan waktu sejenak untuk minum.',
+          'Tetap segar, fokus, dan sehat.',
+        ];
+      case 'English':
+      default:
+        return _randomBodies;
+    }
+  }
+
+  static String _randomTitleFor(String language) {
+    final titles = _titlesFor(language);
+    return titles[_random.nextInt(titles.length)];
+  }
+
+  static String _randomBodyFor(String language) {
+    final bodies = _bodiesFor(language);
+    return bodies[_random.nextInt(bodies.length)];
+  }
+
+  static String _specialReminderTitleFor(String language) {
+    switch (language) {
+      case 'Spanish':
+        return 'Recordatorio especial';
+      case 'Arabic':
+        return 'تذكير خاص';
+      case 'Hindi':
+        return 'विशेष रिमाइंडर';
+      case 'Indonesian':
+        return 'Pengingat khusus';
+      case 'English':
+      default:
+        return 'Special Reminder';
+    }
+  }
+
+  static String _defaultSpecialBodyFor(String language) {
+    switch (language) {
+      case 'Spanish':
+        return 'Hora de hidratarte 💧';
+      case 'Arabic':
+        return 'وقت الترطيب 💧';
+      case 'Hindi':
+        return 'हाइड्रेशन का समय 💧';
+      case 'Indonesian':
+        return 'Waktunya hidrasi 💧';
+      case 'English':
+      default:
+        return 'Time to hydrate 💧';
+    }
+  }
 
   // ============ TIMEZONE ============
   static Future<void> _configureLocalTimeZone() async {
@@ -411,6 +565,8 @@ class NotificationService {
     List<int> scheduledHours = [];
     List<int> skippedHours = [];
 
+    final String activeLanguage = await _getActiveLanguage();
+
     // Schedule for each hour except sleep hours
     for (int hour = 0; hour < 24; hour++) {
       bool isSleep = false;
@@ -429,8 +585,8 @@ class NotificationService {
         scheduledHours.add(hour);
         await _notifications.zonedSchedule(
           100 + hour,
-          _randomMessages[_random.nextInt(_randomMessages.length)],
-          _randomBodies[_random.nextInt(_randomBodies.length)],
+          _randomTitleFor(activeLanguage),
+          _randomBodyFor(activeLanguage),
           _nextInstanceOfHour(hour),
           notificationDetails,
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -555,10 +711,14 @@ class NotificationService {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
+    final String activeLanguage = await _getActiveLanguage();
+
     await _notifications.zonedSchedule(
       id,
-      "Special Reminder",
-      message.trim().isEmpty ? "Time to hydrate 💧" : message.trim(),
+      _specialReminderTitleFor(activeLanguage),
+      message.trim().isEmpty
+          ? _defaultSpecialBodyFor(activeLanguage)
+          : message.trim(),
       scheduledDate,
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -715,6 +875,8 @@ class NotificationService {
 
     int scheduledCount = 0;
 
+    final String activeLanguage = await _getActiveLanguage();
+
     for (int i = 0; i < slots.length && i < 51; i++) {
       final slot = slots[i];
 
@@ -741,8 +903,8 @@ class NotificationService {
 
       await _notifications.zonedSchedule(
         300 + i,
-        _randomMessages[_random.nextInt(_randomMessages.length)],
-        _randomBodies[_random.nextInt(_randomBodies.length)],
+        _randomTitleFor(activeLanguage),
+        _randomBodyFor(activeLanguage),
         scheduledDate,
         details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -772,13 +934,13 @@ class NotificationService {
 
     final NotificationDetails details = await buildNotificationDetails();
 
-    final randomTitle =
-        _randomMessages[_random.nextInt(_randomMessages.length)];
+    final String activeLanguage = await _getActiveLanguage();
+    final String randomTitle = _randomTitleFor(activeLanguage);
 
     await _notifications.show(
       999,
       randomTitle,
-      _randomBodies[_random.nextInt(_randomBodies.length)],
+      _randomBodyFor(activeLanguage),
       details,
       payload: 'test_notification',
     );

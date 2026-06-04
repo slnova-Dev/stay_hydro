@@ -25,6 +25,11 @@ dependencies:
   firebase_crashlytics: ^5.2.0
   intl: ^0.20.2
   file_picker: ^8.0.0
+  
+
+dependency_overrides:
+  flutter_timezone: ^2.0.0
+
 
   # ==========================================
   # SECTION LOCK: BACKGROUND SERVICES (Phase 10.1)
@@ -57,7 +62,7 @@ flutter:
     - assets/buttons/
     - assets/icons/app_icon.png
 
-dependency_overrides:
-  flutter_timezone: ^2.0.0
+  
+
 
 

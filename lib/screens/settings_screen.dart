@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/notification_service.dart';
 import 'package:stay_hydro/services/sound_service.dart'; // یہاں اپنے پراجیکٹ کا صحیح پاتھ دیں
 import 'package:stay_hydro/core/app_strings.dart';
+import 'package:flutter/services.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool isDark;
@@ -103,6 +104,106 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadLanguage(); // زبان تبدیلی کیے لیے
     _loadReminderSystem(); // ریمائنڈر سسٹم کے لیے
     _loadCustomReminderTimes(); // کسٹم ریمائنڈرز کے لیے
+  }
+
+//================================
+// FOR HELP & FEEDBACK SECTION
+// Open Support Email Helper
+//================================
+  // عارضی طور پر ہٹا دیا، ریلیز کے بعد دوبارہ لگایا جائے گا
+
+// ==========================================
+// [HELP & FEEDBACK DIALOG]
+// اردو کمنٹ:
+// Support emails دکھانے اور copy کرنے کے لیے custom dialog
+// ==========================================
+  void _showHelpFeedbackDialog() {
+    final bool isDark = _darkTheme;
+
+    Future<void> copyEmail(String email) async {
+      await Clipboard.setData(ClipboardData(text: email));
+      if (!mounted) return;
+      Navigator.pop(context);
+      _showSettingsSnackBar(AppStrings.t(AppStrings.emailCopied));
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1A1C1E) : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        title: Text(
+          AppStrings.t(AppStrings.helpFeedback),
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.blue.shade900,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppStrings.t('helpFeedbackInfoMessage'),
+              style: TextStyle(
+                color: isDark
+                    ? Colors.white70
+                    : Colors.blue.shade900.withOpacity(0.75),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildCopyEmailButton(
+              isDark: isDark,
+              label: AppStrings.t(AppStrings.copyStayHydroEmail),
+              email: 'hello.stayhydro@gmail.com',
+              onCopy: copyEmail,
+            ),
+            const SizedBox(height: 8),
+            _buildCopyEmailButton(
+              isDark: isDark,
+              label: AppStrings.t(AppStrings.copySlnovaEmail),
+              email: 'hello.slnova@gmail.com',
+              onCopy: copyEmail,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(AppStrings.t(AppStrings.gotIt)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCopyEmailButton({
+    required bool isDark,
+    required String label,
+    required String email,
+    required Future<void> Function(String email) onCopy,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => onCopy(email),
+        icon: const Icon(Icons.copy_rounded, size: 18),
+        label: Text(label),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: isDark ? Colors.blue.shade200 : Colors.blue.shade700,
+          side: BorderSide(
+            color: isDark
+                ? Colors.blue.shade900.withOpacity(0.5)
+                : Colors.blue.shade200,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
   }
 
 // ==========================================
@@ -212,6 +313,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     return msg;
+  }
+
+//Special Reminders Message Off Subtitle helper
+
+  String _specialOffSubtitle(int index) {
+    switch (index) {
+      case 0:
+        return AppStrings.t(AppStrings.medicineReminderSubtitle);
+      case 1:
+        return AppStrings.t(AppStrings.wellnessReminderSubtitle);
+      case 2:
+        return AppStrings.t(AppStrings.bedtimeReminderSubtitle);
+      default:
+        return AppStrings.t(AppStrings.offTapHealthReminder);
+    }
   }
 
   // ==========================================
@@ -417,7 +533,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (!mounted) return;
     setState(() {
-      _reminderSystem = prefs.getString(_reminderSystemKey) ?? 'Smart Hourly';
+      _reminderSystem = prefs.getString(_reminderSystemKey) ?? 'smart_hourly';
     });
   }
 
@@ -684,24 +800,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required int initialHour,
     required int initialMinute,
   }) async {
-    final selectedTime = await showTimePicker(
-      context: context,
+    final selectedTime = await _showStayHydroTimePicker(
       initialTime: TimeOfDay(hour: initialHour, minute: initialMinute),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            timePickerTheme: TimePickerThemeData(
-              helpTextStyle: TextStyle(
-                color: widget.isDark ? Colors.white : Colors.blue.shade900,
-              ),
-            ),
-          ),
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-            child: child ?? const SizedBox.shrink(),
-          ),
-        );
-      },
     );
     if (selectedTime == null) return;
     if (!mounted) return;
@@ -719,6 +819,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
       startMin: isStartHour ? selectedTime.minute : null,
       endHour: isStartHour ? null : selectedTime.hour,
       endMin: isStartHour ? null : selectedTime.minute,
+    );
+  }
+
+// Time Picker Helper  پوری ایپ میں یکساں سٹآئل میں کرنے کے لیے
+
+  Future<TimeOfDay?> _showStayHydroTimePicker({
+    required TimeOfDay initialTime,
+  }) async {
+    final bool isDarkMode = _darkTheme;
+
+    return showGeneralDialog<TimeOfDay>(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return FadeTransition(
+          opacity: anim1,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.8, end: 1.0).animate(
+              CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
+            ),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                colorScheme: isDarkMode
+                    ? ColorScheme.dark(
+                        primary: Colors.blue.shade400,
+                        onPrimary: Colors.white,
+                        surface: const Color(0xFF1E293B),
+                        onSurface: Colors.white,
+                      )
+                    : ColorScheme.light(
+                        primary: Colors.blue.shade600,
+                        onPrimary: Colors.white,
+                        surface: Colors.white,
+                        onSurface: Colors.blue.shade900,
+                      ),
+                timePickerTheme: TimePickerThemeData(
+                  backgroundColor: isDarkMode
+                      ? const Color(0xFF1E293B)
+                      : const Color(0xFFF5F6FA),
+                  hourMinuteColor: WidgetStateColor.resolveWith(
+                    (states) => states.contains(WidgetState.selected)
+                        ? (isDarkMode
+                            ? const Color(0xFF334155)
+                            : Colors.blue.shade100)
+                        : (isDarkMode ? Colors.black26 : Colors.white),
+                  ),
+                  hourMinuteTextColor: WidgetStateColor.resolveWith(
+                    (states) => states.contains(WidgetState.selected)
+                        ? (isDarkMode ? Colors.white : Colors.blue.shade900)
+                        : (isDarkMode ? Colors.white70 : Colors.blue.shade400),
+                  ),
+                  dialBackgroundColor:
+                      isDarkMode ? Colors.black26 : Colors.white,
+                  dialHandColor: Colors.blue.shade400,
+                  dialTextColor: isDarkMode ? Colors.white : Colors.black,
+                  entryModeIconColor: Colors.blue.shade400,
+                ),
+              ),
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  alwaysUse24HourFormat: false,
+                ),
+                child: TimePickerDialog(
+                  initialTime: initialTime,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -1078,7 +1251,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           title: AppStrings.t('customReminderTimes'),
                           subtitle: _isCustomSchedule
                               ? "${_customReminderSlots.length} ${AppStrings.t('reminderSlotsConfigured')}"
-                              : AppStrings.onlyAvailableInCustomSchedule,
+                              : AppStrings.t(
+                                  AppStrings.onlyAvailableInCustomSchedule),
                           icon: Icons.edit_calendar_rounded,
                           showDivider: false,
                           onInfoTap: () {
@@ -1141,7 +1315,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: _specialDisplayTitle(0),
                         subtitle: _specialEnabled[0]
                             ? "${_formatTime(_specialHours[0], _specialMinutes[0])} • ${AppStrings.t('lockedSoundMode')}"
-                            : AppStrings.t('offTapHealthReminder'),
+                            : _specialOffSubtitle(0),
                         icon: _specialIcon(0, _specialEnabled[0]),
                         showDivider: true,
                         onTap: () => _showSpecialEditor(0),
@@ -1152,7 +1326,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: _specialDisplayTitle(1),
                         subtitle: _specialEnabled[1]
                             ? "${_formatTime(_specialHours[1], _specialMinutes[1])} • ${AppStrings.t('lockedSoundMode')}"
-                            : AppStrings.t('offTapHealthReminder'),
+                            : _specialOffSubtitle(1),
                         icon: _specialIcon(1, _specialEnabled[1]),
                         showDivider: true,
                         onTap: () => _showSpecialEditor(1),
@@ -1163,7 +1337,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: _specialDisplayTitle(2),
                         subtitle: _specialEnabled[2]
                             ? "${_formatTime(_specialHours[2], _specialMinutes[2])} • ${AppStrings.t('lockedSoundMode')}"
-                            : AppStrings.t('offTapHealthReminder'),
+                            : _specialOffSubtitle(2),
                         icon: _specialIcon(2, _specialEnabled[2]),
                         showDivider: false,
                         onTap: () => _showSpecialEditor(2),
@@ -1477,16 +1651,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       _buildSettingTile(
                         isDark: isDark,
-                        title: AppStrings.t('helpFeedback'),
-                        subtitle: AppStrings.t('helpFeedbackSubtitle'),
+                        title: AppStrings.t(AppStrings.helpFeedback),
+                        subtitle: AppStrings.t(AppStrings.helpFeedbackSubtitle),
                         icon: Icons.help_outline_rounded,
                         showDivider: true,
-                        onTap: () {
-                          _showReliabilityInfo(
-                            title: AppStrings.t('helpFeedback'),
-                            message: AppStrings.t('helpFeedbackInfoMessage'),
-                          );
-                        },
+                        onTap: _showHelpFeedbackDialog,
                       ),
                       _buildSettingTile(
                         isDark: isDark,
@@ -1614,16 +1783,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   title: Row(
                                     children: [
-                                      Icon(Icons.restart_alt_rounded,
-                                          color: Colors.blue.shade400),
+                                      Icon(
+                                        Icons.restart_alt_rounded,
+                                        color: Colors.blue.shade400,
+                                      ),
                                       const SizedBox(width: 10),
-                                      Text(
-                                        AppStrings.t('resetSchedule'),
-                                        style: TextStyle(
-                                          color: isDark
-                                              ? Colors.white
-                                              : Colors.blue.shade900,
-                                          fontWeight: FontWeight.bold,
+                                      Expanded(
+                                        child: Text(
+                                          AppStrings.t('resetSchedule'),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.blue.shade900,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -1692,8 +1867,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 return;
                               }
 
-                              final picked = await showTimePicker(
-                                context: context,
+                              final picked = await _showStayHydroTimePicker(
                                 initialTime:
                                     const TimeOfDay(hour: 12, minute: 0),
                               );
@@ -1832,22 +2006,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                   ),
                                                   title: Row(
                                                     children: [
-                                                      Icon(
+                                                      const Icon(
                                                         Icons
                                                             .warning_amber_rounded,
                                                         color: Colors.redAccent,
                                                       ),
                                                       const SizedBox(width: 10),
-                                                      Text(
-                                                        AppStrings.t(
-                                                            'deleteReminder'),
-                                                        style: TextStyle(
-                                                          color: isDark
-                                                              ? Colors.white
-                                                              : Colors.blue
-                                                                  .shade900,
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                      Expanded(
+                                                        child: Text(
+                                                          AppStrings.t(
+                                                              'deleteReminder'),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: TextStyle(
+                                                            color: isDark
+                                                                ? Colors.white
+                                                                : Colors.blue
+                                                                    .shade900,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
                                                         ),
                                                       ),
                                                     ],
@@ -1935,34 +2114,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       ],
                                     ),
                                     onTap: () async {
-                                      final picked = await showTimePicker(
-                                        context: context,
+                                      final picked =
+                                          await _showStayHydroTimePicker(
                                         initialTime: TimeOfDay(
-                                          hour: hour,
-                                          minute: minute,
-                                        ),
-                                        builder: (context, child) {
-                                          return Theme(
-                                            data: Theme.of(context).copyWith(
-                                              timePickerTheme:
-                                                  TimePickerThemeData(
-                                                helpTextStyle: TextStyle(
-                                                  color: isDark
-                                                      ? Colors.white
-                                                      : Colors.blue.shade900,
-                                                ),
-                                              ),
-                                            ),
-                                            child: MediaQuery(
-                                              data: MediaQuery.of(context)
-                                                  .copyWith(
-                                                alwaysUse24HourFormat: true,
-                                              ),
-                                              child: child ??
-                                                  const SizedBox.shrink(),
-                                            ),
-                                          );
-                                        },
+                                            hour: hour, minute: minute),
                                       );
 
                                       if (picked == null) return;
@@ -2075,8 +2230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 16)),
                 onTap: () async {
-                  final TimeOfDay? picked = await showTimePicker(
-                    context: context,
+                  final TimeOfDay? picked = await _showStayHydroTimePicker(
                     initialTime: TimeOfDay(hour: tempHour, minute: tempMinute),
                   );
                   if (picked != null) {
@@ -2095,12 +2249,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 maxLength: 25,
                 style: TextStyle(color: isDark ? Colors.white : Colors.black),
                 decoration: InputDecoration(
-                  labelText: AppStrings.t('healthReminderMessage'),
+                  labelText: AppStrings.t(AppStrings.reminderMessage),
                   prefixIcon: const Icon(Icons.edit_note_rounded),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15)),
                 ),
               ),
+
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  AppStrings.t(AppStrings.usesCurrentSoundMode),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark
+                        ? Colors.white54
+                        : Colors.blue.shade900.withOpacity(0.65),
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 20),
 
               // سیو بٹن
