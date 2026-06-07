@@ -301,9 +301,10 @@ class _HomeScreenState extends State<HomeScreen>
     if (!widget.isFastingMode) {
       final prefs = await SharedPreferences.getInstance();
       final reminderSystem =
-          prefs.getString(_reminderSystemKey) ?? 'Smart Hourly';
+          prefs.getString(_reminderSystemKey) ?? 'smart_hourly';
 
-      if (reminderSystem == 'Custom Schedule') {
+      if (reminderSystem == 'custom_schedule' ||
+          reminderSystem == 'Custom Schedule') {
         final raw = prefs.getString(_customReminderTimesKey) ?? "";
         updatedTime = _nextCustomReminderTime(raw);
       } else {

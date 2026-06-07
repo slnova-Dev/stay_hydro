@@ -179,12 +179,14 @@ class AppStrings {
       'waterPour': 'Water Pour',
       'reminderSlotsConfigured': 'reminder slots configured',
       'reminderSystemChanged': 'Reminder system set to',
-      'sleepHoursUpdated': 'Sleep hours updated & scheduled',
+      'sleepHoursUpdated': 'Sleep hours updated and reminders rescheduled',
       'firstLaunchWelcomeTitle': 'Welcome to StayHydro',
-      'firstLaunchReliabilityMessage': 'For reliable reminders:\n\n'
+      'firstLaunchReliabilityMessage': 'Your daily hydration companion.\n\n'
+          'For the most reliable reminders:\n\n'
           '✓ Allow notifications\n'
           '✓ Disable battery optimization\n'
-          '✓ Enable auto start/background activity',
+          '✓ Enable auto start/background activity\n\n'
+          'You can update these settings anytime from Settings.',
       'getStarted': 'Get Started',
       'dailyHydrationTip': 'Daily Hydration Tip',
       'nextHydrationGoal': 'Next Hydration Goal',
@@ -459,6 +461,8 @@ class AppStrings {
       'privacyPolicySubtitle': 'Cómo StayHydro maneja tus datos',
       'termsConditions': 'Términos y condiciones',
       'termsConditionsSubtitle': 'Información importante de uso',
+      'sleepHoursUpdated':
+          'Horas de sueño actualizadas y recordatorios reprogramados',
     },
 
     // ===========
@@ -653,6 +657,7 @@ class AppStrings {
       'privacyPolicySubtitle': 'كيف يتعامل StayHydro مع بياناتك',
       'termsConditions': 'الشروط والأحكام',
       'termsConditionsSubtitle': 'معلومات مهمة حول الاستخدام',
+      'sleepHoursUpdated': 'تم تحديث ساعات النوم وإعادة جدولة التذكيرات',
     },
 
     // ===========
@@ -854,6 +859,8 @@ class AppStrings {
       'privacyPolicySubtitle': 'StayHydro आपका डेटा कैसे संभालता है',
       'termsConditions': 'नियम और शर्तें',
       'termsConditionsSubtitle': 'उपयोग से जुड़ी महत्वपूर्ण जानकारी',
+      'sleepHoursUpdated':
+          'नींद का समय अपडेट हो गया और रिमाइंडर फिर से शेड्यूल हो गए',
     },
 
     // =============
@@ -1057,6 +1064,8 @@ class AppStrings {
       'privacyPolicySubtitle': 'Cara StayHydro menangani data Anda',
       'termsConditions': 'Syarat & Ketentuan',
       'termsConditionsSubtitle': 'Informasi penggunaan penting',
+      'sleepHoursUpdated':
+          'Jam tidur diperbarui dan pengingat dijadwalkan ulang',
     },
   };
 
@@ -1286,7 +1295,7 @@ class AppStrings {
 
   static const String reminderSystemChanged = 'reminderSystemChanged';
 
-  static const String sleepHoursUpdated = 'Sleep hours updated & scheduled';
+  static const String sleepHoursUpdated = 'sleepHoursUpdated';
 
   static const String customScheduleInactive = 'Custom Schedule Inactive';
 

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stay_hydro/core/app_strings.dart';
+import 'package:stay_hydro/services/notification_service.dart';
 
 // ❌ REMOVE: background service imports
 // import 'package:flutter_background_service/flutter_background_service.dart';
@@ -131,6 +132,8 @@ class _StayHydroAppState extends State<StayHydroApp> {
     setState(() {
       AppStrings.setLanguage(language);
     });
+
+    await NotificationService.restoreActiveReminderSystem();
   }
 
   Future<void> _showFirstLaunchGuideIfNeeded() async {

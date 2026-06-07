@@ -239,7 +239,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final customPath = await SoundService.getCustomPath();
 
     setState(() {
-      _currentMode = mode;
+      _currentMode = _normalizeReminderMode(mode);
       _selectedSoundKey = soundKey;
 
       // اگر کسٹم فائل ہے تو اس کا نام دکھائیں، ورنہ لسٹ سے نام اٹھائیں
@@ -886,6 +886,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 child: TimePickerDialog(
                   initialTime: initialTime,
+                  initialEntryMode: TimePickerEntryMode.dialOnly,
                 ),
               ),
             ),
@@ -959,12 +960,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+// Reminder Mode Display Helper
+
+  String _normalizeReminderMode(String mode) {
+    switch (mode) {
+      case 'Sound + Vibrate':
+      case 'sound_vibrate':
+        return 'sound_vibrate';
+      case 'Sound only':
+      case 'sound_only':
+        return 'sound_only';
+      case 'Vibrate only':
+      case 'vibrate_only':
+        return 'vibrate_only';
+      case 'Silent':
+      case 'silent':
+        return 'silent';
+      default:
+        return 'sound_vibrate';
+    }
+  }
+
   // ==========================================
   // [PHASE 10.6-A9: REMINDER MODE DISPLAY HELPER]
   // اردو کمنٹ:
   // memory میں mode key رہے گی، screen پر selected language کے مطابق text دکھے گا
   // ==========================================
   String _modeDisplayName(String modeKey) {
+    modeKey = _normalizeReminderMode(modeKey);
+
     switch (modeKey) {
       case 'sound_vibrate':
       case 'Sound + Vibrate':

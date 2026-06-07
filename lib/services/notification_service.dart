@@ -279,8 +279,8 @@ class NotificationService {
     await _configureLocalTimeZone();
 
     const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
+  '@drawable/notification_icon',
+);
 
     const settings = InitializationSettings(android: androidSettings);
 
@@ -399,6 +399,7 @@ class NotificationService {
       importance: selectedMode == 'Silent' ? Importance.high : Importance.max,
       priority: Priority.high,
       ticker: 'Stay Hydro Reminder',
+      icon: '@drawable/notification_icon',
 
       // اہم:
       // یہاں playSound / enableVibration / vibrationPattern نہیں دیں گے
@@ -685,10 +686,11 @@ class NotificationService {
     String message, {
     String? soundKey,
     String? mode,
+    bool fromBoot = false,
   }) async {
     if (kIsWeb) return;
 
-    await init();
+    await init(fromBoot: fromBoot);
 
     final NotificationDetails details = await buildNotificationDetails(
       soundKey: soundKey,
@@ -779,6 +781,7 @@ class NotificationService {
           msg,
           soundKey: sound,
           mode: reminderMode,
+          fromBoot: fromBoot,
         );
       }
     }
@@ -1084,7 +1087,7 @@ class NotificationService {
 // ==========================================
     await restoreSpecialReminders(
       fromBoot: fromBoot,
-      skipInit: !isFasting,
+      skipInit: false,
     );
 
     if (kDebugMode) {

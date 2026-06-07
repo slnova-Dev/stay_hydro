@@ -115,7 +115,10 @@ class _MissedEntryDialogState extends State<MissedEntryDialog> {
                   ),
                 ),
               ),
-              child: TimePickerDialog(initialTime: _selectedTime),
+              child: TimePickerDialog(
+                initialTime: _selectedTime,
+                initialEntryMode: TimePickerEntryMode.dialOnly,
+              ),
             ),
           ),
         );
