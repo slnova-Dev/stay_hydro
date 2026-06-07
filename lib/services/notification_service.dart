@@ -279,8 +279,8 @@ class NotificationService {
     await _configureLocalTimeZone();
 
     const androidSettings = AndroidInitializationSettings(
-  '@drawable/notification_icon',
-);
+      '@drawable/notification_icon',
+    );
 
     const settings = InitializationSettings(android: androidSettings);
 
@@ -359,20 +359,46 @@ class NotificationService {
 // ============ SHARED NOTIFICATION ENGINE (10.4A) ============
 // اردو کمنٹ: تمام reminders کے لیے ایک ہی جگہ سے sound/mode/channel/details بنیں گے
 
+  static String _normalizeReminderMode(String mode) {
+    switch (mode) {
+      case 'sound_vibrate':
+      case 'Sound + Vibrate':
+        return 'sound_vibrate';
+
+      case 'sound_only':
+      case 'Sound only':
+        return 'sound_only';
+
+      case 'vibrate_only':
+      case 'Vibrate only':
+        return 'vibrate_only';
+
+      case 'silent':
+      case 'Silent':
+        return 'silent';
+
+      default:
+        return 'sound_vibrate';
+    }
+  }
+
   static Future<String> _getCurrentReminderMode() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
+    final mode = prefs.getString('reminder_mode') ?? 'sound_vibrate';
+    return _normalizeReminderMode(mode);
   }
 
   static String _modeSuffix(String mode) {
-    switch (mode) {
-      case 'Sound only':
+    final normalizedMode = _normalizeReminderMode(mode);
+
+    switch (normalizedMode) {
+      case 'sound_only':
         return 's';
-      case 'Vibrate only':
+      case 'vibrate_only':
         return 'v';
-      case 'Silent':
+      case 'silent':
         return 'silent';
-      case 'Sound + Vibrate':
+      case 'sound_vibrate':
       default:
         return 'sv';
     }
@@ -383,7 +409,9 @@ class NotificationService {
     String? mode,
   }) async {
     final selectedSound = soundKey ?? await _getSelectedSound();
-    final selectedMode = mode ?? await _getCurrentReminderMode();
+    final selectedMode = _normalizeReminderMode(
+      mode ?? await _getCurrentReminderMode(),
+    );
 
     final channelId =
         '${selectedSound}_${_modeSuffix(selectedMode)}_channel_V14';
@@ -539,8 +567,9 @@ class NotificationService {
     // =========================================
 
     final String selectedSound = await _getSelectedSound();
-    final String currentMode =
-        prefs.getString('reminder_mode') ?? 'Sound + Vibrate';
+    final String currentMode = _normalizeReminderMode(
+      prefs.getString('reminder_mode') ?? 'sound_vibrate',
+    );
 
     final NotificationDetails notificationDetails =
         await buildNotificationDetails(

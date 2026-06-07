@@ -53,7 +53,7 @@ class SoundService {
 
   static Future<String> getReminderMode() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_modeKey) ?? 'Sound + Vibrate';
+    return prefs.getString(_modeKey) ?? 'sound_vibrate';
   }
 
   // ==========================================
@@ -83,13 +83,21 @@ class SoundService {
 
       final mode = await getReminderMode();
 
-      // وائبریشن پریویو (اگر موڈ میں وائبریشن شامل ہو)
-      if (mode.contains('Vibrate')) {
-        triggerVibration();
+      final bool shouldVibrate = mode == 'sound_vibrate' ||
+          mode == 'vibrate_only' ||
+          mode == 'Sound + Vibrate' ||
+          mode == 'Vibrate only';
+
+      final bool shouldPlaySound = mode == 'sound_vibrate' ||
+          mode == 'sound_only' ||
+          mode == 'Sound + Vibrate' ||
+          mode == 'Sound only';
+
+      if (shouldVibrate) {
+        await triggerVibration();
       }
 
-      // اگر سائلنٹ یا صرف وائبریشن ہے تو آواز نہ بجائیں
-      if (mode == 'Silent' || mode == 'Vibrate only') return;
+      if (!shouldPlaySound) return;
 
       final soundKey = await getSound();
 
