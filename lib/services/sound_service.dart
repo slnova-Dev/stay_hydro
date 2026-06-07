@@ -81,6 +81,7 @@ class SoundService {
     try {
       if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
 
+// اس سے سیٹنگ سکرین میں ریمائنڈر موڈز کا مکمل اور درست پریویو ملتا ہے
       final mode = await getReminderMode();
 
       final bool shouldVibrate = mode == 'sound_vibrate' ||
