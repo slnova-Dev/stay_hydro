@@ -92,7 +92,7 @@ class AppStrings {
       'moreLanguagesComingSoon': 'More languages coming soon',
       'currentlyActive': 'Currently active',
       'fullTranslationsBeforeRelease':
-          'Full translations will be added before release.',
+          'More languages may be added in future updates.',
       'pauseHydrationReminders': 'Pause hydration reminders',
       'selectDailyGoal': 'Select Daily Goal',
       'dailyGoalUpdated': 'Daily goal updated to',
@@ -1358,7 +1358,7 @@ class AppStrings {
       'Stay hydrated.';
 
   static const String fullTranslationsBeforeRelease =
-      'Full translations will be added before release.';
+      'More languages may be added in future updates.';
 
   static const String currentlyActive = 'Currently active';
 
