@@ -315,6 +315,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (!mounted) return;
     setState(() {
       _nextReminderTime = updatedTime;
+      _setRandomDailyTip();
       _currentMascotAsset = _selectMascotAsset();
     });
   }
@@ -494,6 +495,7 @@ class _HomeScreenState extends State<HomeScreen>
       setState(() {
         currentIntake += amountToAdd;
         _justDrank = true;
+        _setRandomDailyTip();
         _currentMascotAsset = _selectMascotAsset();
       });
 
@@ -763,57 +765,93 @@ class _HomeScreenState extends State<HomeScreen>
 
                       // Mascot & Tips Card
                       _buildStyledCard(
-                        child: Row(
-                          children: [
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 500),
-                              child: Transform(
-                                alignment: Alignment.center,
-                                transform: Matrix4.identity()
-                                  ..scale(
-                                      Directionality.of(context).name == 'rtl'
-                                          ? -1.0
-                                          : 1.0,
-                                      1.0),
-                                child: SvgPicture.asset(
-                                  _currentMascotAsset ??
-                                      'assets/mascots/welcome1.svg',
-                                  key: ValueKey(_currentMascotAsset),
-                                  width: 55,
-                                  height: 65,
-                                  fit: BoxFit.contain,
+                        child: SizedBox(
+                          height: 78,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 68,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 350),
+                                  switchInCurve: Curves.easeOut,
+                                  switchOutCurve: Curves.easeIn,
+                                  transitionBuilder: (child, animation) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: ScaleTransition(
+                                        scale: Tween<double>(
+                                          begin: 0.96,
+                                          end: 1.0,
+                                        ).animate(animation),
+                                        child: child,
+                                      ),
+                                    );
+                                  },
+                                  child: Transform(
+                                    key: ValueKey(_currentMascotAsset),
+                                    alignment: Alignment.center,
+                                    transform: Matrix4.identity()
+                                      ..scale(
+                                        Directionality.of(context).name == 'rtl'
+                                            ? -1.0
+                                            : 1.0,
+                                        1.0,
+                                      ),
+                                    child: SvgPicture.asset(
+                                      _currentMascotAsset ??
+                                          'assets/mascots/welcome1.svg',
+                                      width: 55,
+                                      height: 65,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppStrings.t(AppStrings.dailyHydrationTip),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark
-                                          ? Colors.cyan.shade300
-                                          : Colors.blue.shade500,
-                                      fontSize: 12,
-                                    ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 65,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        AppStrings.t(
+                                            AppStrings.dailyHydrationTip),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: isDark
+                                              ? Colors.cyan.shade300
+                                              : Colors.blue.shade500,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      AnimatedSwitcher(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        switchInCurve: Curves.easeOut,
+                                        switchOutCurve: Curves.easeIn,
+                                        child: Text(
+                                          _dailyTip,
+                                          key: ValueKey(_dailyTip),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: isDark
+                                                ? Colors.white70
+                                                : Colors.black87,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    _dailyTip,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: isDark
-                                          ? Colors.white70
-                                          : Colors.black87,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
 

@@ -58,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late int _sleepEndMinute;
 
   // آواز اور ریمائنڈر موڈ کے نئے ویریبلز
-  String _currentMode = AppStrings.t('soundVibrate');
+  String _currentMode = 'sound_vibrate';
   String _selectedSoundKey = 'water_glass';
   String _selectedSoundName = 'Water Flow';
   int _dailyGoal = 2000; // یوزر کا روزانہ کا ہدف (ڈیفالٹ: 2000ml)
@@ -74,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Smart Hourly = موجودہ hourly reminders
   // Custom Schedule = future custom times
   //// Hybrid currently postponed; Special Reminders remain independent.
-  String _reminderSystem = 'Smart Hourly';
+  String _reminderSystem = 'smart_hourly';
 
   static const String _reminderSystemKey = 'reminder_system_mode';
 
@@ -620,7 +620,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         : null,
                     onTap: () async {
                       await _saveReminderSystem(system);
-                      if (context.mounted) Navigator.pop(context);
+
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+
+                      Future.delayed(
+                        const Duration(milliseconds: 100),
+                        () {
+                          if (mounted) {
+                            setState(() {});
+                          }
+                        },
+                      );
                     },
                   ),
                 ),
@@ -2521,7 +2533,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // Preview صرف user feedback کے لیے
                           SoundService.playWaterSound();
 
-                          Navigator.pop(context);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+
+                          Future.delayed(
+                            const Duration(milliseconds: 100),
+                            () {
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                          );
                         },
                       ))
                   .toList(),
@@ -2565,6 +2588,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         title: Text(_soundDisplayName(entry.key),
                             style: TextStyle(
                                 color: isDark ? Colors.white : Colors.black87)),
+                        trailing: _selectedSoundKey == entry.key
+                            ? Icon(Icons.check_circle,
+                                color: Colors.blue.shade400)
+                            : null,
                         onTap: () async {
                           setState(() {
                             _selectedSoundKey = entry.key;
@@ -2588,7 +2615,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // ⭐ preview چلائیں
                           SoundService.playWaterSound();
 
-                          Navigator.pop(context);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+
+                          Future.delayed(
+                            const Duration(milliseconds: 100),
+                            () {
+                              if (mounted) {
+                                setState(() {});
+                              }
+                            },
+                          );
                         },
                       ))
                   .toList(),
