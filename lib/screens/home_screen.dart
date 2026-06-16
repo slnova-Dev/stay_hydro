@@ -34,7 +34,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   // ==========================================
-  // SECTION LOCK: CORE STATE & GOALS
+  // SECTION LOCK: CORE STATE VARIABLES & GOALS
   // ==========================================
   int currentIntake = 0;
   int dailyGoal = 2000;
@@ -48,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen>
   Timer? _reminderRefreshTimer;
   bool _justDrank = false;
   bool _isAddingWater = false;
+  DateTime _lastTipChangeTime = DateTime.now();
 
   int _sleepStartHour = 23;
   int _sleepStartMinute = 0;
@@ -163,6 +164,22 @@ class _HomeScreenState extends State<HomeScreen>
     return cool.isNotEmpty
         ? cool[random.nextInt(cool.length)]
         : _mascotAssets[0];
+  }
+
+// ==========================================
+// SECTION LOCK: DAILY TIPS & MASCOT Refresh Timer Guard Helper
+// ڈیلی ٹِپ میسکوٹ اور میسج کم از کم 10 سیکنڈز بعد ری فریش کرنے کا ہیلپر
+// ==========================================
+  void _refreshTipAndMascot({bool force = false}) {
+    final now = DateTime.now();
+
+    if (!force && now.difference(_lastTipChangeTime).inSeconds < 10) {
+      return;
+    }
+
+    _setRandomDailyTip();
+    _currentMascotAsset = _selectMascotAsset();
+    _lastTipChangeTime = now;
   }
 
 // ==========================================
@@ -315,8 +332,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (!mounted) return;
     setState(() {
       _nextReminderTime = updatedTime;
-      _setRandomDailyTip();
-      _currentMascotAsset = _selectMascotAsset();
+      _refreshTipAndMascot();
     });
   }
 
@@ -495,8 +511,7 @@ class _HomeScreenState extends State<HomeScreen>
       setState(() {
         currentIntake += amountToAdd;
         _justDrank = true;
-        _setRandomDailyTip();
-        _currentMascotAsset = _selectMascotAsset();
+        _refreshTipAndMascot(force: true);
       });
 
       Timer(const Duration(minutes: 10), () {
