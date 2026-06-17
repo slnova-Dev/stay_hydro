@@ -12,6 +12,7 @@ import '../services/sound_service.dart';
 import '../services/streak_service.dart';
 import 'package:stay_hydro/services/history_service.dart';
 import 'package:stay_hydro/core/app_strings.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isDarkTheme;
@@ -1000,6 +1001,7 @@ class _HomeScreenState extends State<HomeScreen>
                       const SizedBox(height: 0),
 
                       // Main Hero Button
+                      // Main Hero Button
                       GestureDetector(
                         onTapDown: (_) => _buttonController.reverse(),
                         onTapUp: (_) {
@@ -1009,43 +1011,48 @@ class _HomeScreenState extends State<HomeScreen>
                         onTapCancel: () => _buttonController.forward(),
                         child: ScaleTransition(
                           scale: _buttonController,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                isDark
-                                    ? 'assets/buttons/main_hero_button2.svg'
-                                    : 'assets/buttons/main_hero_button1.svg',
-                                width: 250,
-                                height: 80,
-                                fit: BoxFit.contain,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 18,
-                                  right: 62,
-                                  bottom: 15,
+                          child: SizedBox(
+                            width: 250,
+                            height: 80,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  isDark
+                                      ? 'assets/buttons/main_hero_button2.svg'
+                                      : 'assets/buttons/main_hero_button1.svg',
+                                  width: 250,
+                                  height: 80,
+                                  fit: BoxFit.contain,
                                 ),
-                                child: SizedBox(
-                                  width: 155,
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      "${AppStrings.t(AppStrings.add)} $selectedIntake ml",
-                                      maxLines: 1,
-                                      softWrap: false,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: _heroButtonFontSize(),
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.3,
+                                Positioned.fill(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 48,
+                                      right: 70,
+                                      bottom: 16,
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: AutoSizeText(
+                                        "${AppStrings.t(AppStrings.add)} $selectedIntake ml",
+                                        maxLines: 1,
+                                        minFontSize: 13,
+                                        stepGranularity: 0.5,
+                                        textAlign: TextAlign.center,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: _heroButtonFontSize(),
+                                          fontWeight: FontWeight.bold,
+                                          letterSpacing: 0.2,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
