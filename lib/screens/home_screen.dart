@@ -1022,16 +1022,26 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(
-                                  right: 35,
+                                  left: 18,
+                                  right: 62,
                                   bottom: 15,
                                 ),
-                                child: Text(
-                                  "${AppStrings.t(AppStrings.add)} $selectedIntake ml",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: _heroButtonFontSize(),
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
+                                child: SizedBox(
+                                  width: 155,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "${AppStrings.t(AppStrings.add)} $selectedIntake ml",
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: _heroButtonFontSize(),
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.3,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
