@@ -255,6 +255,9 @@ class AppStrings {
           '• StayHydro is provided "as is" without warranties of any kind.\n\n'
           '• The developers are not responsible for any loss, damage or health issues resulting from the use of the app.\n\n'
           '• Features may change or improve in future updates.',
+      'rateStayHydro': 'Rate StayHydro',
+      'rateStayHydroSubtitle': 'Enjoying StayHydro? Leave a rating and review',
+      'unableToOpenPlayStore': 'Unable to open Play Store',
     },
 
     // ===========
@@ -463,6 +466,10 @@ class AppStrings {
       'termsConditionsSubtitle': 'Información importante de uso',
       'sleepHoursUpdated':
           'Horas de sueño actualizadas y recordatorios reprogramados',
+      'rateStayHydro': 'Calificar StayHydro',
+      'rateStayHydroSubtitle':
+          '¿Disfrutas StayHydro? Deja una valoración y una reseña',
+      'unableToOpenPlayStore': 'No se pudo abrir Play Store',
     },
 
     // ===========
@@ -658,6 +665,10 @@ class AppStrings {
       'termsConditions': 'الشروط والأحكام',
       'termsConditionsSubtitle': 'معلومات مهمة حول الاستخدام',
       'sleepHoursUpdated': 'تم تحديث ساعات النوم وإعادة جدولة التذكيرات',
+      'rateStayHydro': 'قيّم StayHydro',
+      'rateStayHydroSubtitle':
+          'هل تستمتع باستخدام StayHydro؟ اترك تقييماً ومراجعة',
+      'unableToOpenPlayStore': 'تعذر فتح متجر Play',
     },
 
     // ===========
@@ -861,6 +872,10 @@ class AppStrings {
       'termsConditionsSubtitle': 'उपयोग से जुड़ी महत्वपूर्ण जानकारी',
       'sleepHoursUpdated':
           'नींद का समय अपडेट हो गया और रिमाइंडर फिर से शेड्यूल हो गए',
+      'rateStayHydro': 'StayHydro को रेट करें',
+      'rateStayHydroSubtitle':
+          'क्या आपको StayHydro पसंद आ रहा है? एक रेटिंग और समीक्षा दें',
+      'unableToOpenPlayStore': 'Play Store नहीं खोला जा सका',
     },
 
     // =============
@@ -1066,6 +1081,10 @@ class AppStrings {
       'termsConditionsSubtitle': 'Informasi penggunaan penting',
       'sleepHoursUpdated':
           'Jam tidur diperbarui dan pengingat dijadwalkan ulang',
+      'rateStayHydro': 'Beri Nilai StayHydro',
+      'rateStayHydroSubtitle':
+          'Menikmati StayHydro? Berikan penilaian dan ulasan',
+      'unableToOpenPlayStore': 'Tidak dapat membuka Play Store',
     },
   };
 
@@ -1277,6 +1296,10 @@ class AppStrings {
   static const String copyStayHydroEmail = 'copyStayHydroEmail';
   static const String copySlnovaEmail = 'copySlnovaEmail';
   static const String emailCopied = 'emailCopied';
+
+  static const String rateStayHydro = 'rateStayHydro';
+  static const String rateStayHydroSubtitle = 'rateStayHydroSubtitle';
+  static const String unableToOpenPlayStore = 'unableToOpenPlayStore';
 
   // ==========================================
 // [FIRST LAUNCH GUIDE]

@@ -4,6 +4,7 @@ import '../services/notification_service.dart';
 import 'package:stay_hydro/services/sound_service.dart'; // یہاں اپنے پراجیکٹ کا صحیح پاتھ دیں
 import 'package:stay_hydro/core/app_strings.dart';
 import 'package:flutter/services.dart';
+import 'package:android_intent_plus/android_intent.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool isDark;
@@ -204,6 +205,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+// ==========================================
+// [RATE STAYHYDRO HELPER METHOD]
+// اردو کمنٹ:
+// ایپ ریویو Review اور ریٹنگ rating کرنے کے لیے ہیلپر
+// ==========================================
+  Future<void> _openPlayStoreListing() async {
+    try {
+      final intent = AndroidIntent(
+        action: 'action_view',
+        data: 'market://details?id=com.slnova.stayhydro',
+      );
+
+      await intent.launch();
+    } catch (e) {
+      if (!mounted) return;
+
+      _showSettingsSnackBar(
+        AppStrings.t(AppStrings.unableToOpenPlayStore),
+      );
+    }
   }
 
 // ==========================================
@@ -1692,6 +1715,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         icon: Icons.help_outline_rounded,
                         showDivider: true,
                         onTap: _showHelpFeedbackDialog,
+                      ),
+                      _buildSettingTile(
+                        isDark: isDark,
+                        title: AppStrings.t(AppStrings.rateStayHydro),
+                        subtitle:
+                            AppStrings.t(AppStrings.rateStayHydroSubtitle),
+                        icon: Icons.star_rate_rounded,
+                        showDivider: true,
+                        onTap:
+                            _openPlayStoreListing, // Play Store page open ہوگا
                       ),
                       _buildSettingTile(
                         isDark: isDark,
