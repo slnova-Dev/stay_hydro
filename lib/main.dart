@@ -14,6 +14,7 @@ import 'package:stay_hydro/services/sound_service.dart';
 import 'screens/main_navigation_screen.dart';
 import 'services/notification_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:android_intent_plus/android_intent.dart';
 
 // ==========================================
 // سیکشن 1: مین فنکشن اور ایپ کا آغاز
@@ -68,6 +69,10 @@ class _StayHydroAppState extends State<StayHydroApp> {
   static const String _firstLaunchGuideKey =
       'first_launch_reliability_guide_seen';
 
+  static const String _installDateKey = 'install_date';
+
+  static const String _reviewPromptShownKey = 'review_prompt_shown';
+
   @override
   void initState() {
     super.initState();
@@ -89,6 +94,7 @@ class _StayHydroAppState extends State<StayHydroApp> {
     });
 
     await _showFirstLaunchGuideIfNeeded();
+    await _saveInstallDateIfNeeded();
   }
 
   Future<void> _toggleTheme(bool value) async {
@@ -162,6 +168,77 @@ class _StayHydroAppState extends State<StayHydroApp> {
 
       await prefs.setBool(_firstLaunchGuideKey, true);
     });
+  }
+
+//========================================
+// RATE STAYHYDRO PROMPT MESSAGE METHOD
+//ایپ ریویو اور ریٹنگ پرامپٹ میسج کا میتھڈ
+//========================================
+  Future<void> _saveInstallDateIfNeeded() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!prefs.containsKey(_installDateKey)) {
+      await prefs.setString(
+        _installDateKey,
+        DateTime.now().toIso8601String(),
+      );
+    }
+  }
+
+//========================================
+// OPEN PLAY STORE LISTING
+//========================================
+  Future<void> _openPlayStoreListing() async {
+    try {
+      final intent = AndroidIntent(
+        action: 'action_view',
+        data: 'market://details?id=com.slnova.stayhydro',
+      );
+
+      await intent.launch();
+    } catch (_) {
+      // اگر Play Store نہ کھلے تو خاموشی سے ignore
+    }
+  }
+
+//==================================
+// APP RATING & REVIEW DIALOG METHOD
+//==================================
+  Future<void> _showReviewDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!mounted) return;
+
+    showDialog(
+      context: _navigatorKey.currentContext!,
+      builder: (context) => AlertDialog(
+        title: const Text('Enjoying StayHydro?'),
+        content: const Text(
+          'Your review helps us improve and reach more people.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Maybe Later'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              await _openPlayStoreListing();
+
+              await prefs.setBool(
+                _reviewPromptShownKey,
+                true,
+              );
+            },
+            child: const Text('Rate Now'),
+          ),
+        ],
+      ),
+    );
   }
 
 // ==========================================

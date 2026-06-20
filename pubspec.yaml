@@ -28,6 +28,7 @@ dependencies:
   auto_size_text: ^3.0.0
   
   
+  
 
 dependency_overrides:
   flutter_timezone: ^2.0.0

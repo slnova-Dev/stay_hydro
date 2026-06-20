@@ -13,6 +13,7 @@ import '../services/streak_service.dart';
 import 'package:stay_hydro/services/history_service.dart';
 import 'package:stay_hydro/core/app_strings.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:android_intent_plus/android_intent.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isDarkTheme;
@@ -42,6 +43,12 @@ class _HomeScreenState extends State<HomeScreen>
   static const String _dailyGoalKey = 'daily_goal';
   static const String _reminderSystemKey = 'reminder_system_mode';
   static const String _customReminderTimesKey = 'custom_reminder_times';
+  static const String _installDateKey = 'review_install_date';
+
+  static const String _reviewPromptShownKey = 'review_prompt_shown';
+  static const String _reviewPromptLastDismissedKey =
+      'review_prompt_last_dismissed';
+
   int selectedIntake = 200;
   int streakDays = 0;
   bool _reminderScheduled = false;
@@ -165,6 +172,121 @@ class _HomeScreenState extends State<HomeScreen>
     return cool.isNotEmpty
         ? cool[random.nextInt(cool.length)]
         : _mascotAssets[0];
+  }
+
+//=====================================
+//App Rating & Review Check Review Prompt Method
+// ایپ کے ریویو اور ریٹنگ میسج کی شرائط کا میتھڈ
+//=====================================
+  Future<void> _checkReviewPrompt() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final alreadyShown = prefs.getBool(_reviewPromptShownKey) ?? false;
+
+    if (alreadyShown) return;
+
+    final lastDismissed = prefs.getString(_reviewPromptLastDismissedKey);
+
+    if (lastDismissed != null) {
+      final dismissedDate = DateTime.parse(lastDismissed);
+
+      final daysSinceDismiss = DateTime.now().difference(dismissedDate).inDays;
+
+      // TEST VALUE = 1 DAY
+      if (daysSinceDismiss < 1) return;
+    }
+
+    if (lastDismissed != null) {
+      final dismissedDate = DateTime.parse(lastDismissed);
+
+      final daysSinceDismiss = DateTime.now().difference(dismissedDate).inDays;
+
+      if (daysSinceDismiss < 7) return;
+    }
+
+    final installDateString = prefs.getString(_installDateKey);
+
+    if (installDateString == null) return;
+
+    final installDate = DateTime.parse(installDateString);
+
+    final daysSinceInstall = DateTime.now().difference(installDate).inDays;
+
+    // TEST VALUE
+    if (daysSinceInstall < 1) return;
+
+    final totalEntries = await HistoryService.getTotalEntries();
+
+    if (totalEntries < 5) return;
+
+    final activeDays = await HistoryService.getActiveDays();
+
+    if (activeDays < 1) return;
+
+    final progress = currentIntake / dailyGoal;
+
+    if (progress < 0.5) return;
+
+    if (!mounted) return;
+
+    await _showReviewDialog();
+  }
+
+//=====================================
+//App Rating & Review SHOW DIALOG
+// ایپ کے ریویو اور ریٹنگ  میسج  دکھانے کا ڈائیلاگ
+//=====================================
+  Future<void> _showReviewDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          AppStrings.t(AppStrings.reviewDialogTitle),
+        ),
+        content: Text(
+          AppStrings.t(AppStrings.reviewDialogMessage),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await prefs.setString(
+                _reviewPromptLastDismissedKey,
+                DateTime.now().toIso8601String(),
+              );
+
+              Navigator.pop(context);
+            },
+            child: Text(
+              AppStrings.t(AppStrings.reviewDialogMaybeLater),
+            ),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              final intent = AndroidIntent(
+                action: 'action_view',
+                data: 'market://details?id=com.slnova.stayhydro',
+              );
+
+              await intent.launch();
+
+              await prefs.setBool(
+                _reviewPromptShownKey,
+                true,
+              );
+            },
+            child: Text(
+              AppStrings.t(AppStrings.reviewDialogRateNow),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
 // ==========================================
@@ -528,6 +650,13 @@ class _HomeScreenState extends State<HomeScreen>
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('currentIntake', currentIntake);
 
+      await prefs.setInt(
+        'currentIntake',
+        currentIntake,
+      );
+
+      await _checkReviewPrompt();
+
       if (prev < dailyGoal && currentIntake >= dailyGoal) {
         await StreakService.markGoalCompleted();
         await _loadStreak();
@@ -594,7 +723,13 @@ class _HomeScreenState extends State<HomeScreen>
 
       await SoundService.playButtonFeedbackSound();
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('currentIntake', currentIntake);
+
+      await prefs.setInt(
+        'currentIntake',
+        currentIntake,
+      );
+
+      await _checkReviewPrompt();
 
       if (prev < dailyGoal && currentIntake >= dailyGoal) {
         await StreakService.markGoalCompleted();
@@ -1028,8 +1163,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 Positioned.fill(
                                   child: Padding(
                                     padding: const EdgeInsets.only(
-                                      left: 48,
-                                      right: 70,
+                                      left: 52,
+                                      right: 85,
                                       bottom: 16,
                                     ),
                                     child: Align(
@@ -1037,7 +1172,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       child: AutoSizeText(
                                         "${AppStrings.t(AppStrings.add)} $selectedIntake ml",
                                         maxLines: 1,
-                                        minFontSize: 13,
+                                        minFontSize: 11,
                                         stepGranularity: 0.5,
                                         textAlign: TextAlign.center,
                                         overflow: TextOverflow.ellipsis,

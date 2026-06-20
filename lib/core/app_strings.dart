@@ -258,6 +258,11 @@ class AppStrings {
       'rateStayHydro': 'Rate StayHydro',
       'rateStayHydroSubtitle': 'Enjoying StayHydro? Leave a rating and review',
       'unableToOpenPlayStore': 'Unable to open Play Store',
+      'reviewDialogTitle': 'Enjoying StayHydro?',
+      'reviewDialogMessage':
+          'Your feedback helps us improve StayHydro and reach more people.',
+      'reviewDialogMaybeLater': 'Not Now',
+      'reviewDialogRateNow': 'Leave a Review',
     },
 
     // ===========
@@ -470,6 +475,11 @@ class AppStrings {
       'rateStayHydroSubtitle':
           '¿Disfrutas StayHydro? Deja una valoración y una reseña',
       'unableToOpenPlayStore': 'No se pudo abrir Play Store',
+      'reviewDialogTitle': '¿Te está gustando StayHydro?',
+      'reviewDialogMessage':
+          'Tus comentarios nos ayudan a mejorar StayHydro y llegar a más personas.',
+      'reviewDialogMaybeLater': 'Ahora no',
+      'reviewDialogRateNow': 'Dejar una reseña',
     },
 
     // ===========
@@ -669,6 +679,11 @@ class AppStrings {
       'rateStayHydroSubtitle':
           'هل تستمتع باستخدام StayHydro؟ اترك تقييماً ومراجعة',
       'unableToOpenPlayStore': 'تعذر فتح متجر Play',
+      'reviewDialogTitle': 'هل تستمتع باستخدام StayHydro؟',
+      'reviewDialogMessage':
+          'تساعدنا ملاحظاتك على تحسين StayHydro والوصول إلى المزيد من المستخدمين.',
+      'reviewDialogMaybeLater': 'ليس الآن',
+      'reviewDialogRateNow': 'اترك مراجعة',
     },
 
     // ===========
@@ -876,6 +891,11 @@ class AppStrings {
       'rateStayHydroSubtitle':
           'क्या आपको StayHydro पसंद आ रहा है? एक रेटिंग और समीक्षा दें',
       'unableToOpenPlayStore': 'Play Store नहीं खोला जा सका',
+      'reviewDialogTitle': 'क्या आपको StayHydro पसंद आ रहा है?',
+      'reviewDialogMessage':
+          'आपकी प्रतिक्रिया हमें StayHydro को बेहतर बनाने और अधिक लोगों तक पहुँचाने में मदद करती है।',
+      'reviewDialogMaybeLater': 'अभी नहीं',
+      'reviewDialogRateNow': 'समीक्षा दें',
     },
 
     // =============
@@ -1085,6 +1105,11 @@ class AppStrings {
       'rateStayHydroSubtitle':
           'Menikmati StayHydro? Berikan penilaian dan ulasan',
       'unableToOpenPlayStore': 'Tidak dapat membuka Play Store',
+      'reviewDialogTitle': 'Menikmati StayHydro?',
+      'reviewDialogMessage':
+          'Masukan Anda membantu kami meningkatkan StayHydro dan menjangkau lebih banyak pengguna.',
+      'reviewDialogMaybeLater': 'Tidak Sekarang',
+      'reviewDialogRateNow': 'Beri Ulasan',
     },
   };
 
@@ -1300,6 +1325,14 @@ class AppStrings {
   static const String rateStayHydro = 'rateStayHydro';
   static const String rateStayHydroSubtitle = 'rateStayHydroSubtitle';
   static const String unableToOpenPlayStore = 'unableToOpenPlayStore';
+
+  static const String reviewDialogTitle = 'reviewDialogTitle';
+
+  static const String reviewDialogMessage = 'reviewDialogMessage';
+
+  static const String reviewDialogMaybeLater = 'reviewDialogMaybeLater';
+
+  static const String reviewDialogRateNow = 'reviewDialogRateNow';
 
   // ==========================================
 // [FIRST LAUNCH GUIDE]

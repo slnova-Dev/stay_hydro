@@ -156,4 +156,41 @@ class HistoryService {
       'completionRate': ((goalReachedDays / 7) * 100).round(),
     };
   }
+
+// ------------------------------------------
+// 6. [GETTER: TOTAL WATER ENTRIES]
+// ریویو پرامپٹ کیلئے
+// ------------------------------------------
+  static Future<int> getTotalEntries() async {
+    Map<String, dynamic> allHistory = await _getAllRawHistory();
+
+    int totalEntries = 0;
+
+    for (final dayData in allHistory.values) {
+      final logs = dayData['logs'] as List?;
+      totalEntries += logs?.length ?? 0;
+    }
+
+    return totalEntries;
+  }
+
+// ------------------------------------------
+// 7. [GETTER: ACTIVE DAYS]
+// ریویو پرامپٹ کیلئے
+// ------------------------------------------
+  static Future<int> getActiveDays() async {
+    Map<String, dynamic> allHistory = await _getAllRawHistory();
+
+    int activeDays = 0;
+
+    for (final dayData in allHistory.values) {
+      final total = dayData['total'] ?? 0;
+
+      if (total > 0) {
+        activeDays++;
+      }
+    }
+
+    return activeDays;
+  }
 }
