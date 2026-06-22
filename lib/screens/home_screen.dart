@@ -175,17 +175,40 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
 //=====================================
+//Install Date Save Helper Method
+// ریویو پرامپٹ کے لیے ایپ انسٹال ڈیٹ محفوظ کرنے کا ہیلپر میتھڈ
+//=====================================
+  Future<void> _initializeReviewPrompt() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!prefs.containsKey(_installDateKey)) {
+      await prefs.setString(
+        _installDateKey,
+        DateTime.now().toIso8601String(),
+      );
+
+      print('INSTALL DATE SAVED');
+    }
+  }
+
+//=====================================
 //App Rating & Review Check Review Prompt Method
 // ایپ کے ریویو اور ریٹنگ میسج کی شرائط کا میتھڈ
 //=====================================
   Future<void> _checkReviewPrompt() async {
+    print('REVIEW CHECK STARTED');
+
     final prefs = await SharedPreferences.getInstance();
 
     final alreadyShown = prefs.getBool(_reviewPromptShownKey) ?? false;
 
+    print('alreadyShown: $alreadyShown');
+
     if (alreadyShown) return;
 
     final lastDismissed = prefs.getString(_reviewPromptLastDismissedKey);
+
+    print('lastDismissed: $lastDismissed');
 
     if (lastDismissed != null) {
       final dismissedDate = DateTime.parse(lastDismissed);
@@ -196,15 +219,9 @@ class _HomeScreenState extends State<HomeScreen>
       if (daysSinceDismiss < 1) return;
     }
 
-    if (lastDismissed != null) {
-      final dismissedDate = DateTime.parse(lastDismissed);
-
-      final daysSinceDismiss = DateTime.now().difference(dismissedDate).inDays;
-
-      if (daysSinceDismiss < 7) return;
-    }
-
     final installDateString = prefs.getString(_installDateKey);
+
+    print('installDateString: $installDateString');
 
     if (installDateString == null) return;
 
@@ -213,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen>
     final daysSinceInstall = DateTime.now().difference(installDate).inDays;
 
     // TEST VALUE
-    if (daysSinceInstall < 1) return;
+    if (daysSinceInstall < 0) return;
 
     final totalEntries = await HistoryService.getTotalEntries();
 
@@ -225,10 +242,18 @@ class _HomeScreenState extends State<HomeScreen>
 
     final progress = currentIntake / dailyGoal;
 
+    print('daysSinceInstall: $daysSinceInstall');
+    print('totalEntries: $totalEntries');
+    print('activeDays: $activeDays');
+    print('progress: $progress');
+    print('alreadyShown: $alreadyShown');
+    print('lastDismissed: $lastDismissed');
+
     if (progress < 0.5) return;
 
     if (!mounted) return;
 
+    print('SHOWING REVIEW DIALOG');
     await _showReviewDialog();
   }
 
@@ -253,10 +278,14 @@ class _HomeScreenState extends State<HomeScreen>
         actions: [
           TextButton(
             onPressed: () async {
+              print('NOT NOW PRESSED');
+
               await prefs.setString(
                 _reviewPromptLastDismissedKey,
                 DateTime.now().toIso8601String(),
               );
+
+              print('DISMISS DATE SAVED');
 
               Navigator.pop(context);
             },
@@ -266,6 +295,8 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           FilledButton(
             onPressed: () async {
+              print('RATE NOW PRESSED');
+
               Navigator.pop(context);
 
               final intent = AndroidIntent(
@@ -273,12 +304,20 @@ class _HomeScreenState extends State<HomeScreen>
                 data: 'market://details?id=com.slnova.stayhydro',
               );
 
-              await intent.launch();
+              try {
+                await intent.launch();
 
-              await prefs.setBool(
-                _reviewPromptShownKey,
-                true,
-              );
+                await prefs.setBool(
+                  _reviewPromptShownKey,
+                  true,
+                );
+
+                print('REVIEW PROMPT MARKED AS SHOWN');
+              } catch (e) {
+                print('PLAY STORE OPEN FAILED: $e');
+              }
+
+              print('REVIEW PROMPT MARKED AS SHOWN');
             },
             child: Text(
               AppStrings.t(AppStrings.reviewDialogRateNow),
@@ -355,6 +394,7 @@ class _HomeScreenState extends State<HomeScreen>
     _loadSleepHours();
     _startupSequence();
     _startReminderRefreshTimer();
+    _initializeReviewPrompt();
   }
 
   @override
@@ -608,6 +648,8 @@ class _HomeScreenState extends State<HomeScreen>
 // تاکہ accidental rapid taps یا غیر حقیقی daily values سے بچا جا سکے
 // ==========================================
   Future<void> addWater() async {
+    print('ADD WATER PRESSED');
+
     if (_isAddingWater) return;
     _isAddingWater = true;
 
@@ -671,6 +713,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _addMissedEntry() async {
+    print('MISSED ENTRY PRESSED');
+
     final result = await showGeneralDialog<Map<String, dynamic>>(
       context: context,
       barrierDismissible: true,

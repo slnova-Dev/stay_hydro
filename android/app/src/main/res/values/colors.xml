@@ -1,4 +1,4 @@
 <resources>
-    <color name="splash_light_bg">#262B4E</color>
-    <color name="splash_dark_bg">#262B4E</color>
+    <color name="splash_light_bg">#2E3561</color>
+    <color name="splash_dark_bg">#1D2240</color>
 </resources>
