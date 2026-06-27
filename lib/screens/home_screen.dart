@@ -216,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen>
       final daysSinceDismiss = DateTime.now().difference(dismissedDate).inDays;
 
       // TEST VALUE = 1 DAY
-      if (daysSinceDismiss < 1) return;
+      if (daysSinceDismiss < 7) return;
     }
 
     final installDateString = prefs.getString(_installDateKey);
@@ -230,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen>
     final daysSinceInstall = DateTime.now().difference(installDate).inDays;
 
     // TEST VALUE
-    if (daysSinceInstall < 0) return;
+    if (daysSinceInstall < 10) return;
 
     final totalEntries = await HistoryService.getTotalEntries();
 
@@ -238,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen>
 
     final activeDays = await HistoryService.getActiveDays();
 
-    if (activeDays < 1) return;
+    if (activeDays < 3) return;
 
     final progress = currentIntake / dailyGoal;
 

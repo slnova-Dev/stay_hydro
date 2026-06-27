@@ -5,6 +5,7 @@ import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stay_hydro/core/app_strings.dart';
 import 'package:stay_hydro/services/notification_service.dart';
+import 'screens/splash_screen.dart';
 
 // ❌ REMOVE: background service imports
 // import 'package:flutter_background_service/flutter_background_service.dart';
@@ -93,7 +94,6 @@ class _StayHydroAppState extends State<StayHydroApp> {
       _isLoaded = true;
     });
 
-    await _showFirstLaunchGuideIfNeeded();
     await _saveInstallDateIfNeeded();
   }
 
@@ -140,34 +140,6 @@ class _StayHydroAppState extends State<StayHydroApp> {
     });
 
     await NotificationService.restoreActiveReminderSystem();
-  }
-
-  Future<void> _showFirstLaunchGuideIfNeeded() async {
-    final prefs = await SharedPreferences.getInstance();
-    final seen = prefs.getBool(_firstLaunchGuideKey) ?? false;
-
-    if (seen || !mounted) return;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final dialogContext = _navigatorKey.currentContext;
-      if (dialogContext == null || !mounted) return;
-
-      await showDialog(
-        context: dialogContext,
-        builder: (context) => AlertDialog(
-          title: Text(AppStrings.t(AppStrings.firstLaunchWelcomeTitle)),
-          content: Text(AppStrings.t(AppStrings.firstLaunchReliabilityMessage)),
-          actions: [
-            FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(AppStrings.t(AppStrings.getStarted)),
-            ),
-          ],
-        ),
-      );
-
-      await prefs.setBool(_firstLaunchGuideKey, true);
-    });
   }
 
 //========================================
@@ -314,10 +286,10 @@ class _StayHydroAppState extends State<StayHydroApp> {
       home: Directionality(
         textDirection:
             AppStrings.isArabic ? TextDirection.rtl : TextDirection.ltr,
-        child: MainNavigationScreen(
+        child: SplashScreen(
           isDarkTheme: _isDarkTheme,
-          isFastingMode: _isFastingMode,
           onThemeToggle: _toggleTheme,
+          isFastingMode: _isFastingMode,
           onFastingToggle: _toggleFasting,
           onLanguageChanged: _updateLanguage,
         ),
