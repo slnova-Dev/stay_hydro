@@ -153,8 +153,13 @@ class AppStrings {
           'We welcome bug reports, feature suggestions and general feedback.',
       'aboutStayHydroInfoMessage':
           'StayHydro helps you build a healthy hydration routine with smart reminders, custom schedules and special reminders.\n\n'
-              'Version: 1.0.0\n'
-              'Developer: Slnova',
+              'More than a reminder.\n'
+              'A hydration companion.\n\n'
+              'Version: {version}\n'
+              'Developer: Slnova\n\n'
+              'Stay consistent.\n'
+              'Stay healthy.\n'
+              'Stay hydrated.',
       'medicineReminder': 'Medicine Reminder',
       'wellnessReminder': 'Wellness Reminder',
       'bedtimeWater': 'Bedtime Water',
@@ -169,7 +174,7 @@ class AppStrings {
       'testNotificationSubtitle': 'Check if reminders are working',
       'testNotificationSent': 'Test notification sent!',
       'helpFeedbackSubtitle': 'Report a problem or suggest a feature',
-      'aboutStayHydroSubtitle': 'Version 1.0.0 • Slnova',
+      'aboutStayHydroSubtitle': 'Version {version} • Slnova',
       'selectNotificationSound': 'Select Notification Sound',
       'selectReminderMode': 'Select Reminder Mode',
       'digitalBell': 'Digital Chime',
@@ -384,9 +389,14 @@ class AppStrings {
               'hello.slnova@gmail.com\n\n'
               'Agradecemos reportes de errores, sugerencias y comentarios generales.',
       'aboutStayHydroInfoMessage':
-          'StayHydro te ayuda a crear una rutina saludable de hidratación con recordatorios inteligentes, horarios personalizados y recordatorios especiales.\n\n'
-              'Versión: 1.0.0\n'
-              'Desarrollador: Slnova',
+          'StayHydro te ayuda a crear una rutina de hidratación saludable con recordatorios inteligentes, horarios personalizados y recordatorios especiales.\n\n'
+              'Más que un recordatorio.\n'
+              'Un compañero de hidratación.\n\n'
+              'Versión: {version}\n'
+              'Desarrollador: Slnova\n\n'
+              'Mantente constante.\n'
+              'Mantente saludable.\n'
+              'Mantente hidratado.',
       'medicineReminder': 'Recordatorio de medicina',
       'wellnessReminder': 'Recordatorio de bienestar',
       'bedtimeWater': 'Agua antes de dormir',
@@ -402,7 +412,7 @@ class AppStrings {
       'testNotificationSubtitle': 'Comprueba si los recordatorios funcionan',
       'testNotificationSent': '¡Notificación de prueba enviada!',
       'helpFeedbackSubtitle': 'Reporta un problema o sugiere una función',
-      'aboutStayHydroSubtitle': 'Versión 1.0.0 • Slnova',
+      'aboutStayHydroSubtitle': 'Versión {version} • Slnova',
       'selectNotificationSound': 'Seleccionar sonido',
       'selectReminderMode': 'Seleccionar modo de recordatorio',
       'digitalBell': 'Campana digital',
@@ -595,9 +605,14 @@ class AppStrings {
               'hello.slnova@gmail.com\n\n'
               'نرحب بتقارير الأخطاء والاقتراحات والملاحظات العامة.',
       'aboutStayHydroInfoMessage':
-          'يساعدك StayHydro على بناء روتين صحي لشرب الماء باستخدام تذكيرات ذكية وجداول مخصصة وتذكيرات خاصة.\n\n'
-              'الإصدار: 1.0.0\n'
-              'المطور: Slnova',
+          'يساعدك StayHydro على بناء روتين صحي لشرب الماء من خلال التذكيرات الذكية والجداول المخصصة والتذكيرات الخاصة.\n\n'
+              'أكثر من مجرد تذكير.\n'
+              'رفيقك اليومي للترطيب.\n\n'
+              'الإصدار: {version}\n'
+              'المطور: Slnova\n\n'
+              'حافظ على الاستمرارية.\n'
+              'حافظ على صحتك.\n'
+              'حافظ على ترطيب جسمك.',
       'medicineReminder': 'تذكير الدواء',
       'wellnessReminder': 'تذكير العافية',
       'bedtimeWater': 'ماء قبل النوم',
@@ -612,7 +627,7 @@ class AppStrings {
       'testNotificationSubtitle': 'تحقق من عمل التذكيرات',
       'testNotificationSent': 'تم إرسال الإشعار التجريبي!',
       'helpFeedbackSubtitle': 'أبلغ عن مشكلة أو اقترح ميزة',
-      'aboutStayHydroSubtitle': 'الإصدار 1.0.0 • Slnova',
+      'aboutStayHydroSubtitle': 'الإصدار {version} • Slnova',
       'selectNotificationSound': 'اختيار صوت الإشعار',
       'selectReminderMode': 'اختيار وضع التذكير',
       'digitalBell': 'جرس رقمي',
@@ -804,9 +819,14 @@ class AppStrings {
           'hello.slnova@gmail.com\n\n'
           'हम bug reports, feature suggestions और general feedback का स्वागत करते हैं.',
       'aboutStayHydroInfoMessage':
-          'StayHydro smart reminders, custom schedules और special reminders के साथ healthy hydration routine बनाने में मदद करता है।\n\n'
-              'Version: 1.0.0\n'
-              'Developer: Slnova',
+          'StayHydro स्मार्ट रिमाइंडर, कस्टम शेड्यूल और विशेष रिमाइंडर के साथ आपको स्वस्थ जल सेवन की नियमित आदत बनाने में मदद करता है।\n\n'
+              'सिर्फ एक रिमाइंडर नहीं।\n'
+              'आपका हाइड्रेशन साथी।\n\n'
+              'संस्करण: {version}\n'
+              'डेवलपर: Slnova\n\n'
+              'नियमित रहें।\n'
+              'स्वस्थ रहें।\n'
+              'हाइड्रेटेड रहें।',
       'medicineReminder': 'दवा रिमाइंडर',
       'wellnessReminder': 'वेलनेस रिमाइंडर',
       'bedtimeWater': 'सोने से पहले पानी',
@@ -821,7 +841,7 @@ class AppStrings {
       'testNotificationSubtitle': 'जाँचें कि रिमाइंडर काम कर रहे हैं',
       'testNotificationSent': 'टेस्ट नोटिफिकेशन भेजा गया!',
       'helpFeedbackSubtitle': 'समस्या बताएँ या फीचर सुझाएँ',
-      'aboutStayHydroSubtitle': 'वर्ज़न 1.0.0 • Slnova',
+      'aboutStayHydroSubtitle': 'वर्ज़न {version} • Slnova',
       'selectNotificationSound': 'नोटिफिकेशन साउंड चुनें',
       'selectReminderMode': 'रिमाइंडर मोड चुनें',
       'digitalBell': 'डिजिटल घंटी',
@@ -1014,9 +1034,14 @@ class AppStrings {
           'hello.slnova@gmail.com\n\n'
           'Kami menerima laporan bug, saran fitur, dan masukan umum.',
       'aboutStayHydroInfoMessage':
-          'StayHydro membantu Anda membangun rutinitas hidrasi sehat dengan pengingat pintar, jadwal khusus, dan pengingat khusus.\n\n'
-              'Versi: 1.0.0\n'
-              'Pengembang: Slnova',
+          'StayHydro membantu Anda membangun kebiasaan hidrasi yang sehat dengan pengingat pintar, jadwal khusus, dan pengingat khusus.\n\n'
+              'Lebih dari sekadar pengingat.\n'
+              'Teman hidrasi Anda.\n\n'
+              'Versi: {version}\n'
+              'Pengembang: Slnova\n\n'
+              'Tetap konsisten.\n'
+              'Tetap sehat.\n'
+              'Tetap terhidrasi.',
       'medicineReminder': 'Pengingat obat',
       'wellnessReminder': 'Pengingat kesehatan',
       'bedtimeWater': 'Air sebelum tidur',
@@ -1031,7 +1056,7 @@ class AppStrings {
       'testNotificationSubtitle': 'Periksa apakah pengingat berfungsi',
       'testNotificationSent': 'Notifikasi uji coba terkirim!',
       'helpFeedbackSubtitle': 'Laporkan masalah atau sarankan fitur',
-      'aboutStayHydroSubtitle': 'Versi 1.0.0 • Slnova',
+      'aboutStayHydroSubtitle': 'Versi {version} • Slnova',
       'selectNotificationSound': 'Pilih suara notifikasi',
       'selectReminderMode': 'Pilih mode pengingat',
       'digitalBell': 'Bel digital',
@@ -1317,7 +1342,7 @@ class AppStrings {
   static const String termsConditionsInfoMessage = 'termsConditionsInfoMessage';
 
   static const String aboutStayHydro = 'aboutStayHydro';
-  static const String aboutStayHydroSubtitle = 'Version 1.0.0 • Slnova';
+  static const String aboutStayHydroSubtitle = 'aboutStayHydroSubtitle';
   static const String copyStayHydroEmail = 'copyStayHydroEmail';
   static const String copySlnovaEmail = 'copySlnovaEmail';
   static const String emailCopied = 'emailCopied';
@@ -1404,14 +1429,7 @@ class AppStrings {
       'hello.slnova@gmail.com\n\n'
       'We welcome bug reports, feature suggestions and general feedback.';
 
-  static const String aboutStayHydroInfoMessage =
-      'StayHydro helps you build a healthy hydration routine with smart reminders, custom schedules and special reminders.\n\n'
-      'More than a reminder. A hydration companion.\n\n'
-      'Version: 1.0.0\n'
-      'Developer: Slnova\n\n'
-      'Stay consistent.\n'
-      'Stay healthy.\n'
-      'Stay hydrated.';
+  static const String aboutStayHydroInfoMessage = 'aboutStayHydroInfoMessage';
 
   static const String fullTranslationsBeforeRelease =
       'More languages may be added in future updates.';

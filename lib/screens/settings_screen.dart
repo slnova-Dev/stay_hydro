@@ -5,6 +5,7 @@ import 'package:stay_hydro/services/sound_service.dart'; // یہاں اپنے پ
 import 'package:stay_hydro/core/app_strings.dart';
 import 'package:flutter/services.dart';
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
   final bool isDark;
@@ -64,6 +65,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _selectedSoundName = 'Water Flow';
   int _dailyGoal = 2000; // یوزر کا روزانہ کا ہدف (ڈیفالٹ: 2000ml)
 
+// App Version and Build Number Variables ایپ ورژن اور بیلڈ نمبر متغیرز
+  String _appVersion = '';
+  String _buildNumber = '';
+
 // ڈیلی گول key شامل کی
   static const String _dailyGoalKey = 'daily_goal';
 
@@ -105,6 +110,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadLanguage(); // زبان تبدیلی کیے لیے
     _loadReminderSystem(); // ریمائنڈر سسٹم کے لیے
     _loadCustomReminderTimes(); // کسٹم ریمائنڈرز کے لیے
+    _loadAppVersion(); // ایپ ورژن اور بلڈ نمبر لوڈ کرنے کے لیے
   }
 
 //================================
@@ -112,6 +118,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // Open Support Email Helper
 //================================
   // عارضی طور پر ہٹا دیا، ریلیز کے بعد دوبارہ لگایا جائے گا
+
+// ==========================================
+// SECTION LOCK: APP VERSION LOADER
+// خودکار طور پر pubspec.yaml سے
+// version اور build number حاصل کرتا ہے
+// ==========================================
+
+  Future<void> _loadAppVersion() async {
+    final info = await PackageInfo.fromPlatform();
+
+    if (!mounted) return;
+
+    setState(() {
+      _appVersion = info.version;
+      _buildNumber = info.buildNumber;
+    });
+  }
 
 // ==========================================
 // [HELP & FEEDBACK DIALOG]
@@ -1759,13 +1782,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _buildSettingTile(
                         isDark: isDark,
                         title: AppStrings.t('aboutStayHydro'),
-                        subtitle: AppStrings.t('aboutStayHydroSubtitle'),
+                        subtitle:
+                            AppStrings.t(AppStrings.aboutStayHydroSubtitle)
+                                .replaceAll('{version}', _appVersion),
                         icon: Icons.info_outline_rounded,
                         showDivider: false,
                         onTap: () {
                           _showReliabilityInfo(
                             title: AppStrings.t('aboutStayHydro'),
-                            message: AppStrings.t('aboutStayHydroInfoMessage'),
+                            message: AppStrings.t(
+                                    AppStrings.aboutStayHydroInfoMessage)
+                                .replaceAll('{version}',
+                                    '$_appVersion ($_buildNumber)'),
                           );
                         },
                       ),
