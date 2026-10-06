@@ -103,14 +103,14 @@ class _StayHydroAppState extends State<StayHydroApp> {
   }
 
   Future<void> _toggleTheme(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isDarkTheme', value);
-
-    if (!mounted) return;
-
+    // ✅ UI کو فوری اپڈیٹ کریں تاکہ سوئچ کا رسپانس زیرو تاخیر (Instant) ہو جائے
     setState(() {
       _isDarkTheme = value;
     });
+
+    // بیک گراؤنڈ میں ڈیٹا سیو کریں
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkTheme', value);
   }
 
   Future<void> _toggleFasting(bool value) async {

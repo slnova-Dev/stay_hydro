@@ -38,7 +38,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = widget.isDarkTheme;
+    // ✅ Make isDark reactive to MaterialApp's ambient theme
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color activeColor = Colors.blue.shade400;
 
     return Scaffold(
@@ -196,10 +197,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   // اردو کمنٹ: انڈیکس کی بنیاد پر متعلقہ سکرین لوڈ کرنے کا ہیلپر فنکشن
   Widget _buildCurrentScreen() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     switch (_selectedIndex) {
       case 0:
         return HomeScreen(
-          isDarkTheme: widget.isDarkTheme,
+          isDarkTheme: isDark,
           onThemeToggle: widget.onThemeToggle,
           isFastingMode: widget.isFastingMode,
           onFastingToggle: widget.onFastingToggle,
@@ -208,7 +211,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         return HistoryScreen(refreshNotifier: _historyRefreshNotifier);
       case 2:
         return SettingsScreen(
-          isDark: widget.isDarkTheme,
+          isDark: isDark,
           onThemeToggle: widget.onThemeToggle,
           isFastingMode: widget.isFastingMode,
           onFastingToggle: widget.onFastingToggle,

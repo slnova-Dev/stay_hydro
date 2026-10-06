@@ -113,6 +113,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _loadAppVersion(); // ایپ ورژن اور بلڈ نمبر لوڈ کرنے کے لیے
   }
 
+  @override
+  void didUpdateWidget(covariant SettingsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isDark != widget.isDark) {
+      setState(() {
+        _darkTheme = widget.isDark;
+      });
+    }
+  }
+
 //================================
 // FOR HELP & FEEDBACK SECTION
 // Open Support Email Helper
@@ -1101,7 +1111,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = widget.isDark;
+    // ✅ Replaced 'final isDark = widget.isDark;' with reactive theme detection
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    _darkTheme = isDark;
 
     return Directionality(
       textDirection:

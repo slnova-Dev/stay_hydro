@@ -602,6 +602,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildRisingText(int amount) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return TweenAnimationBuilder<double>(
       duration: const Duration(seconds: 2),
       tween: Tween(begin: 0.0, end: 1.0),
@@ -615,10 +617,8 @@ class _HomeScreenState extends State<HomeScreen>
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
-                color: widget.isDarkTheme
-                    ? Colors.cyanAccent
-                    : Colors.blue.shade900,
-                shadows: widget.isDarkTheme
+                color: isDark ? Colors.cyanAccent : Colors.blue.shade900,
+                shadows: isDark
                     ? [
                         Shadow(
                           color: Colors.cyanAccent.withOpacity(0.5),
@@ -825,7 +825,7 @@ class _HomeScreenState extends State<HomeScreen>
   // SECTION LOCK: UI CUSTOM WIDGETS (CARDS)
   // ==========================================
   Widget _buildStyledCard({required Widget child}) {
-    final isDark = widget.isDarkTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -878,7 +878,7 @@ class _HomeScreenState extends State<HomeScreen>
   void _showHomeSnackBar(String message) {
     if (!mounted) return;
 
-    final bool isDark = widget.isDarkTheme;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -907,7 +907,8 @@ class _HomeScreenState extends State<HomeScreen>
   // ==========================================
   @override
   Widget build(BuildContext context) {
-    final bool isDark = widget.isDarkTheme;
+    // ✅ Reactive theme check
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     if (_lastTipLanguage != AppStrings.activeLanguage) {
       _setRandomDailyTip();
     }
