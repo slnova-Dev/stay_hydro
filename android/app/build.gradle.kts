@@ -39,6 +39,12 @@ android {
         versionName = flutter.versionName
     }
 
+    packaging {
+    jniLibs {
+        useLegacyPackaging = false
+    }
+}
+
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
