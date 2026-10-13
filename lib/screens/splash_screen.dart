@@ -142,7 +142,9 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               const SizedBox(height: 18),
               SvgPicture.asset(
-                "assets/images/stayhydro_wordmark.svg",
+                widget.isDarkTheme
+                    ? "assets/images/stayhydro_wordmark_dark.svg"
+                    : "assets/images/stayhydro_wordmark.svg",
                 width: 190,
               ),
               const SizedBox(height: 8),
@@ -150,7 +152,12 @@ class _SplashScreenState extends State<SplashScreen> {
                 "Your Hydration Companion",
                 style: TextStyle(
                   fontSize: 15,
-                  color: Color(0xFF6B7280),
+
+                  // Light/Dark theme کے مطابق ٹیگ لائن کا رنگ
+                  color: widget.isDarkTheme
+                      ? const Color(0xFFAEB9C8) // Dark: Silver Grey
+                      : const Color(0xFF6B7280), // Light: موجودہ رنگ
+
                   letterSpacing: .3,
                 ),
               ),
