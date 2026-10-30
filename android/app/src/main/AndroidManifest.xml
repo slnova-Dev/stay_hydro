@@ -76,6 +76,11 @@
             android:name="flutterEmbedding"
             android:value="2" />
 
+        <!-- AdMob App ID (StayHydro / Slnova). Required by Google Mobile Ads. -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3461639948565250~7754560377"/>
+
     </application>
 
     <queries>

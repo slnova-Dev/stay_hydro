@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stay_hydro/ads/ad_service.dart';
 import 'package:stay_hydro/core/app_strings.dart';
 import 'package:stay_hydro/services/notification_service.dart';
 import 'screens/splash_screen.dart';
@@ -31,6 +32,11 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Phase 1 AdMob: start SDK init without awaiting so splash / notifications
+  // are not blocked. Errors are swallowed inside AdService.
+  // ignore: unawaited_futures
+  AdService.ensureInitialized();
 
   // App start/update/reinstall کے بعد enabled special reminders restore کریں
   // ==========================================

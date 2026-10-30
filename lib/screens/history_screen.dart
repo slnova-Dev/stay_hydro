@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:stay_hydro/services/history_service.dart'; // مکمل پاتھ
 import 'package:stay_hydro/core/app_strings.dart';
+import 'package:stay_hydro/widgets/history_banner_ad.dart';
 
 // ==========================================
 // SECTION LOCK: DATA REFRESH LOGIC (DO NOT MODIFY)
@@ -117,6 +118,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final Color cardColor =
         isDark ? Colors.white.withOpacity(0.05) : Colors.white.withOpacity(0.4);
 
+    // Floating bottom nav in MainNavigationScreen: ~70 height + 20 padding.
+    // Keep scroll/content clear of nav; banner sits just above that clearance.
+    const double floatingNavClearance = 100;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -154,205 +159,225 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         // ==========================================
 
-        child: Stack(
-          alignment: Alignment.center,
+        child: Column(
           children: [
-            Positioned(
-              bottom: 150,
-              child: Opacity(
-                opacity: 0.1,
-                child: Icon(
-                  Icons.history_toggle_off_rounded,
-                  size: 280,
-                  color: isDark ? Colors.white : Colors.blue.shade900,
-                ),
-              ),
-            ),
-
-            // 🔥 اب FutureBuilder کی جگہ براہِ راست UI لوڈ ہوگا
-            if (_isLoading && _chartData.isEmpty)
-              const Center(child: CircularProgressIndicator())
-            else
-              SingleChildScrollView(
-                key: _refreshKey,
-                padding: const EdgeInsets.only(
-                    top: 120, left: 20, right: 20, bottom: 20),
-                child: Column(
-                  children: [
-                    // 1. Weekly Progress Chart
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(24),
-                        border:
-                            Border.all(color: Colors.white.withOpacity(0.2)),
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Positioned(
+                    bottom: 150,
+                    child: Opacity(
+                      opacity: 0.1,
+                      child: Icon(
+                        Icons.history_toggle_off_rounded,
+                        size: 280,
+                        color: isDark ? Colors.white : Colors.blue.shade900,
                       ),
+                    ),
+                  ),
+
+                  // 🔥 اب FutureBuilder کی جگہ براہِ راست UI لوڈ ہوگا
+                  if (_isLoading && _chartData.isEmpty)
+                    const Center(child: CircularProgressIndicator())
+                  else
+                    SingleChildScrollView(
+                      key: _refreshKey,
+                      padding: const EdgeInsets.only(
+                          top: 120, left: 20, right: 20, bottom: 20),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            AppStrings.t(AppStrings.weeklyProgress),
-                            style: TextStyle(
-                              color: isDark
-                                  ? Colors.white70
-                                  : Colors.blue.shade900,
-                              fontWeight: FontWeight.bold,
+                          // 1. Weekly Progress Chart
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                  color: Colors.white.withOpacity(0.2)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppStrings.t(AppStrings.weeklyProgress),
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? Colors.white70
+                                        : Colors.blue.shade900,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 30),
+                                SizedBox(
+                                  height: 150,
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: _chartData.map((dayData) {
+                                      return _buildBar(
+                                        _localizedDay(dayData['day']),
+                                        dayData['amount'],
+                                        2000,
+                                        accentColor,
+                                        isDark,
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+
+                          const SizedBox(height: 25),
+
+                          // 2. Stats Cards
+                          Row(
+                            children: [
+                              _buildMiniStat(
+                                AppStrings.t(AppStrings.average),
+                                "${_stats['average'] ?? 0}ml",
+                                Icons.waves_rounded,
+                                cardColor,
+                                isDark,
+                              ),
+                              const SizedBox(width: 10),
+                              _buildMiniStat(
+                                AppStrings.t(AppStrings.done),
+                                "${_stats['completionRate'] ?? 0}%",
+                                Icons.check_circle_outline_rounded,
+                                cardColor,
+                                isDark,
+                              ),
+                              const SizedBox(width: 10),
+                              _buildMiniStat(
+                                AppStrings.t(AppStrings.best),
+                                "${_stats['bestDay'] ?? 0}ml",
+                                Icons.star_rounded,
+                                cardColor,
+                                isDark,
+                              ),
+                            ],
+                          ),
+
                           const SizedBox(height: 30),
-                          SizedBox(
-                            height: 150,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: _chartData.map((dayData) {
-                                return _buildBar(
-                                  _localizedDay(dayData['day']),
-                                  dayData['amount'],
-                                  2000,
-                                  accentColor,
-                                  isDark,
-                                );
-                              }).toList(),
+
+                          // 3. DAILY LOG LIST
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8, bottom: 12),
+                              child: Text(
+                                AppStrings.t(AppStrings.todaysLogs),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                  color: isDark
+                                      ? Colors.white54
+                                      : Colors.blue.shade900.withOpacity(0.8),
+                                ),
+                              ),
                             ),
                           ),
+
+                          Container(
+                            decoration: BoxDecoration(
+                              color: cardColor,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                  color: Colors.white.withOpacity(0.2)),
+                            ),
+                            child: _todayLogs.isEmpty
+                                ? Padding(
+                                    padding: const EdgeInsets.all(30),
+                                    child: Center(
+                                      child: Text(
+                                        AppStrings.t(
+                                            AppStrings.noEntriesToday),
+                                        style: TextStyle(
+                                            color: isDark
+                                                ? Colors.white30
+                                                : Colors.blue.shade400),
+                                      ),
+                                    ),
+                                  )
+                                : ListView.separated(
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: _todayLogs.length,
+                                    separatorBuilder: (context, index) =>
+                                        Divider(
+                                      color: isDark
+                                          ? Colors.white10
+                                          : Colors.blue.withOpacity(0.1),
+                                      height: 1,
+                                      indent: 70,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      final log = _todayLogs[index];
+                                      return ListTile(
+                                        visualDensity: const VisualDensity(
+                                            vertical: -2),
+                                        leading: Container(
+                                          padding: const EdgeInsets.all(10),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.blue.withOpacity(0.1),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(Icons.water_drop,
+                                              color: accentColor, size: 20),
+                                        ),
+                                        title: Text(
+                                          "${log.amount} ml",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.blue.shade900,
+                                          ),
+                                        ),
+                                        subtitle: Text(
+                                          _localizedLogType(log.type),
+                                          style: TextStyle(
+                                              color: isDark
+                                                  ? Colors.white54
+                                                  : Colors.black87,
+                                              fontSize: 12),
+                                        ),
+                                        trailing: Text(
+                                          log.time,
+                                          style: TextStyle(
+                                              color: isDark
+                                                  ? Colors.white30
+                                                  : Colors.blue.shade600,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
+                          // Extra space so last list items clear the banner
+                          // area when an ad is showing (banner is outside scroll).
+                          const SizedBox(height: 24),
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 25),
-
-                    // 2. Stats Cards
-                    Row(
-                      children: [
-                        _buildMiniStat(
-                          AppStrings.t(AppStrings.average),
-                          "${_stats['average'] ?? 0}ml",
-                          Icons.waves_rounded,
-                          cardColor,
-                          isDark,
-                        ),
-                        const SizedBox(width: 10),
-                        _buildMiniStat(
-                          AppStrings.t(AppStrings.done),
-                          "${_stats['completionRate'] ?? 0}%",
-                          Icons.check_circle_outline_rounded,
-                          cardColor,
-                          isDark,
-                        ),
-                        const SizedBox(width: 10),
-                        _buildMiniStat(
-                          AppStrings.t(AppStrings.best),
-                          "${_stats['bestDay'] ?? 0}ml",
-                          Icons.star_rounded,
-                          cardColor,
-                          isDark,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // 3. DAILY LOG LIST
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8, bottom: 12),
-                        child: Text(
-                          AppStrings.t(AppStrings.todaysLogs),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                            color: isDark
-                                ? Colors.white54
-                                : Colors.blue.shade900.withOpacity(0.8),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    Container(
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(24),
-                        border:
-                            Border.all(color: Colors.white.withOpacity(0.2)),
-                      ),
-                      child: _todayLogs.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.all(30),
-                              child: Center(
-                                child: Text(
-                                  AppStrings.t(AppStrings.noEntriesToday),
-                                  style: TextStyle(
-                                      color: isDark
-                                          ? Colors.white30
-                                          : Colors.blue.shade400),
-                                ),
-                              ),
-                            )
-                          : ListView.separated(
-                              padding: EdgeInsets.zero,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _todayLogs.length,
-                              separatorBuilder: (context, index) => Divider(
-                                color: isDark
-                                    ? Colors.white10
-                                    : Colors.blue.withOpacity(0.1),
-                                height: 1,
-                                indent: 70,
-                              ),
-                              itemBuilder: (context, index) {
-                                final log = _todayLogs[index];
-                                return ListTile(
-                                  visualDensity:
-                                      const VisualDensity(vertical: -2),
-                                  leading: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blue.withOpacity(0.1),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(Icons.water_drop,
-                                        color: accentColor, size: 20),
-                                  ),
-                                  title: Text(
-                                    "${log.amount} ml",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark
-                                          ? Colors.white
-                                          : Colors.blue.shade900,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    _localizedLogType(log.type),
-                                    style: TextStyle(
-                                        color: isDark
-                                            ? Colors.white54
-                                            : Colors.black87,
-                                        fontSize: 12),
-                                  ),
-                                  trailing: Text(
-                                    log.time,
-                                    style: TextStyle(
-                                        color: isDark
-                                            ? Colors.white30
-                                            : Colors.blue.shade600,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                    const SizedBox(height: 100),
-                  ],
-                ),
+                ],
               ),
+            ),
+
+            // Phase 1: test banner only on History, above floating bottom nav.
+            Padding(
+              padding: const EdgeInsets.only(bottom: floatingNavClearance),
+              child: const Center(child: HistoryBannerAd()),
+            ),
           ],
         ),
       ),
