@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -8,6 +9,7 @@ import 'package:stay_hydro/ads/ad_service.dart';
 ///
 /// Shows nothing until an ad loads successfully (no large empty placeholder).
 /// Disposes the [BannerAd] on failure and when the widget is removed.
+/// Implements a bounded, conservative retry policy for transient failures.
 class HistoryBannerAd extends StatefulWidget {
   const HistoryBannerAd({super.key});
 
@@ -23,6 +25,12 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
   Orientation? _lastOrientation;
   double? _lastWidthDp;
 
+  // Bounded retry controls
+  Timer? _retryTimer;
+  int _retryAttempt = 0;
+  static const int _maxRetryAttempts = 2;
+  static const Duration _baseRetryDelay = Duration(seconds: 30);
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -34,8 +42,14 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
         widthDp != _lastWidthDp) {
       _lastOrientation = orientation;
       _lastWidthDp = widthDp;
+      _cancelRetry();
       _loadBanner();
     }
+  }
+
+  void _cancelRetry() {
+    _retryTimer?.cancel();
+    _retryTimer = null;
   }
 
   Future<void> _loadBanner() async {
@@ -43,7 +57,23 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
     _isLoading = true;
     final loadGeneration = ++_loadGeneration;
 
-    await AdService.ensureInitialized();
+    try {
+      await AdService.ensureInitialized();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('HistoryBannerAd: AdService init failed: $e');
+      }
+      if (!mounted || loadGeneration != _loadGeneration) {
+        _isLoading = false;
+        return;
+      }
+      setState(() {
+        _isLoading = false;
+      });
+      _scheduleRetry();
+      return;
+    }
+
     if (!mounted || loadGeneration != _loadGeneration) {
       _isLoading = false;
       return;
@@ -91,7 +121,9 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
             _bannerAd = ad as BannerAd;
             _isLoaded = true;
             _isLoading = false;
+            _retryAttempt = 0; // Reset retry count upon success
           });
+          _cancelRetry();
           if (kDebugMode) {
             debugPrint(
               'HistoryBannerAd: loaded (${AdConfig.historyBannerAdUnitId})',
@@ -111,7 +143,14 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
             _isLoading = false;
           });
           if (kDebugMode) {
-            debugPrint('HistoryBannerAd: failed to load: $error');
+            debugPrint(
+              'HistoryBannerAd: failed to load (code: ${error.code}, domain: ${error.domain}): ${error.message}',
+            );
+          }
+
+          // Do not retry permanent configuration errors (code 1 = invalid request)
+          if (error.code != 1) {
+            _scheduleRetry();
           }
         },
       ),
@@ -128,6 +167,7 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
           _isLoaded = false;
           _isLoading = false;
         });
+        _scheduleRetry();
       } else {
         _isLoading = false;
       }
@@ -137,9 +177,36 @@ class _HistoryBannerAdState extends State<HistoryBannerAd> {
     }
   }
 
+  void _scheduleRetry() {
+    _cancelRetry();
+    if (_retryAttempt >= _maxRetryAttempts || !mounted) {
+      if (kDebugMode) {
+        debugPrint(
+          'HistoryBannerAd: reached max retry limit ($_maxRetryAttempts). Stopping.',
+        );
+      }
+      return;
+    }
+
+    _retryAttempt++;
+    // First retry: 30s, Second retry: 60s
+    final delay = _baseRetryDelay * _retryAttempt;
+    if (kDebugMode) {
+      debugPrint(
+        'HistoryBannerAd: scheduling retry #$_retryAttempt in ${delay.inSeconds}s',
+      );
+    }
+
+    _retryTimer = Timer(delay, () {
+      if (!mounted) return;
+      _loadBanner();
+    });
+  }
+
   @override
   void dispose() {
     _loadGeneration++;
+    _cancelRetry();
     _bannerAd?.dispose();
     _bannerAd = null;
     super.dispose();
